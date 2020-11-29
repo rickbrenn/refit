@@ -52,14 +52,30 @@ function loadConfig(configArg) {
 
 async function run() {
 	// parse argument options
-	const { _, config: configArg, filter } = parseArgs(process.argv.slice(2));
+	const {
+		_,
+		config: configArg,
+		filter,
+
+		// clean
+		c,
+		clean,
+
+		// skip install
+		s,
+		'skip-install': skipInstall,
+
+		// upgrade to latest
+		l,
+		latest,
+	} = parseArgs(process.argv.slice(2));
 
 	// load the app config object
 	const config = loadConfig(configArg);
 
 	switch (_[0]) {
 		case 'list':
-			list(config);
+			list(config, { filter });
 			break;
 
 		case 'outdated':
@@ -67,7 +83,11 @@ async function run() {
 			break;
 
 		case 'update':
-			update(config);
+			update(config, {
+				clean: clean || c,
+				skipInstall: skipInstall || s,
+				latest: latest || l,
+			});
 			break;
 
 		default:
