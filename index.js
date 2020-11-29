@@ -12,6 +12,17 @@ update - run update wizard
 
 --config - specify .refitrc file location
 
+--filter=<outdated|wanted> - filter the list of packages
+
+--clean | -c - remove the package-lock.json and node_modules when
+updating
+
+--skip-install | -s - skip the 'npm i' command and only update
+the package.json file
+
+--latest | -l - upgrade packages to latest instead of the
+default wanted only
+
 */
 
 function loadConfig(configArg) {
@@ -91,7 +102,7 @@ async function run() {
 			break;
 
 		default:
-			list(config);
+			list(config, { filter });
 			break;
 	}
 }
