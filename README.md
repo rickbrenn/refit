@@ -1,3 +1,11 @@
+## Quick Start
+
+1. `npm i`
+2. `npm link`
+3. `refit`
+
+## Notes
+
 -   What problem am I trying to solve?
 
 It takes a long time to lookup release notes for breaking changes or
@@ -27,16 +35,16 @@ release notes for the versions since the version that's currently installed.
     - getting people to install a desktop app may be hard
     - best potential for a ui to manage node modules + notifications on node module updates
 
-TODO:
+## TODO
 
 -   [x] list currently installed packages and their versions (check if installed differs from package json based on ^ or whatever).
 -   [x] get the available versions of a package on the npm registry
 -	[x] add dependency type column
 -	[x] add update to wanted and update to latest values
 -	[ ] color update to values
-- 	[ ] color columns
--	[ ] make list, update commands and flags
--	[ ] add a clean install option that removes package-lock file and node_modules folder
+- 	[x] color columns
+-	[x] make list, update commands and flags
+-	[x] add a clean install option that removes package-lock file and node_modules folder
 -	[x] make config file
 -	[ ] make interactive updater
 -	[ ] make http request throttle function
@@ -62,6 +70,7 @@ name ideas:
 - refitly
 - drippy
 
+### Interactive Plan
 
 - list packages: user selects a package
 - list options to: update or remove

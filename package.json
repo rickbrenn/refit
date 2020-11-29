@@ -2,12 +2,15 @@
   "name": "refit",
   "version": "1.0.0",
   "description": "A CLI tool for easily managing node module updates.",
-  "main": "index.js",
+  "main": "./lib",
   "scripts": {
-    "start": "node index.js"
+    "start": "node ./bin/cli.js"
   },
   "author": "",
   "license": "ISC",
+  "bin": {
+    "refit": "./bin/cli.js"
+  },
   "dependencies": {
     "await-exec": "^0.1.2",
     "chalk": "4.0.0",
