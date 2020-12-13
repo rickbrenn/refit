@@ -18,6 +18,8 @@
     "inquirer": "^7.3.3",
     "minimist": "^1.2.5",
     "node-fetch": "^2.6.1",
+    "p-map": "^4.0.0",
+    "pacote": "^11.1.13",
     "semver": "^7.3.2"
   },
   "devDependencies": {
