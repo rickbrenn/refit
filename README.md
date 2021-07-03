@@ -37,22 +37,6 @@ release notes for the versions since the version that's currently installed.
 
 ## TODO
 
--   [x] list currently installed packages and their versions (check if installed differs from package json based on ^ or whatever).
--   [x] get the available versions of a package on the npm registry
--	[x] add dependency type column
--	[x] add update to wanted and update to latest values
--	[ ] color update to values
-- 	[x] color columns
--	[x] make list, update commands and flags
--	[x] add a clean install option that removes package-lock file and node_modules folder
--	[x] make config file
--	[ ] make interactive updater
--	[ ] make http request throttle function
--   [ ] fetch release notes for all version between current and latest
--   [ ] create a command that lists packages with the wanted, latest, release link, (to be installed version column for the below feature)
--   [ ] make packages in the list command selectable which shows release notes and allows you to select version you want to upgrade to
--   [ ] make function to install packages selected
-
 extension:
 
 -   [ ] display button/icon/text on package.json
