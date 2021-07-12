@@ -20,6 +20,7 @@
     "node-fetch": "^2.6.1",
     "p-map": "^4.0.0",
     "pacote": "^11.1.13",
+    "read-package-tree": "^5.3.1",
     "semver": "^7.3.2"
   },
   "devDependencies": {
