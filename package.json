@@ -1,32 +1,37 @@
 {
-  "name": "refit",
-  "version": "1.0.0",
-  "description": "A CLI tool for easily managing node module updates.",
-  "main": "./lib",
-  "scripts": {
-    "start": "node ./bin/cli.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "bin": {
-    "refit": "./bin/cli.js"
-  },
-  "dependencies": {
-    "await-exec": "^0.1.2",
-    "chalk": "4.0.0",
-    "clui": "^0.3.6",
-    "inquirer": "^7.3.3",
-    "minimist": "^1.2.5",
-    "node-fetch": "^2.6.1",
-    "p-map": "^4.0.0",
-    "pacote": "^11.1.13",
-    "read-package-tree": "^5.3.1",
-    "semver": "^7.3.2"
-  },
-  "devDependencies": {
-    "eslint": "^7.14.0",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "2.2.0"
-  }
+	"name": "refit",
+	"version": "1.0.0",
+	"description": "A CLI tool for easily managing node module updates.",
+	"exports": "./lib",
+	"type": "module",
+	"engines": {
+		"node": "^14.13.1 || >=16.0.0"
+	},
+	"scripts": {
+		"start": "node ./bin/cli.js"
+	},
+	"author": "",
+	"license": "ISC",
+	"bin": {
+		"refit": "./bin/cli.js"
+	},
+	"dependencies": {
+		"await-exec": "^0.1.2",
+		"chalk": "4.0.0",
+		"clui": "^0.3.6",
+		"inquirer": "^7.3.3",
+		"minimist": "^1.2.5",
+		"node-fetch": "^2.6.1",
+		"ora": "^6.0.1",
+		"p-map": "^4.0.0",
+		"pacote": "^11.1.13",
+		"read-package-tree": "^5.3.1",
+		"semver": "^7.3.2"
+	},
+	"devDependencies": {
+		"eslint": "^7.14.0",
+		"eslint-config-prettier": "^6.15.0",
+		"eslint-plugin-prettier": "^3.1.4",
+		"prettier": "2.2.0"
+	}
 }

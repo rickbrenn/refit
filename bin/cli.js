@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-const runRefit = require('../lib');
+import runRefit from '../lib/index.js';
 
 runRefit();
