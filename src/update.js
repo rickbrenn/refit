@@ -1,14 +1,13 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from 'fs';
+import path from 'path';
 import clui from 'clui';
 import chalk from 'chalk';
 import exec from 'await-exec';
-import inquirer from 'inquirer';
 import getPackages from './common/getPackages.js';
 
-const interactiveUpdate = async (config, args) => {
+const update = async (config, args) => {
 	// TODO: move spinner to common file
-	const loading = new clui.Spinner('Looking up packages..', [
+	const loading = new clui.Spinner('Updating packages..', [
 		'⣾',
 		'⣽',
 		'⣻',
@@ -24,7 +23,8 @@ const interactiveUpdate = async (config, args) => {
 
 		// get list of packages
 		const packages = await getPackages(config, {
-			filter: 'outdated',
+			filter: args.latest ? 'outdated' : 'wanted',
+			packages: args.packages,
 		});
 
 		// if there's no packages to upgrade, print message and exit
@@ -32,77 +32,27 @@ const interactiveUpdate = async (config, args) => {
 			loading.stop();
 			new clui.Line().fill().output();
 
-			const message = 'All packages are up to date!';
+			const message = args.latest
+				? 'All packages are up to date!'
+				: 'All packages meet target version. Run with --latest or -l to check for the latest versions.';
 			console.log(chalk.green(message));
 
 			new clui.Line().fill().output();
 			return true;
 		}
 
-		loading.stop();
-
-		const packageChoices = packages.map((pkg) => {
-			return {
-				name: pkg.name,
-				value: pkg.name,
-			};
-		});
-
-		const answers = await inquirer.prompt([
-			{
-				type: 'checkbox',
-				name: 'packages',
-				message: 'Select the packages to update:',
-				pageSize: 20,
-				loop: false,
-				choices: packageChoices,
-			},
-			{
-				type: 'list',
-				name: 'version',
-				message: 'Update to:',
-				choices: [
-					{ name: 'Wanted', value: 'wanted' },
-					{ name: 'Latest', value: 'latest' },
-				],
-			},
-			{
-				type: 'list',
-				name: 'action',
-				message: 'Choose what action to take:',
-				choices: [
-					{ name: 'Update', value: 'update' },
-					{
-						name: 'Update and install',
-						value: 'install',
-					},
-					{
-						name: 'Update and clean install',
-						value: 'clean',
-					},
-				],
-			},
-		]);
-
-		loading.message('updating packages...');
-		loading.start();
-
 		// TODO: determine path in index?
 		const packageJsonData = fs.readFileSync(
 			path.resolve(config.packageJsonPath)
 		);
 
-		// determine which version to upgrade to based on answers
-		const upgradeKey = answers.version;
-
-		const packagesToUpdate = packages.filter((pkg) =>
-			answers.packages.includes(pkg.name)
-		);
+		// determine which version to upgrade to based on args
+		const upgradeKey = args.latest ? 'latest' : 'wanted';
 
 		// TODO: re-write this
 		// update package.json data
 		config.packageTypes.forEach((type) => {
-			const filteredPackages = packagesToUpdate.filter(
+			const filteredPackages = packages.filter(
 				(pkg) => pkg.type === type
 			);
 
@@ -118,7 +68,7 @@ const interactiveUpdate = async (config, args) => {
 		);
 
 		// scrub-a-dub-dub
-		if (answers.action === 'clean') {
+		if (args.clean) {
 			// remove the node_modules directory
 			fs.rmdirSync(path.resolve('node_modules'), {
 				recursive: true,
@@ -129,7 +79,7 @@ const interactiveUpdate = async (config, args) => {
 		}
 
 		// install node modules
-		if (answers.action !== 'update') {
+		if (!args.skipInstall) {
 			await exec('npm i');
 		}
 
@@ -146,7 +96,7 @@ const interactiveUpdate = async (config, args) => {
 			.fill()
 			.output();
 
-		packagesToUpdate.forEach((dep) => {
+		packages.forEach((dep) => {
 			new clui.Line()
 				.padding(2)
 				.column(dep.name, 24)
@@ -163,4 +113,4 @@ const interactiveUpdate = async (config, args) => {
 	}
 };
 
-export default interactiveUpdate;
+export default update;

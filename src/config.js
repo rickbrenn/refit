@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from 'fs';
+import path from 'path';
 import chalk from 'chalk';
 
 const defaultConfig = {
@@ -33,17 +33,15 @@ function loadConfig(configFile, overrides = {}) {
 			console.log(chalk.red('Config not found in specified location.'));
 		}
 
-		const config = {};
 		const userConfig = configExists ? fs.readFileSync(configPath) : {};
 
-		Object.keys(defaultConfig).forEach((key) => {
-			config[key] =
-				overrides[key] || userConfig[key] || defaultConfig[key];
-		});
-
-		return config;
+		return Object.keys(defaultConfig).reduce((acc, cur) => {
+			acc[cur] = overrides[cur] || userConfig[cur] || defaultConfig[cur];
+			return acc;
+		}, {});
 	} catch (err) {
 		console.error(err);
+		return false;
 	}
 }
 

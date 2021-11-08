@@ -1,15 +1,24 @@
 {
 	"env": {
-		"commonjs": true,
 		"es2021": true,
 		"node": true
 	},
-	"extends": ["eslint:recommended", "plugin:prettier/recommended"],
+	"extends": [
+		"plugin:react/recommended",
+		"airbnb",
+		"plugin:prettier/recommended"
+	],
 	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true
+		},
 		"ecmaVersion": 12,
 		"sourceType": "module"
 	},
+	"plugins": ["react"],
 	"rules": {
-		"prettier/prettier": "error"
+		"prettier/prettier": "error",
+		"react/jsx-filename-extension": "off",
+		"import/extensions": "off"
 	}
 }

@@ -2,13 +2,14 @@
 	"name": "refit",
 	"version": "1.0.0",
 	"description": "A CLI tool for easily managing node module updates.",
-	"exports": "./lib",
 	"type": "module",
 	"engines": {
 		"node": "^14.13.1 || >=16.0.0"
 	},
 	"scripts": {
-		"start": "node ./bin/cli.js"
+		"start": "./bin/cli.js",
+		"build": "babel src --out-dir dist",
+		"watch": "babel src --watch --out-dir dist"
 	},
 	"author": "",
 	"license": "ISC",
@@ -19,20 +20,30 @@
 		"await-exec": "^0.1.2",
 		"chalk": "4.0.0",
 		"clui": "^0.3.6",
+		"ink": "^3.2.0",
 		"inquirer": "^7.3.3",
 		"minimist": "^1.2.5",
 		"node-fetch": "^2.6.1",
 		"ora": "^6.0.1",
 		"p-map": "^4.0.0",
 		"pacote": "^11.1.13",
+		"react": "^17.0.2",
 		"read-package-tree": "^5.3.1",
 		"semver": "^7.3.2",
 		"terminal-link": "^3.0.0"
 	},
 	"devDependencies": {
-		"eslint": "^7.14.0",
+		"@babel/cli": "^7.16.0",
+		"@babel/core": "^7.16.0",
+		"@babel/preset-react": "^7.16.0",
+		"eslint": "^7.32.0",
+		"eslint-config-airbnb": "^18.2.1",
 		"eslint-config-prettier": "^6.15.0",
+		"eslint-plugin-import": "^2.25.2",
+		"eslint-plugin-jsx-a11y": "^6.4.1",
 		"eslint-plugin-prettier": "^3.1.4",
+		"eslint-plugin-react": "^7.26.1",
+		"eslint-plugin-react-hooks": "^4.2.0",
 		"prettier": "2.2.0"
 	}
 }

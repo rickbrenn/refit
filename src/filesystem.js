@@ -1,5 +1,5 @@
-import path from 'node:path';
-import fs from 'node:fs';
+import path from 'path';
+import fs from 'fs';
 
 function isDirectory(dirPath) {
 	try {
@@ -14,6 +14,8 @@ function hasPackageJsonFile(packagePath) {
 		if (fs.existsSync(path.resolve(packagePath, 'package.json'))) {
 			return true;
 		}
+
+		return false;
 	} catch (error) {
 		return false;
 	}

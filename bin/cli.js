@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-import runRefit from '../lib/index.js';
+import runRefit from '../dist/index.js';
 
 runRefit();

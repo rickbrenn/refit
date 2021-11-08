@@ -13,6 +13,39 @@ import getPackages from './common/getPackages.js';
 // 	console.log('latest release :>> ', resData[0]);
 // };
 
+// function colorizeDiff(from: string, to: string) {
+// 	let leadingWildcard = ''
+
+// 	// separate out leading ^ or ~
+// 	if (/^[~^]/.test(to) && to[0] === from[0]) {
+// 	  leadingWildcard = to[0]
+// 	  to = to.slice(1)
+// 	  from = from.slice(1)
+// 	}
+
+// 	// split into parts
+// 	const partsToColor = to.split('.')
+// 	const partsToCompare = from.split('.')
+
+// 	let i = partsToColor.findIndex((part, i) => part !== partsToCompare[i])
+// 	i = i >= 0 ? i : partsToColor.length
+
+// 	// major = red (or any change before 1.0.0)
+// 	// minor = cyan
+// 	// patch = green
+// 	const color = i === 0 || partsToColor[0] === '0' ? 'red' :
+// 	  i === 1 ? 'cyan' :
+// 	  'green'
+
+// 	// if we are colorizing only part of the word, add a dot in the middle
+// 	const middot = i > 0 && i < partsToColor.length ? '.' : ''
+
+// 	return leadingWildcard +
+// 		  partsToColor.slice(0, i).join('.') +
+// 		  middot +
+// 		  chalk[color](partsToColor.slice(i).join('.'))
+//   }
+
 const getColorForRow = (pkg) => {
 	const colors = {
 		name: 'white',
@@ -26,20 +59,22 @@ const getColorForRow = (pkg) => {
 		in: 'white',
 	};
 
-	if (pkg.upgradableToWanted) {
+	if (pkg.updateType === 'major') {
 		colors.name = 'red';
 		colors.installed = 'red';
 		colors.wanted = 'red';
-		colors.latest = 'magenta';
-		colors.upgrade = 'blue';
 	}
 
-	if (pkg.upgradable && pkg.version.installed === pkg.version.wanted) {
+	if (pkg.updateType === 'minor') {
 		colors.name = 'yellow';
+		colors.installed = 'yellow';
+		colors.wanted = 'yellow';
+	}
+
+	if (pkg.updateType === 'patch') {
+		colors.name = 'green';
 		colors.installed = 'green';
 		colors.wanted = 'green';
-		colors.latest = 'magenta';
-		colors.upgrade = 'blue';
 	}
 
 	if (pkg.missing || pkg.installNeeded) {
@@ -98,7 +133,7 @@ const mapDataToRows = (packagesData) => {
 		const appsText = manyApps ? `${p.apps.length} Packages` : p.apps[0];
 
 		let name = p.name || '';
-	
+
 		if (terminalLink.isSupported && name && p.url) {
 			name = terminalLink(name, p.url);
 		}
@@ -237,7 +272,7 @@ async function list(config) {
 		return newMaxLengths;
 	}, minColumnLengths);
 
-	const Line = clui.Line;
+	const { Line } = clui;
 
 	new Line().fill().output();
 

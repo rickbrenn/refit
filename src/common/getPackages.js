@@ -1,5 +1,5 @@
-import path from 'node:path';
-import fs from 'node:fs';
+import path from 'path';
+import fs from 'fs';
 import rpt from 'read-package-tree';
 import semver from 'semver';
 import pMap from 'p-map';
@@ -38,7 +38,8 @@ function getPackageJsonAndModules(pathToPackage, filter) {
 						version,
 					})
 				);
-				resolve({
+
+				return resolve({
 					packageJson,
 					installedModules,
 				});
@@ -329,7 +330,6 @@ async function getPackages(
 		concurency: 8,
 	});
 
-	console.log('sort :>> ', sort);
 	// sort alphabetically by name
 	if (sort === 'abc') {
 		dependencies = dependencies.sort((a, b) =>
