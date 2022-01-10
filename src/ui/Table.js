@@ -45,7 +45,7 @@ const Table = ({ data, columns }) => {
 				flexDirection="column"
 				paddingX={2}
 				borderStyle="round"
-				borderColor="green"
+				borderColor="blue"
 			>
 				<Box>
 					{columnsConfig.map((c) => (
