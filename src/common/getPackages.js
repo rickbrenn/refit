@@ -6,21 +6,7 @@ import pMap from 'p-map';
 import pacote from 'pacote';
 import fetch from 'node-fetch';
 import { isDirectory, hasPackageJsonFile } from '../filesystem.js';
-
-function getSemverUpdateType(currentVersion, latestVersion) {
-	const semverTypes = ['patch', 'minor', 'major'];
-
-	return semverTypes.reduce((type, semverType) => {
-		if (
-			semver[semverType](currentVersion) !==
-			semver[semverType](latestVersion)
-		) {
-			return semverType;
-		}
-
-		return type;
-	}, '');
-}
+import getDiffVersionParts from './getDiffVersionParts.js';
 
 function getPackageJsonAndModules(pathToPackage, filter) {
 	return new Promise((resolve, reject) => {
@@ -152,8 +138,15 @@ async function getPackageInfo({
 		const installedIsOff = !semver.satisfies(installedVersion, targetRange);
 		const installNeeded = missing || installedIsOff;
 
-		// update type
-		const updateType = getSemverUpdateType(installedVersion, latestVersion);
+		// get coloring and version parts for the upgrade text
+		const {
+			color,
+			updateType,
+			wildcard,
+			midDot,
+			uncoloredText,
+			coloredText,
+		} = getDiffVersionParts(targetRange, latestRange);
 
 		// get the package link
 		// TODO: npms has a bulk API, maybe run a bunch of these using the bulk API instead
@@ -169,7 +162,6 @@ async function getPackageInfo({
 			type,
 			apps,
 			hoisted,
-			// versions,
 			version: {
 				installed: installedVersion,
 				wanted: wantedVersion,
@@ -185,7 +177,14 @@ async function getPackageInfo({
 			upgradable,
 			upgradableToWanted,
 			upgradableToLatest,
+			color,
 			updateType,
+			upgradeParts: {
+				wildcard,
+				midDot,
+				uncoloredText,
+				coloredText,
+			},
 		};
 	} catch (error) {
 		return {
@@ -193,7 +192,6 @@ async function getPackageInfo({
 			type,
 			apps,
 			hoisted,
-			// versions: [],
 			version: {
 				installed: '',
 				current: '',
@@ -210,7 +208,14 @@ async function getPackageInfo({
 			upgradable: true,
 			upgradableToWanted: true,
 			upgradableToLatest: true,
+			color: '',
 			updateType: '',
+			upgradeParts: {
+				wildcard: '',
+				midDot: '',
+				uncoloredText: '',
+				coloredText: '',
+			},
 		};
 	}
 }
@@ -299,9 +304,8 @@ async function getPackages(
 
 	// get installed hoisted modules at the root of the repo
 	if (hoisted) {
-		const {
-			installedModules: rootModules,
-		} = await getPackageJsonAndModules(rootPath, (node) => !node.parent);
+		const { installedModules: rootModules } =
+			await getPackageJsonAndModules(rootPath, (node) => !node.parent);
 		hoistedModules.push(...rootModules);
 	}
 

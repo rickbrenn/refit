@@ -1,6 +1,8 @@
+import React from 'react';
 import parseArgs from 'minimist';
+import { render } from 'ink';
 
-import list from './list.js';
+import List from './List/List.js';
 import update from './update.js';
 import interactiveUpdate from './interactiveUpdate.js';
 import { loadConfig } from './config.js';
@@ -88,12 +90,20 @@ async function run() {
 
 	switch (command) {
 		case 'list':
-		default:
-			list(appConfig);
+			render(<List config={appConfig} />);
 			break;
 
 		case 'outdated':
-			list({ ...appConfig, filter: 'outdated', sort: 'update' });
+		default:
+			render(
+				<List
+					config={{
+						...appConfig,
+						filter: 'outdated',
+						sort: 'update',
+					}}
+				/>
+			);
 			break;
 
 		case 'update':
