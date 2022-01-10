@@ -27,16 +27,21 @@ const getDiffVersionParts = (current, upgrade) => {
 	diffIndex = diffIndex >= 0 ? diffIndex : upgradeParts.length;
 	const isMajorChange = diffIndex === 0;
 	const isMinorChange = diffIndex === 1;
+	const isPatchChange = diffIndex === 2;
 	const isPreRelease = upgradeParts[0] === '0';
 
 	// set update type for change
-	let updateType = 'patch';
+	let updateType;
 	if (isMajorChange || isPreRelease) {
 		updateType = 'major';
 	}
 
 	if (isMinorChange) {
 		updateType = 'minor';
+	}
+
+	if (isPatchChange) {
+		updateType = 'patch';
 	}
 
 	// create strings for the colored and uncolored parts of the version
