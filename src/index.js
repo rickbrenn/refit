@@ -2,9 +2,9 @@ import React from 'react';
 import parseArgs from 'minimist';
 import { render } from 'ink';
 
-import List from './List/List.js';
-import update from './update.js';
-import interactiveUpdate from './interactiveUpdate.js';
+import List from './commands/list/List.js';
+import update from './commands/update.js';
+import interactiveUpdate from './commands/interactiveUpdate.js';
 import { loadConfig } from './config.js';
 
 /*

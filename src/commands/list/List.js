@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import NameColumn from './NameColumn.js';
 import UpgradeColumn from './UpgradeColumn.js';
-import Loader from '../ui/Loader.js';
-import Table from '../ui/Table.js';
-import getPackages from '../common/getPackages.js';
+import Loader from '../../ui/Loader.js';
+import Table from '../../ui/Table.js';
+import getPackages from '../../common/getPackages.js';
 
 // const fetchReleases = async (url) => {
 // 	const testUrl = 'https://api.github.com/repos/tannerlinsley/react-table/releases';

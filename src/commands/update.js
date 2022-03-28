@@ -3,7 +3,7 @@ import path from 'path';
 import clui from 'clui';
 import chalk from 'chalk';
 import exec from 'await-exec';
-import getPackages from './common/getPackages.js';
+import getPackages from '../common/getPackages.js';
 
 const update = async (config, args) => {
 	// TODO: move spinner to common file

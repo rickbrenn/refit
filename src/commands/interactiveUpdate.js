@@ -4,7 +4,7 @@ import clui from 'clui';
 import chalk from 'chalk';
 import exec from 'await-exec';
 import inquirer from 'inquirer';
-import getPackages from './common/getPackages.js';
+import getPackages from '../common/getPackages.js';
 
 const interactiveUpdate = async (config, args) => {
 	// TODO: move spinner to common file
