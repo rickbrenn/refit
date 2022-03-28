@@ -6,7 +6,8 @@
 	"extends": [
 		"plugin:react/recommended",
 		"airbnb",
-		"plugin:prettier/recommended"
+		"plugin:prettier/recommended",
+		"plugin:node/recommended"
 	],
 	"parserOptions": {
 		"ecmaFeatures": {
@@ -20,6 +21,7 @@
 		"prettier/prettier": "error",
 		"react/jsx-filename-extension": "off",
 		"import/extensions": "off",
+		"node/file-extension-in-import": ["error", "always"],
 		"react-hooks/rules-of-hooks": "error",
 		"react-hooks/exhaustive-deps": "warn"
 	}
