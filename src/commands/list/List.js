@@ -16,13 +16,13 @@ import getPackages from '../../common/getPackages.js';
 // };
 
 const List = ({ config }) => {
-	const [packages, setPackages] = useState(null);
+	const [dependencies, setDependencies] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [loaderState, setLoaderState] = useState({
 		text: 'Loading the truck..',
 	});
 
-	// function called for each package that is processed in getPackages
+	// function called for each dependency that is processed in getPackages
 	const updateProgress = (progressCurrent, progressMax, packageName) => {
 		const percentComplete = (progressCurrent * 100) / progressMax;
 		const fixedPercent = percentComplete.toFixed();
@@ -91,16 +91,16 @@ const List = ({ config }) => {
 		},
 	];
 
-	// map the packages data to table row objects
+	// map the dependencies data to table row objects
 	const mapDataToRows = (pkgs) => {
 		return pkgs.map((p) => {
 			// display version to upgrade to
 			const upgradeVersion = p.upgradable && p.versionRange.latest;
 
-			// if the package is not in node_modules display 'missing'
+			// if the dependency is not in node_modules display 'missing'
 			const installedText = p.missing ? 'MISSING' : p.version?.installed;
 
-			// how to display the list of packages
+			// how to display the list of dependencies
 			const manyApps = p.apps.length > 1;
 			const appsText = manyApps ? `${p.apps.length} Packages` : p.apps[0];
 
@@ -120,15 +120,15 @@ const List = ({ config }) => {
 		});
 	};
 
-	const fetchPackages = useCallback(async () => {
+	const fetchDependencies = useCallback(async () => {
 		try {
-			// get packages data
-			const packagesData = await getPackages(config, updateProgress);
+			// get dependencies data
+			const dependenciesData = await getPackages(config, updateProgress);
 
 			// format the data for the tab rows
-			const formattedData = mapDataToRows(packagesData);
+			const formattedData = mapDataToRows(dependenciesData);
 
-			setPackages(formattedData);
+			setDependencies(formattedData);
 			setLoading(false);
 		} catch (error) {
 			setLoaderState({
@@ -139,8 +139,8 @@ const List = ({ config }) => {
 	}, [config]);
 
 	useEffect(() => {
-		fetchPackages();
-	}, [fetchPackages]);
+		fetchDependencies();
+	}, [fetchDependencies]);
 
 	const columns = useMemo(() => {
 		const baseColumns = getListColumns(config);
@@ -151,7 +151,7 @@ const List = ({ config }) => {
 		return <Loader text={loaderState.text} />;
 	}
 
-	return <Table data={packages} columns={columns} />;
+	return <Table data={dependencies} columns={columns} />;
 };
 
 List.propTypes = {

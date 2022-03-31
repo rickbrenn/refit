@@ -10,9 +10,9 @@ import { loadConfig } from './config.js';
 /*
 --config - specify .refitrc file location
 
-list - list all packages
+list - list all dependencies
 
---filter=<outdated|wanted|all> - filter the list of packages
+--filter=<outdated|wanted|all> - filter the list of dependencies
 
 --dir - location of project
 
@@ -28,7 +28,7 @@ updating
 --skip-install | -s - skip the 'npm i' command and only update
 the package.json file
 
---latest | -l - upgrade packages to latest instead of the
+--latest | -l - upgrade dependencies to latest instead of the
 default wanted only
 */
 
@@ -66,7 +66,7 @@ async function run() {
 		// list all table columns
 		allColumns,
 
-		// only display packages from a specific monorepo package
+		// only display dependencies from a specific monorepo package
 		packageDir,
 		p,
 	} = parseArgs(process.argv.slice(2));
