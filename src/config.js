@@ -15,7 +15,7 @@ const defaultConfig = {
 	interactive: false,
 
 	// monorepo config
-	monorepo: false,
+	monorepo: false, // TODO: not needed?
 	allColumns: false,
 	// TODO: update default value
 	packageDirs: ['./packages', './modules'],

@@ -3,8 +3,6 @@ import parseArgs from 'minimist';
 import { render } from 'ink';
 
 import List from './commands/list/List.js';
-import update from './commands/update.js';
-import interactiveUpdate from './commands/interactiveUpdate.js';
 import { loadConfig } from './config.js';
 
 /*
@@ -104,14 +102,6 @@ async function run() {
 					}}
 				/>
 			);
-			break;
-
-		case 'update':
-			if (appConfig.interactive) {
-				interactiveUpdate(appConfig);
-			} else {
-				update(appConfig);
-			}
 			break;
 	}
 }

@@ -4,7 +4,8 @@ import NameColumn from './NameColumn.js';
 import UpgradeColumn from './UpgradeColumn.js';
 import Loader from '../../ui/Loader.js';
 import Table from '../../ui/Table.js';
-import getPackages from '../../common/getPackages.js';
+import Static from '../../ui/Static.js';
+import getDependencies from '../../common/getDependencies.js';
 
 // const fetchReleases = async (url) => {
 // 	const testUrl = 'https://api.github.com/repos/tannerlinsley/react-table/releases';
@@ -22,7 +23,7 @@ const List = ({ config }) => {
 		text: 'Loading the truck..',
 	});
 
-	// function called for each dependency that is processed in getPackages
+	// function called for each dependency that is processed in getDependencies
 	const updateProgress = (progressCurrent, progressMax, packageName) => {
 		const percentComplete = (progressCurrent * 100) / progressMax;
 		const fixedPercent = percentComplete.toFixed();
@@ -123,7 +124,10 @@ const List = ({ config }) => {
 	const fetchDependencies = useCallback(async () => {
 		try {
 			// get dependencies data
-			const dependenciesData = await getPackages(config, updateProgress);
+			const dependenciesData = await getDependencies(
+				config,
+				updateProgress
+			);
 
 			// format the data for the tab rows
 			const formattedData = mapDataToRows(dependenciesData);
@@ -151,7 +155,11 @@ const List = ({ config }) => {
 		return <Loader text={loaderState.text} />;
 	}
 
-	return <Table data={dependencies} columns={columns} />;
+	return (
+		<Static>
+			<Table data={dependencies} columns={columns} />
+		</Static>
+	);
 };
 
 List.propTypes = {
