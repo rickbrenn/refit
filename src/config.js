@@ -3,24 +3,17 @@ import path from 'path';
 import chalk from 'chalk';
 
 const defaultConfig = {
-	directory: './',
+	rootDir: './',
 	packageJsonPath: 'package.json',
 	packageLockPath: 'package-lock.json',
 	dependencyTypes: ['dependencies', 'devDependencies'],
-	skipInstall: true,
-	filter: 'all',
-	sort: 'abc',
-	clean: false,
-	latest: false,
-	interactive: false,
-
-	// monorepo config
-	monorepo: false, // TODO: not needed?
-	allColumns: false,
-	// TODO: update default value
 	packageDirs: ['./packages', './modules'],
-	hoisted: true,
-	packageDir: '',
+	usePackages: [],
+	sortAlphabetical: false,
+	showAll: false,
+	monorepo: false,
+	verbose: false,
+	hoisted: false,
 };
 
 function loadConfig(configFile, overrides = {}) {

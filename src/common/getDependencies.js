@@ -5,7 +5,7 @@ import semver from 'semver';
 import pMap from 'p-map';
 import pacote from 'pacote';
 import fetch from 'node-fetch';
-import { isDirectory, hasPackageJsonFile } from '../filesystem.js';
+import { isDirectory, hasPackageJsonFile } from './filesystem.js';
 import getDiffVersionParts from './getDiffVersionParts.js';
 
 async function getPackageJsonAndModules(pathToPackage, filter) {
@@ -48,15 +48,17 @@ async function getPackageInfo(directory) {
 	};
 }
 
-async function getPackages(directory, packageDirectories = []) {
+async function getPackages(directory, packageDirectories) {
 	// ensure the package directory is an npm package
 	if (!hasPackageJsonFile(directory)) {
 		throw new Error('directory does not have a package.json file');
 	}
 
+	let packages = [directory];
+
 	// add monorepo packages to the list of package locations
-	const packages = packageDirectories.reduce(
-		(acc, curr) => {
+	if (packageDirectories) {
+		packages = packageDirectories.reduce((acc, curr) => {
 			const packagesPath = path.resolve(directory, curr);
 			// verify provided path is a directory
 			if (isDirectory(packagesPath)) {
@@ -76,11 +78,10 @@ async function getPackages(directory, packageDirectories = []) {
 			}
 
 			return acc;
-		},
-		[directory]
-	);
+		}, packages);
+	}
 
-	return Promise.all(packages.map((pkg) => getPackageInfo(pkg)));
+	return Promise.all(packages.map(getPackageInfo));
 }
 
 async function getHoistedModules(rootDir) {
@@ -335,28 +336,28 @@ async function processDependencies(dependencies, updateProgress, pMapOptions) {
  */
 async function getDependencies(config, onDepenencyProcessed) {
 	const {
-		directory,
-		// monorepo,
+		rootDir,
+		usePackages,
 		packageDirs,
+		monorepo,
 		hoisted,
 		dependencyTypes,
-		filter,
-		sort,
-		packageDir,
+		showAll,
+		sortAlphabetical,
 	} = config;
 
 	// root path of the package
-	const rootPath = path.resolve(directory);
+	const rootPath = path.resolve(rootDir);
 
 	// get the info for the package or all monorepo packages
-	const packages = await getPackages(rootPath, packageDirs);
+	const packages = await getPackages(rootPath, monorepo && packageDirs);
 
 	// get installed hoisted modules at the root of the repo
 	const hoistedModules = hoisted ? await getHoistedModules(rootPath) : [];
 
 	// only use the selected package if the argument is provided
-	const selectedPackages = packageDir
-		? packages.filter((pkg) => pkg.location === path.resolve(packageDir))
+	const selectedPackages = usePackages.length
+		? packages.filter((pkg) => usePackages.includes(pkg.name))
 		: packages;
 
 	// get list of dependencies for each package with basic information
@@ -378,14 +379,12 @@ async function getDependencies(config, onDepenencyProcessed) {
 	);
 
 	// sort alphabetically by name
-	if (sort === 'abc') {
+	if (sortAlphabetical) {
 		dependencies = dependencies.sort((a, b) =>
 			a.name.localeCompare(b.name)
 		);
-	}
-
-	// sort by semver update type
-	if (sort === 'update') {
+	} else {
+		// sort by semver update type
 		dependencies = dependencies.sort((a, b) => {
 			if (b.updateType === a.updateType) {
 				return a.name.localeCompare(b.name);
@@ -417,18 +416,8 @@ async function getDependencies(config, onDepenencyProcessed) {
 	}
 
 	// filter based on filter arg
-	if (filter) {
-		return dependencies.filter((pkg) => {
-			if (filter === 'outdated') {
-				return pkg.upgradable;
-			}
-
-			if (filter === 'wanted') {
-				return pkg.upgradable && !!pkg.upgradableToWanted;
-			}
-
-			return true;
-		});
+	if (!showAll) {
+		return dependencies.filter((pkg) => pkg.upgradable);
 	}
 
 	return dependencies;

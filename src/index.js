@@ -5,103 +5,60 @@ import { render } from 'ink';
 import List from './commands/list/List.js';
 import { loadConfig } from './config.js';
 
-/*
---config - specify .refitrc file location
-
-list - list all dependencies
-
---filter=<outdated|wanted|all> - filter the list of dependencies
-
---dir - location of project
-
---allColumns - shows all columns
-
-update - run update wizard
-
---interactive | -i - interactive updater
-
---clean | -c - remove the package-lock.json and node_modules when
-updating
-
---skip-install | -s - skip the 'npm i' command and only update
-the package.json file
-
---latest | -l - upgrade dependencies to latest instead of the
-default wanted only
-*/
-
 async function run() {
 	// parse argument options
-	// TODO: sync command line args and config file
 	const {
-		_,
-		config,
-		filter,
-		sort,
+		_: [command],
 
-		// directory
-		dir,
+		// show all dependencies including up to date ones
+		a,
+		all,
 
-		// clean
+		// sort dependencies alphabetically
+		A,
+		alpha,
+
+		// .refitrc file path
 		c,
-		clean,
+		config,
 
-		// skip install
-		s,
-		'skip-install': skipInstall,
+		// check for hoisted node modules
+		h,
+		hoisted,
 
-		// upgrade to latest
-		l,
-		latest,
-
-		// interactive update
-		i,
-		interactive,
-
-		// monorepo
+		// specify if the package is a monorepo
 		m,
+		monorepo,
 
-		// list all table columns
-		allColumns,
-
-		// only display dependencies from a specific monorepo package
-		packageDir,
+		// filter by package
 		p,
+		package: usePackages,
+
+		// root directory of the monorepo
+		r,
+		rootDir,
+
+		// show all columns of dependency information
+		v,
+		verbose,
 	} = parseArgs(process.argv.slice(2));
 
 	// load the app config object
-	const appConfig = loadConfig(config, {
-		directory: dir,
-		skipInstall: s || skipInstall,
-		filter,
-		sort,
-		clean: c || clean,
-		latest: l || latest,
-		interactive: i || interactive,
-		monorepo: m,
-		allColumns,
-		packageDir: p || packageDir,
+	const appConfig = loadConfig(c || config, {
+		rootDir: r || rootDir,
+		usePackages: p || usePackages,
+		monorepo: m || monorepo,
+		hoisted: h || hoisted,
+		config: c || config,
+		sortAlphabetical: A || alpha,
+		showAll: a || all,
+		verbose: v || verbose,
 	});
-
-	// first arg is the command
-	const [command] = _;
 
 	switch (command) {
 		case 'list':
-			render(<List config={appConfig} />);
-			break;
-
-		case 'outdated':
 		default:
-			render(
-				<List
-					config={{
-						...appConfig,
-						filter: 'outdated',
-						sort: 'update',
-					}}
-				/>
-			);
+			render(<List config={appConfig} />);
 			break;
 	}
 }

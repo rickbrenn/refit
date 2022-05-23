@@ -34,7 +34,7 @@ const List = ({ config }) => {
 	};
 
 	// get table columns based on the config
-	const getListColumns = ({ allColumns, monorepo }) => [
+	const getListColumns = ({ verbose, monorepo }) => [
 		{
 			name: 'Name',
 			accessor: 'name',
@@ -56,13 +56,13 @@ const List = ({ config }) => {
 		{
 			name: 'Wanted',
 			accessor: 'wanted',
-			show: allColumns,
+			show: verbose,
 			noWrap: true,
 		},
 		{
 			name: 'Latest',
 			accessor: 'latest',
-			show: allColumns,
+			show: verbose,
 			noWrap: true,
 		},
 		{
@@ -75,19 +75,19 @@ const List = ({ config }) => {
 		{
 			name: 'Type',
 			accessor: 'type',
-			show: allColumns,
+			show: verbose,
 			wrap: 'truncate',
 		},
 		{
 			name: 'Hoisted',
 			accessor: 'hoisted',
-			show: allColumns && monorepo,
+			show: verbose && monorepo,
 			wrap: 'truncate',
 		},
 		{
 			name: 'In',
 			accessor: 'in',
-			show: allColumns && monorepo,
+			show: verbose && monorepo,
 			wrap: 'truncate',
 		},
 	];
