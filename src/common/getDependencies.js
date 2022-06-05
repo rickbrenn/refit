@@ -4,7 +4,6 @@ import rpt from 'read-package-tree';
 import semver from 'semver';
 import pMap from 'p-map';
 import pacote from 'pacote';
-import fetch from 'node-fetch';
 import { isDirectory, hasPackageJsonFile } from './filesystem.js';
 import getDiffVersionParts from './getDiffVersionParts.js';
 
@@ -242,14 +241,13 @@ const getDependencyInfo = async ({
 		// get the package link
 		// TODO: npms has a bulk API, maybe run a bunch of these using the bulk API instead
 		// TODO: will have to change this for yarn support
-		const npmsInfo = await (
-			await fetch(`https://api.npms.io/v2/package/${name}`)
-		).json();
-		const npmLink = npmsInfo?.collected?.metadata?.links?.npm;
+		// const npmsInfo = await (
+		// 	await fetch(`https://api.npms.io/v2/package/${name}`)
+		// ).json();
+		// const npmLink = npmsInfo?.collected?.metadata?.links?.npm;
 
 		return {
 			name,
-			url: npmLink,
 			type,
 			apps,
 			hoisted,
