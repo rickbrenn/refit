@@ -10,7 +10,9 @@
 	"scripts": {
 		"start": "./bin/cli.js",
 		"build": "babel src --out-dir dist",
-		"watch": "babel src --watch --out-dir dist --delete-dir-on-start"
+		"watch": "babel src --watch --out-dir dist --delete-dir-on-start",
+		"lint": "eslint src --ext .js",
+		"lint:fix": "npm run lint -- --fix"
 	},
 	"author": "",
 	"license": "ISC",
@@ -42,6 +44,7 @@
 		"eslint-plugin-import": "^2.26.0",
 		"eslint-plugin-jsx-a11y": "^6.5.1",
 		"eslint-plugin-node": "^11.1.0",
+		"eslint-plugin-prefer-arrow-functions": "^3.1.4",
 		"eslint-plugin-prettier": "^4.0.0",
 		"eslint-plugin-react": "^7.30.0",
 		"eslint-plugin-react-hooks": "^4.5.0",

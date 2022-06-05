@@ -16,13 +16,23 @@
 		"ecmaVersion": 12,
 		"sourceType": "module"
 	},
-	"plugins": ["react", "react-hooks"],
+	"plugins": ["react", "react-hooks", "prefer-arrow-functions"],
 	"rules": {
 		"prettier/prettier": "error",
 		"react/jsx-filename-extension": "off",
 		"import/extensions": "off",
 		"node/file-extension-in-import": ["error", "always"],
 		"react-hooks/rules-of-hooks": "error",
-		"react-hooks/exhaustive-deps": "warn"
+		"react-hooks/exhaustive-deps": "warn",
+		"react/function-component-definition": [1, { "namedComponents": "arrow-function" }],
+		"prefer-arrow-functions/prefer-arrow-functions": [
+			"warn",
+			{
+				"classPropertiesAllowed": false,
+				"disallowPrototype": false,
+				"returnStyle": "unchanged",
+				"singleReturnOnly": false
+			}
+		]
 	}
 }

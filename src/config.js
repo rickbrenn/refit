@@ -16,7 +16,7 @@ const defaultConfig = {
 	hoisted: false,
 };
 
-function loadConfig(configFile, overrides = {}) {
+const loadConfig = (configFile, overrides = {}) => {
 	try {
 		const configPath = path.resolve(configFile || '.refitrc.json');
 		const configExists = fs.existsSync(configPath);
@@ -36,6 +36,6 @@ function loadConfig(configFile, overrides = {}) {
 		console.error(err);
 		return false;
 	}
-}
+};
 
 export { defaultConfig, loadConfig };

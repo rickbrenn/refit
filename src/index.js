@@ -5,7 +5,7 @@ import { render } from 'ink';
 import List from './commands/list/List.js';
 import { loadConfig } from './config.js';
 
-async function run() {
+const run = async () => {
 	// parse argument options
 	const {
 		_: [command],
@@ -61,6 +61,6 @@ async function run() {
 			render(<List config={appConfig} />);
 			break;
 	}
-}
+};
 
 export default run;

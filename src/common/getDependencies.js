@@ -8,8 +8,8 @@ import fetch from 'node-fetch';
 import { isDirectory, hasPackageJsonFile } from './filesystem.js';
 import getDiffVersionParts from './getDiffVersionParts.js';
 
-async function getPackageJsonAndModules(pathToPackage, filter) {
-	return new Promise((resolve, reject) => {
+const getPackageJsonAndModules = async (pathToPackage, filter) =>
+	new Promise((resolve, reject) => {
 		rpt(
 			pathToPackage,
 			filter,
@@ -32,9 +32,8 @@ async function getPackageJsonAndModules(pathToPackage, filter) {
 			}
 		);
 	});
-}
 
-async function getPackageInfo(directory) {
+const getPackageInfo = async (directory) => {
 	// read the package.json file and get the installed modules from node_modules
 	const { packageJson, installedModules } = await getPackageJsonAndModules(
 		directory
@@ -46,9 +45,9 @@ async function getPackageInfo(directory) {
 		packageJson,
 		installedModules,
 	};
-}
+};
 
-async function getPackages(directory, packageDirectories) {
+const getPackages = async (directory, packageDirectories) => {
 	// ensure the package directory is an npm package
 	if (!hasPackageJsonFile(directory)) {
 		throw new Error('directory does not have a package.json file');
@@ -82,24 +81,24 @@ async function getPackages(directory, packageDirectories) {
 	}
 
 	return Promise.all(packages.map(getPackageInfo));
-}
+};
 
-async function getHoistedModules(rootDir) {
+const getHoistedModules = async (rootDir) => {
 	const { installedModules: rootModules } = await getPackageJsonAndModules(
 		rootDir,
 		(node) => !node.parent
 	);
 
 	return rootModules;
-}
+};
 
-async function getDependencyList(
+const getDependencyList = async (
 	selectedPackages,
 	dependencyTypes,
 	hoistedModules,
 	allPackages
-) {
-	return selectedPackages.reduce((dependencies, pkg) => {
+) =>
+	selectedPackages.reduce((dependencies, pkg) => {
 		const { name, packageJson, installedModules } = pkg;
 		// process each dependency in the package.json file
 		dependencyTypes.forEach((depType) => {
@@ -159,9 +158,8 @@ async function getDependencyList(
 
 		return dependencies;
 	}, []);
-}
 
-async function getDependencyInfo({
+const getDependencyInfo = async ({
 	targetRange,
 	installedVersion,
 	apps,
@@ -169,7 +167,7 @@ async function getDependencyInfo({
 	type,
 	hoisted,
 	internal,
-}) {
+}) => {
 	try {
 		if (internal) {
 			return {
@@ -313,9 +311,13 @@ async function getDependencyInfo({
 			},
 		};
 	}
-}
+};
 
-async function processDependencies(dependencies, updateProgress, pMapOptions) {
+const processDependencies = async (
+	dependencies,
+	updateProgress,
+	pMapOptions
+) => {
 	const processDependency = async (dependencyData, index) => {
 		const progressCurrent = index + 1;
 		const progressMax = dependencies.length;
@@ -326,7 +328,7 @@ async function processDependencies(dependencies, updateProgress, pMapOptions) {
 	};
 
 	return pMap(dependencies, processDependency, pMapOptions);
-}
+};
 
 /**
  * Get all dependency information for packages
@@ -334,7 +336,7 @@ async function processDependencies(dependencies, updateProgress, pMapOptions) {
  * @param {Function} onDepenencyProcessed - event fired when a dependency has been processed
  * @returns {Promise<Object[]>} array of dependency data objects
  */
-async function getDependencies(config, onDepenencyProcessed) {
+const getDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootDir,
 		usePackages,
@@ -421,6 +423,6 @@ async function getDependencies(config, onDepenencyProcessed) {
 	}
 
 	return dependencies;
-}
+};
 
 export default getDependencies;
