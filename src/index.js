@@ -3,6 +3,7 @@ import parseArgs from 'minimist';
 import { render } from 'ink';
 
 import List from './commands/list/List.js';
+import Update from './commands/update/Update.js';
 import { loadConfig } from './config.js';
 
 const run = async () => {
@@ -38,6 +39,10 @@ const run = async () => {
 		r,
 		rootDir,
 
+		// update dependencies to semver type
+		t,
+		to,
+
 		// show all columns of dependency information
 		v,
 		verbose,
@@ -52,10 +57,15 @@ const run = async () => {
 		config: c || config,
 		sortAlphabetical: A || alpha,
 		showAll: a || all,
+		updateTo: t || to,
 		verbose: v || verbose,
 	});
 
 	switch (command) {
+		case 'update':
+			render(<Update config={appConfig} />);
+			break;
+
 		case 'list':
 		default:
 			render(<List config={appConfig} />);

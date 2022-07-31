@@ -14,6 +14,7 @@ const defaultConfig = {
 	monorepo: false,
 	verbose: false,
 	hoisted: false,
+	updateTo: 'latest',
 };
 
 const loadConfig = (configFile, overrides = {}) => {
