@@ -3,17 +3,15 @@ import path from 'path';
 import chalk from 'chalk';
 
 const defaultConfig = {
-	rootDir: './',
-	packageJsonPath: 'package.json',
-	packageLockPath: 'package-lock.json',
-	dependencyTypes: ['dependencies', 'devDependencies'],
-	packageDirs: ['./packages', './modules'],
-	usePackages: [],
+	rootDir: '',
+	dependencyTypes: [],
+	packageDirs: ['packages/*', 'modules/*'],
+	filterByPackages: [],
 	sortAlphabetical: false,
 	showAll: false,
-	monorepo: false,
+	isMonorepo: false,
 	verbose: false,
-	hoisted: false,
+	isHoisted: false,
 	updateTo: 'latest',
 };
 

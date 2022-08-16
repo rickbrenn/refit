@@ -1,6 +1,10 @@
 import path from 'path';
 import fs from 'fs';
 
+const getRootPath = (rootDir) => {
+	return rootDir ? path.resolve(rootDir) : process.cwd();
+};
+
 const isDirectory = (dirPath) => {
 	try {
 		return fs.lstatSync(dirPath).isDirectory();
@@ -21,4 +25,4 @@ const hasPackageJsonFile = (packagePath) => {
 	}
 };
 
-export { isDirectory, hasPackageJsonFile };
+export { isDirectory, hasPackageJsonFile, getRootPath };
