@@ -13,6 +13,7 @@ const defaultConfig = {
 	verbose: false,
 	isHoisted: false,
 	updateTo: 'latest',
+	concurrency: 8,
 };
 
 const loadConfig = (configFile, overrides = {}) => {

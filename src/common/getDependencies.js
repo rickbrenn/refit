@@ -18,6 +18,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		dependencyTypes,
 		showAll,
 		sortAlphabetical,
+		concurrency,
 	} = config;
 
 	const rootPath = getRootPath(rootDir);
@@ -36,13 +37,12 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		rootPath,
 	});
 
-	// TODO: concurrency to config
 	// update dependencies with information from the npm registry
 	dependencyList = await processDependencies(
 		dependencyList,
 		onDepenencyProcessed,
 		{
-			concurrency: 8,
+			concurrency,
 		}
 	);
 
