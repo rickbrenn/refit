@@ -11,7 +11,7 @@ const getPackageData = async ({
 	const pkgJson = await PackageJson.load(pkgPath);
 
 	return {
-		name: pkgJson.name || getName(pkgPath),
+		name: pkgJson.content.name || getName(pkgPath),
 		path: pkgPath,
 		isMonorepoRoot,
 		dependencies: getDependenciesFromPackageJson({
