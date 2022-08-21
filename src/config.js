@@ -14,6 +14,7 @@ const defaultConfig = {
 	isHoisted: false,
 	updateTo: 'latest',
 	concurrency: 8,
+	filterByDeps: [],
 };
 
 const loadConfig = (configFile, overrides = {}) => {

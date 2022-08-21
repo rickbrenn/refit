@@ -3,13 +3,13 @@ import parseArgs from 'minimist';
 import { render } from 'ink';
 
 import List from './commands/list/List.js';
-// import Update from './commands/update/Update.js';
+import Update from './commands/update/Update.js';
 import { loadConfig } from './config.js';
 
 const run = async () => {
 	// parse argument options
 	const {
-		_: [command],
+		_: [command, ...depsToUpdate],
 
 		// show all dependencies including up to date ones
 		a,
@@ -59,11 +59,12 @@ const run = async () => {
 		showAll: a || all,
 		updateTo: t || to,
 		verbose: v || verbose,
+		filterByDeps: depsToUpdate,
 	});
 
 	switch (command) {
 		case 'update':
-			// render(<Update config={appConfig} />);
+			render(<Update config={appConfig} />);
 			break;
 
 		case 'list':

@@ -155,6 +155,7 @@ const List = ({ config }) => {
 		return <Loader text={loaderState.text} />;
 	}
 
+	// TODO: maybe add a component that does the dep loading to share between this and update
 	return (
 		<Static>
 			<Table data={dependencies} columns={columns} />

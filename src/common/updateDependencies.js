@@ -1,79 +1,83 @@
-import path from 'path';
+import { getRootPath } from './filesystem.js';
+import { getPackages } from './packages.js';
+import {
+	getDepenencyList,
+	processDependencies,
+	depTypesList,
+} from './dependencies.js';
 
-const updateDependencies = async (config) => {
+const updateDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootDir,
-		usePackages,
+		filterByPackages,
 		packageDirs,
-		monorepo,
-		hoisted,
+		isMonorepo,
+		isHoisted,
 		dependencyTypes,
-		showAll,
-		sortAlphabetical,
+		concurrency,
+		updateTo,
+		filterByDeps,
 	} = config;
-	/*
-		{
-			name: '@babel/core',
-			type: 'devDependencies',
-			apps: [ 'refit' ],
-			hoisted: false,
-			version: { installed: '7.18.2', wanted: '7.18.9', latest: '7.18.9' },
-			versionRange: { target: '^7.18.2', wanted: '^7.18.9', latest: '^7.18.9' },
-			internal: false,
-			missing: false,
-			installNeeded: false,
-			upgradable: true,
-			upgradableToWanted: true,
-			upgradableToLatest: true,
-			color: 'green',
-			updateType: 'patch',
-			upgradeParts: {
-			wildcard: '^',
-			midDot: '.',
-			uncoloredText: '7.18',
-			coloredText: '9'
-			}
-		},
-	*/
 
 	// get list of packages to update
 	// maybe do this stuff in an init function for the whole refit app?
+	const rootPath = getRootPath(rootDir);
 
-	// root path of the package
-	const rootPath = path.resolve(rootDir);
+	const packageList = await getPackages({
+		rootPath,
+		isMonorepo,
+		depTypes: dependencyTypes,
+		packageDirs,
+		filterByPackages,
+	});
 
-	// get the info for the package or all monorepo packages
-	const packages = await getPackages(rootPath, monorepo && packageDirs);
+	// TODO: maybe getDepenencyList and processDependencies can be combined, doing the concurrency
+	// stuff inside a function and do the filtering and stuff in there as well. That way there's a single
+	// dependency list creation function
+	let dependencyList = await getDepenencyList({
+		packageList,
+		isHoisted,
+		rootPath,
+		filterByDeps,
+	});
 
-	// get deps for packages
-
-	// get installed hoisted modules at the root of the repo
-	const hoistedModules = hoisted ? await getHoistedModules(rootPath) : [];
-
-	// only use the selected package if the argument is provided
-	const selectedPackages = usePackages.length
-		? packages.filter((pkg) => usePackages.includes(pkg.name))
-		: packages;
-
-	// get list of dependencies for each package with basic information
-	let dependencies = await getDependencyList(
-		selectedPackages,
-		dependencyTypes,
-		hoistedModules,
-		packages
-	);
-
-	// TODO: concurrency to config
 	// update dependencies with information from the npm registry
-	dependencies = await processDependencies(
-		dependencies,
+	dependencyList = await processDependencies(
+		dependencyList,
 		onDepenencyProcessed,
 		{
-			concurrency: 8,
+			concurrency,
 		}
 	);
 
-	// update package.json file for each pacakage
+	const depsToUpdate = dependencyList.filter((dep) => dep.upgradable);
+	const pkgsToUpdate = new Set();
+
+	for (const dep of depsToUpdate) {
+		for (const app of dep.apps) {
+			const pkg = packageList.get(app);
+			const pkgDep = pkg.dependencies.get(dep.name);
+			const depType = depTypesList[pkgDep.type];
+			pkgsToUpdate.add(app);
+			pkg.pkgJsonInstance.update({
+				[depType]: {
+					...pkg.pkgJsonInstance.content[depType],
+					[dep.name]: dep.versionRange[updateTo],
+				},
+			});
+		}
+	}
+
+	const pkgListArray = Array.from(pkgsToUpdate);
+
+	await Promise.all(
+		pkgListArray.map(async (pkgName) => {
+			const pkg = packageList.get(pkgName);
+			return pkg.pkgJsonInstance.save();
+		})
+	);
+
+	return depsToUpdate;
 };
 
 export default updateDependencies;

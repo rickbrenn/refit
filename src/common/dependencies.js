@@ -231,12 +231,17 @@ const getInstalledDeps = async (pkgPath) => {
 	return installedDeps;
 };
 
-const getDepenencyList = async ({ packageList, isHoisted, rootPath }) => {
+const getDepenencyList = async ({
+	packageList,
+	isHoisted,
+	rootPath,
+	filterByDeps = [],
+}) => {
 	const hoistedDeps = isHoisted
 		? await getInstalledDeps(rootPath)
 		: new Map();
 
-	const dependencyList = new Map();
+	const dependencyList = [];
 	for (const {
 		name: pkgName,
 		path: pkgPath,
@@ -249,42 +254,43 @@ const getDepenencyList = async ({ packageList, isHoisted, rootPath }) => {
 			: await getInstalledDeps(pkgPath);
 
 		for (const { name, target, type } of dependencies.values()) {
-			const internal = packageList.has(name);
-			let hoisted = false;
-			const installedDep = installedDeps?.get(name);
-			const hoistedDep = hoistedDeps?.get(name);
-			const installedVersion = (installedDep || hoistedDep)?.version;
+			if (!filterByDeps.length || filterByDeps.includes(name)) {
+				const internal = packageList.has(name);
+				let hoisted = false;
+				const installedDep = installedDeps?.get(name);
+				const hoistedDep = hoistedDeps?.get(name);
+				const installedVersion = (installedDep || hoistedDep)?.version;
 
-			if (!internal && !installedDep && hoistedDep) {
-				hoisted = true;
-			}
+				if (!internal && !installedDep && hoistedDep) {
+					hoisted = true;
+				}
 
-			const existingDep = dependencyList.get(name);
-			const isExistingDep =
-				existingDep?.name === name &&
-				existingDep?.targetRange === target &&
-				existingDep?.installedVersion === installedVersion;
-
-			if (isExistingDep) {
-				dependencyList.set(name, {
-					...existingDep,
-					apps: [...existingDep.apps, pkgName],
+				const existingDepIndex = dependencyList.findIndex((dep) => {
+					return (
+						dep?.name === name &&
+						dep?.targetRange === target &&
+						dep?.installedVersion === installedVersion
+					);
 				});
-			} else {
-				dependencyList.set(name, {
-					name,
-					apps: [pkgName],
-					type,
-					targetRange: target,
-					installedVersion,
-					hoisted,
-					internal,
-				});
+
+				if (existingDepIndex > -1) {
+					dependencyList[existingDepIndex].apps.push(pkgName);
+				} else {
+					dependencyList.push({
+						name,
+						apps: [pkgName],
+						type,
+						targetRange: target,
+						installedVersion,
+						hoisted,
+						internal,
+					});
+				}
 			}
 		}
 	}
 
-	return Array.from(dependencyList.values());
+	return dependencyList;
 };
 
 const getDependenciesFromPackageJson = ({ pkgJsonData, depTypes }) => {
@@ -332,4 +338,5 @@ export {
 	getDependenciesFromPackageJson,
 	getInstalledDeps,
 	processDependencies,
+	depTypesList,
 };
