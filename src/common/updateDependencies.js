@@ -1,10 +1,6 @@
 import { getRootPath } from './filesystem.js';
 import { getPackages } from './packages.js';
-import {
-	getDepenencyList,
-	processDependencies,
-	depTypesList,
-} from './dependencies.js';
+import { getDependencyList, depTypesList } from './dependencies.js';
 
 const updateDependencies = async (config, onDepenencyProcessed) => {
 	const {
@@ -31,24 +27,16 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		filterByPackages,
 	});
 
-	// TODO: maybe getDepenencyList and processDependencies can be combined, doing the concurrency
-	// stuff inside a function and do the filtering and stuff in there as well. That way there's a single
-	// dependency list creation function
-	let dependencyList = await getDepenencyList({
+	const dependencyList = await getDependencyList({
 		packageList,
 		isHoisted,
 		rootPath,
 		filterByDeps,
-	});
-
-	// update dependencies with information from the npm registry
-	dependencyList = await processDependencies(
-		dependencyList,
-		onDepenencyProcessed,
-		{
+		updateProgress: onDepenencyProcessed,
+		pMapOptions: {
 			concurrency,
-		}
-	);
+		},
+	});
 
 	const depsToUpdate = dependencyList.filter((dep) => dep.upgradable);
 	const pkgsToUpdate = new Set();

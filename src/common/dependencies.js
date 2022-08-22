@@ -231,11 +231,13 @@ const getInstalledDeps = async (pkgPath) => {
 	return installedDeps;
 };
 
-const getDepenencyList = async ({
+const getDependencyList = async ({
 	packageList,
 	isHoisted,
 	rootPath,
 	filterByDeps = [],
+	updateProgress,
+	pMapOptions,
 }) => {
 	const hoistedDeps = isHoisted
 		? await getInstalledDeps(rootPath)
@@ -290,7 +292,16 @@ const getDepenencyList = async ({
 		}
 	}
 
-	return dependencyList;
+	const processDependency = async (dependencyData, index) => {
+		const progressCurrent = index + 1;
+		const progressMax = dependencyList.length;
+
+		updateProgress(progressCurrent, progressMax, dependencyData.name);
+
+		return getDependencyInfo(dependencyData);
+	};
+
+	return pMap(dependencyList, processDependency, pMapOptions);
 };
 
 const getDependenciesFromPackageJson = ({ pkgJsonData, depTypes }) => {
@@ -315,28 +326,10 @@ const getDependenciesFromPackageJson = ({ pkgJsonData, depTypes }) => {
 	return dependenciesMap;
 };
 
-const processDependencies = async (
-	dependencies,
-	updateProgress,
-	pMapOptions
-) => {
-	const processDependency = async (dependencyData, index) => {
-		const progressCurrent = index + 1;
-		const progressMax = dependencies.length;
-
-		updateProgress(progressCurrent, progressMax, dependencyData.name);
-
-		return getDependencyInfo(dependencyData);
-	};
-
-	return pMap(dependencies, processDependency, pMapOptions);
-};
-
 export {
 	getDependencyInfo,
-	getDepenencyList,
+	getDependencyList,
 	getDependenciesFromPackageJson,
 	getInstalledDeps,
-	processDependencies,
 	depTypesList,
 };

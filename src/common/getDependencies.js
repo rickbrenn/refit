@@ -1,6 +1,6 @@
 import { getRootPath } from './filesystem.js';
 import { getPackages } from './packages.js';
-import { getDepenencyList, processDependencies } from './dependencies.js';
+import { getDependencyList } from './dependencies.js';
 
 /**
  * Get all dependency information for packages
@@ -19,6 +19,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		showAll,
 		sortAlphabetical,
 		concurrency,
+		filterByDeps,
 	} = config;
 
 	const rootPath = getRootPath(rootDir);
@@ -31,20 +32,16 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		filterByPackages,
 	});
 
-	let dependencyList = await getDepenencyList({
+	let dependencyList = await getDependencyList({
 		packageList,
 		isHoisted,
 		rootPath,
-	});
-
-	// update dependencies with information from the npm registry
-	dependencyList = await processDependencies(
-		dependencyList,
-		onDepenencyProcessed,
-		{
+		filterByDeps,
+		updateProgress: onDepenencyProcessed,
+		pMapOptions: {
 			concurrency,
-		}
-	);
+		},
+	});
 
 	// sort alphabetically by name
 	if (sortAlphabetical) {
