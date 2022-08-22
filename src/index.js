@@ -62,6 +62,8 @@ const run = async () => {
 		filterByDeps: depsToUpdate,
 	});
 
+	// TODO: maybe structure the base of this app like a standard react app
+	// create a base App component that renders the appropriate command
 	switch (command) {
 		case 'update':
 			render(<Update config={appConfig} />);
