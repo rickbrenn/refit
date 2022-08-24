@@ -3,11 +3,7 @@ import PackageJson from '@npmcli/package-json';
 import getName from '@npmcli/name-from-folder';
 import { getDependenciesFromPackageJson } from './dependencies.js';
 
-const getPackageData = async ({
-	path: pkgPath,
-	isMonorepoRoot = false,
-	depTypes,
-}) => {
+const getPackageData = async ({ path: pkgPath, isMonorepoRoot = false }) => {
 	const pkgJson = await PackageJson.load(pkgPath);
 
 	return {
@@ -16,7 +12,6 @@ const getPackageData = async ({
 		isMonorepoRoot,
 		dependencies: getDependenciesFromPackageJson({
 			pkgJsonData: pkgJson.content,
-			depTypes,
 		}),
 		pkgJsonInstance: pkgJson,
 	};
@@ -25,11 +20,10 @@ const getPackageData = async ({
 const getPackages = async ({
 	rootPath,
 	isMonorepo,
-	depTypes,
 	packageDirs,
 	filterByPackages,
 }) => {
-	const pkgsArgs = [{ path: rootPath, isMonorepoRoot: isMonorepo, depTypes }];
+	const pkgsArgs = [{ path: rootPath, isMonorepoRoot: isMonorepo }];
 
 	if (isMonorepo) {
 		const subPkgs = await mapWorkspaces({
@@ -40,7 +34,7 @@ const getPackages = async ({
 		});
 
 		for (const pkgPath of subPkgs.values()) {
-			pkgsArgs.push({ path: pkgPath, depTypes });
+			pkgsArgs.push({ path: pkgPath });
 		}
 	}
 

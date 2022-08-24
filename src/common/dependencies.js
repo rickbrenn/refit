@@ -236,6 +236,7 @@ const getDependencyList = async ({
 	isHoisted,
 	rootPath,
 	filterByDeps = [],
+	filterByTypes = [],
 	updateProgress,
 	pMapOptions,
 }) => {
@@ -256,7 +257,11 @@ const getDependencyList = async ({
 			: await getInstalledDeps(pkgPath);
 
 		for (const { name, target, type } of dependencies.values()) {
-			if (!filterByDeps.length || filterByDeps.includes(name)) {
+			const isValidName =
+				!filterByDeps.length || filterByDeps.includes(name);
+			const isValidType =
+				!filterByTypes.length || filterByTypes.includes(type);
+			if (isValidName && isValidType) {
 				const internal = packageList.has(name);
 				let hoisted = false;
 				const installedDep = installedDeps?.get(name);
@@ -304,21 +309,19 @@ const getDependencyList = async ({
 	return pMap(dependencyList, processDependency, pMapOptions);
 };
 
-const getDependenciesFromPackageJson = ({ pkgJsonData, depTypes }) => {
+const getDependenciesFromPackageJson = ({ pkgJsonData }) => {
 	const dependenciesMap = new Map();
 
 	for (const [depTypeShort, depTypeLong] of Object.entries(depTypesList)) {
-		if (!depTypes?.length || depTypes.includes(depTypeShort)) {
-			const depsOfType = pkgJsonData[depTypeLong];
+		const depsOfType = pkgJsonData[depTypeLong];
 
-			if (depsOfType) {
-				for (const [depName, depSpec] of Object.entries(depsOfType)) {
-					dependenciesMap.set(depName, {
-						name: depName,
-						target: depSpec,
-						type: depTypeShort,
-					});
-				}
+		if (depsOfType) {
+			for (const [depName, depSpec] of Object.entries(depsOfType)) {
+				dependenciesMap.set(depName, {
+					name: depName,
+					target: depSpec,
+					type: depTypeShort,
+				});
 			}
 		}
 	}

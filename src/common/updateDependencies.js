@@ -9,7 +9,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		packageDirs,
 		isMonorepo,
 		isHoisted,
-		dependencyTypes,
+		filterByTypes,
 		concurrency,
 		updateTo,
 		filterByDeps,
@@ -22,7 +22,6 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 	const packageList = await getPackages({
 		rootPath,
 		isMonorepo,
-		depTypes: dependencyTypes,
 		packageDirs,
 		filterByPackages,
 	});
@@ -32,6 +31,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		isHoisted,
 		rootPath,
 		filterByDeps,
+		filterByTypes,
 		updateProgress: onDepenencyProcessed,
 		pMapOptions: {
 			concurrency,

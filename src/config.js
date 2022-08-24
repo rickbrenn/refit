@@ -4,7 +4,7 @@ import chalk from 'chalk';
 
 const defaultConfig = {
 	rootDir: '',
-	dependencyTypes: [],
+	filterByTypes: [],
 	packageDirs: ['packages/*', 'modules/*'],
 	filterByPackages: [],
 	sortAlphabetical: false,
