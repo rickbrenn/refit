@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Text } from 'ink';
 import Loader from '../../ui/Loader.js';
 import updateDependencies from '../../common/updateDependencies.js';
-import NameColumn from '../list/NameColumn.js';
-import UpgradeColumn from '../list/UpgradeColumn.js';
+import NameColumn from '../../ui/NameColumn.js';
+import UpgradeColumn from '../../ui/UpgradeColumn.js';
 import Table from '../../ui/Table.js';
 import Static from '../../ui/Static.js';
 

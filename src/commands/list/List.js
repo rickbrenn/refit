@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import NameColumn from './NameColumn.js';
-import UpgradeColumn from './UpgradeColumn.js';
+import NameColumn from '../../ui/NameColumn.js';
+import UpgradeColumn from '../../ui/UpgradeColumn.js';
 import Loader from '../../ui/Loader.js';
 import Table from '../../ui/Table.js';
 import Static from '../../ui/Static.js';
