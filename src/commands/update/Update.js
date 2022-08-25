@@ -7,6 +7,7 @@ import NameColumn from '../../ui/NameColumn.js';
 import UpgradeColumn from '../../ui/UpgradeColumn.js';
 import Table from '../../ui/Table.js';
 import Static from '../../ui/Static.js';
+import useLoader from '../../ui/useLoader.js';
 
 // get table columns based on the config
 const getListColumns = () => [
@@ -42,21 +43,8 @@ const getListColumns = () => [
 
 const Update = ({ config }) => {
 	const [dependencies, setDependencies] = useState(null);
-	const [loading, setLoading] = useState(true);
-	const [loaderState, setLoaderState] = useState({
-		text: 'Loading the truck..',
-	});
-
-	// TODO: move to common place to share with List
-	// function called for each dependency that is processed in getDependencies
-	const updateProgress = (progressCurrent, progressMax, packageName) => {
-		const percentComplete = (progressCurrent * 100) / progressMax;
-		const fixedPercent = percentComplete.toFixed();
-
-		setLoaderState({
-			text: `Delivering packages | ${fixedPercent}% | ${packageName}`,
-		});
-	};
+	const { updateProgress, loading, setLoading, loaderState, setLoaderState } =
+		useLoader();
 
 	// map the dependencies data to table row objects
 	const mapDataToRows = (pkgs) => {
@@ -105,7 +93,7 @@ const Update = ({ config }) => {
 			});
 			throw error;
 		}
-	}, [config]);
+	}, [config, setLoading, setLoaderState, updateProgress]);
 
 	useEffect(() => {
 		fetchAndUpdateDependencies();

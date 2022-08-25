@@ -5,6 +5,7 @@ import UpgradeColumn from '../../ui/UpgradeColumn.js';
 import Loader from '../../ui/Loader.js';
 import Table from '../../ui/Table.js';
 import Static from '../../ui/Static.js';
+import useLoader from '../../ui/useLoader.js';
 import getDependencies from '../../common/getDependencies.js';
 
 // const fetchReleases = async (url) => {
@@ -16,81 +17,69 @@ import getDependencies from '../../common/getDependencies.js';
 // 	console.log('latest release :>> ', resData[0]);
 // };
 
+// get table columns based on the config
+const getListColumns = ({ verbose, monorepo }) => [
+	{
+		name: 'Name',
+		accessor: 'name',
+		Component: NameColumn,
+		show: true,
+	},
+	{
+		name: 'Target',
+		accessor: 'target',
+		show: true,
+		noWrap: true,
+	},
+	{
+		name: 'Installed',
+		accessor: 'installed',
+		show: true,
+		noWrap: true,
+	},
+	{
+		name: 'Wanted',
+		accessor: 'wanted',
+		show: verbose,
+		noWrap: true,
+	},
+	{
+		name: 'Latest',
+		accessor: 'latest',
+		show: verbose,
+		noWrap: true,
+	},
+	{
+		name: 'Upgrade',
+		accessor: 'upgrade',
+		Component: UpgradeColumn,
+		show: true,
+		noWrap: true,
+	},
+	{
+		name: 'Type',
+		accessor: 'type',
+		show: verbose,
+		wrap: 'truncate',
+	},
+	{
+		name: 'Hoisted',
+		accessor: 'hoisted',
+		show: verbose && monorepo,
+		wrap: 'truncate',
+	},
+	{
+		name: 'In',
+		accessor: 'in',
+		show: verbose && monorepo,
+		wrap: 'truncate',
+	},
+];
+
 const List = ({ config }) => {
 	const [dependencies, setDependencies] = useState(null);
-	const [loading, setLoading] = useState(true);
-	const [loaderState, setLoaderState] = useState({
-		text: 'Loading the truck..',
-	});
-
-	// function called for each dependency that is processed in getDependencies
-	const updateProgress = (progressCurrent, progressMax, packageName) => {
-		const percentComplete = (progressCurrent * 100) / progressMax;
-		const fixedPercent = percentComplete.toFixed();
-
-		setLoaderState({
-			text: `Delivering packages | ${fixedPercent}% | ${packageName}`,
-		});
-	};
-
-	// get table columns based on the config
-	const getListColumns = ({ verbose, monorepo }) => [
-		{
-			name: 'Name',
-			accessor: 'name',
-			Component: NameColumn,
-			show: true,
-		},
-		{
-			name: 'Target',
-			accessor: 'target',
-			show: true,
-			noWrap: true,
-		},
-		{
-			name: 'Installed',
-			accessor: 'installed',
-			show: true,
-			noWrap: true,
-		},
-		{
-			name: 'Wanted',
-			accessor: 'wanted',
-			show: verbose,
-			noWrap: true,
-		},
-		{
-			name: 'Latest',
-			accessor: 'latest',
-			show: verbose,
-			noWrap: true,
-		},
-		{
-			name: 'Upgrade',
-			accessor: 'upgrade',
-			Component: UpgradeColumn,
-			show: true,
-			noWrap: true,
-		},
-		{
-			name: 'Type',
-			accessor: 'type',
-			show: verbose,
-			wrap: 'truncate',
-		},
-		{
-			name: 'Hoisted',
-			accessor: 'hoisted',
-			show: verbose && monorepo,
-			wrap: 'truncate',
-		},
-		{
-			name: 'In',
-			accessor: 'in',
-			show: verbose && monorepo,
-			wrap: 'truncate',
-		},
-	];
+	const { updateProgress, loading, setLoading, loaderState, setLoaderState } =
+		useLoader();
 
 	// map the dependencies data to table row objects
 	const mapDataToRows = (pkgs) => {
@@ -140,7 +129,7 @@ const List = ({ config }) => {
 			});
 			throw error;
 		}
-	}, [config]);
+	}, [config, setLoaderState, setLoading, updateProgress]);
 
 	useEffect(() => {
 		fetchDependencies();
