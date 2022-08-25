@@ -31,7 +31,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		filterByPackages,
 	});
 
-	let dependencyList = await getDependencyList({
+	const dependencyList = await getDependencyList({
 		packageList,
 		isHoisted,
 		rootPath,
@@ -41,51 +41,12 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		pMapOptions: {
 			concurrency,
 		},
+		sortAlphabetical,
 	});
 
-	// sort alphabetically by name
-	if (sortAlphabetical) {
-		dependencyList = dependencyList.sort((a, b) =>
-			a.name.localeCompare(b.name)
-		);
-	} else {
-		// sort by semver update type
-		dependencyList = dependencyList.sort((a, b) => {
-			if (b.updateType === a.updateType) {
-				return a.name.localeCompare(b.name);
-			}
-
-			if (b.updateType === 'major' && a.updateType !== 'major') {
-				return 1;
-			}
-
-			if (
-				b.updateType === 'minor' &&
-				a.updateType !== 'major' &&
-				a.updateType !== 'minor'
-			) {
-				return 1;
-			}
-
-			if (
-				b.updateType === 'patch' &&
-				a.updateType !== 'major' &&
-				a.updateType !== 'minor' &&
-				a.updateType !== 'patch'
-			) {
-				return 1;
-			}
-
-			return -1;
-		});
-	}
-
-	// filter based on filter arg
-	if (!showAll) {
-		return dependencyList.filter((pkg) => pkg.upgradable);
-	}
-
-	return dependencyList;
+	return showAll
+		? dependencyList
+		: dependencyList.filter((pkg) => pkg.upgradable);
 };
 
 export default getDependencies;

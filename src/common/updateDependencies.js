@@ -10,6 +10,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		isMonorepo,
 		isHoisted,
 		filterByTypes,
+		sortAlphabetical,
 		concurrency,
 		updateTo,
 		filterByDeps,
@@ -36,6 +37,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		pMapOptions: {
 			concurrency,
 		},
+		sortAlphabetical,
 	});
 
 	const depsToUpdate = dependencyList.filter((dep) => dep.upgradable);

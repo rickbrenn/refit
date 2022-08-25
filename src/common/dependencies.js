@@ -231,6 +231,17 @@ const getInstalledDeps = async (pkgPath) => {
 	return installedDeps;
 };
 
+const processDependency = async (updateFunc, total) => {
+	return async (dependencyData, index) => {
+		const progressCurrent = index + 1;
+		const progressMax = total;
+
+		updateFunc(progressCurrent, progressMax, dependencyData.name);
+
+		return getDependencyInfo(dependencyData);
+	};
+};
+
 const getDependencyList = async ({
 	packageList,
 	isHoisted,
@@ -239,12 +250,13 @@ const getDependencyList = async ({
 	filterByTypes = [],
 	updateProgress,
 	pMapOptions,
+	sortAlphabetical = false,
 }) => {
 	const hoistedDeps = isHoisted
 		? await getInstalledDeps(rootPath)
 		: new Map();
 
-	const dependencyList = [];
+	let dependencyList = [];
 	for (const {
 		name: pkgName,
 		path: pkgPath,
@@ -297,16 +309,48 @@ const getDependencyList = async ({
 		}
 	}
 
-	const processDependency = async (dependencyData, index) => {
-		const progressCurrent = index + 1;
-		const progressMax = dependencyList.length;
+	dependencyList = await pMap(
+		dependencyList,
+		processDependency(updateProgress, dependencyList.length),
+		pMapOptions
+	);
 
-		updateProgress(progressCurrent, progressMax, dependencyData.name);
+	// sort alphabetically by name
+	if (sortAlphabetical) {
+		dependencyList.sort((a, b) => a.name.localeCompare(b.name));
+	} else {
+		// sort by semver update type
+		dependencyList.sort((a, b) => {
+			if (b.updateType === a.updateType) {
+				return a.name.localeCompare(b.name);
+			}
 
-		return getDependencyInfo(dependencyData);
-	};
+			if (b.updateType === 'major' && a.updateType !== 'major') {
+				return 1;
+			}
 
-	return pMap(dependencyList, processDependency, pMapOptions);
+			if (
+				b.updateType === 'minor' &&
+				a.updateType !== 'major' &&
+				a.updateType !== 'minor'
+			) {
+				return 1;
+			}
+
+			if (
+				b.updateType === 'patch' &&
+				a.updateType !== 'major' &&
+				a.updateType !== 'minor' &&
+				a.updateType !== 'patch'
+			) {
+				return 1;
+			}
+
+			return -1;
+		});
+	}
+
+	return dependencyList;
 };
 
 const getDependenciesFromPackageJson = ({ pkgJsonData }) => {
