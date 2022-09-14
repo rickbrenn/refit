@@ -231,7 +231,7 @@ const getInstalledDeps = async (pkgPath) => {
 	return installedDeps;
 };
 
-const processDependency = async (updateFunc, total) => {
+const processDependency = (updateFunc, total) => {
 	return async (dependencyData, index) => {
 		const progressCurrent = index + 1;
 		const progressMax = total;
@@ -309,11 +309,9 @@ const getDependencyList = async ({
 		}
 	}
 
-	dependencyList = await pMap(
-		dependencyList,
-		processDependency(updateProgress, dependencyList.length),
-		pMapOptions
-	);
+	const func = processDependency(updateProgress, dependencyList.length);
+
+	dependencyList = await pMap(dependencyList, func, pMapOptions);
 
 	// sort alphabetically by name
 	if (sortAlphabetical) {

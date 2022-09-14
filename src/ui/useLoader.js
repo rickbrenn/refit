@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 const useLoader = () => {
 	const [loading, setLoading] = useState(true);
@@ -6,22 +6,28 @@ const useLoader = () => {
 		text: 'Loading the truck..',
 	});
 
-	const updateProgress = (progressCurrent, progressMax, packageName) => {
-		const percentComplete = (progressCurrent * 100) / progressMax;
-		const fixedPercent = percentComplete.toFixed();
+	const updateProgress = useCallback(
+		(progressCurrent, progressMax, packageName) => {
+			const percentComplete = (progressCurrent * 100) / progressMax;
+			const fixedPercent = percentComplete.toFixed();
 
-		setLoaderState({
-			text: `Delivering packages | ${fixedPercent}% | ${packageName}`,
-		});
-	};
+			setLoaderState({
+				text: `Delivering packages | ${fixedPercent}% | ${packageName}`,
+			});
+		},
+		[]
+	);
 
-	return {
-		updateProgress,
-		loading,
-		setLoading,
-		loaderState,
-		setLoaderState,
-	};
+	return useMemo(
+		() => ({
+			updateProgress,
+			loading,
+			setLoading,
+			loaderState,
+			setLoaderState,
+		}),
+		[updateProgress, loading, loaderState]
+	);
 };
 
 export default useLoader;
