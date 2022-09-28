@@ -17,12 +17,7 @@ const getPackageData = async ({ path: pkgPath, isMonorepoRoot = false }) => {
 	};
 };
 
-const getPackages = async ({
-	rootPath,
-	isMonorepo,
-	packageDirs,
-	filterByPackages,
-}) => {
+const getPackages = async ({ rootPath, isMonorepo, packageDirs }) => {
 	const pkgsArgs = [{ path: rootPath, isMonorepoRoot: isMonorepo }];
 
 	if (isMonorepo) {
@@ -39,12 +34,7 @@ const getPackages = async ({
 	}
 
 	const allPackages = await Promise.all(pkgsArgs.map(getPackageData));
-	const filteredPackages = allPackages.filter(
-		(pkg) =>
-			!filterByPackages?.length || filterByPackages.includes(pkg.name)
-	);
-
-	return new Map(filteredPackages.map((pkg) => [pkg.name, pkg]));
+	return new Map(allPackages.map((pkg) => [pkg.name, pkg]));
 };
 
 export { getPackages, getPackageData };

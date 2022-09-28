@@ -244,6 +244,7 @@ const processDependency = (updateFunc, total) => {
 
 const getDependencyList = async ({
 	packageList,
+	filterByPackages,
 	isHoisted,
 	rootPath,
 	filterByDeps = [],
@@ -256,13 +257,21 @@ const getDependencyList = async ({
 		? await getInstalledDeps(rootPath)
 		: new Map();
 
+	const filteredPackages = filterByPackages.reduce((acc, pkgName) => {
+		if (packageList.has(pkgName)) {
+			return [...acc, packageList.get(pkgName)];
+		}
+
+		return acc;
+	}, []);
+
 	let dependencyList = [];
 	for (const {
 		name: pkgName,
 		path: pkgPath,
 		isMonorepoRoot,
 		dependencies,
-	} of packageList.values()) {
+	} of filteredPackages) {
 		const isHoistedRoot = isHoisted && isMonorepoRoot;
 		const installedDeps = isHoistedRoot
 			? hoistedDeps

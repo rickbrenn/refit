@@ -31,6 +31,12 @@ const loadConfig = (configFile, overrides = {}) => {
 
 		return Object.keys(defaultConfig).reduce((acc, cur) => {
 			acc[cur] = overrides[cur] || userConfig[cur] || defaultConfig[cur];
+
+			// convert single entry values to arrays
+			if (Array.isArray(defaultConfig[cur]) && !Array.isArray(acc[cur])) {
+				acc[cur] = [acc[cur]];
+			}
+
 			return acc;
 		}, {});
 	} catch (err) {
