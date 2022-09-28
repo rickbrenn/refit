@@ -4,7 +4,6 @@ import chalk from 'chalk';
 
 const defaultConfig = {
 	rootDir: '',
-	filterByTypes: [],
 	packageDirs: ['packages/*', 'modules/*'],
 	filterByPackages: [],
 	sortAlphabetical: false,
@@ -13,6 +12,8 @@ const defaultConfig = {
 	verbose: false,
 	isHoisted: false,
 	updateTo: 'latest',
+	filterByDepTypes: [],
+	filterByUpdateTypes: [],
 	concurrency: 8,
 	filterByDeps: [],
 };

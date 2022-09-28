@@ -15,11 +15,12 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		packageDirs,
 		isMonorepo,
 		isHoisted,
-		filterByTypes,
 		showAll,
 		sortAlphabetical,
 		concurrency,
 		filterByDeps,
+		filterByDepTypes,
+		filterByUpdateTypes,
 	} = config;
 
 	const rootPath = getRootPath(rootDir);
@@ -36,7 +37,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		isHoisted,
 		rootPath,
 		filterByDeps,
-		filterByTypes,
+		filterByDepTypes,
 		updateProgress: onDepenencyProcessed,
 		pMapOptions: {
 			concurrency,
@@ -46,7 +47,12 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 
 	return showAll
 		? dependencyList
-		: dependencyList.filter((pkg) => pkg.upgradable);
+		: dependencyList.filter((pkg) => {
+				const isValidType =
+					!filterByUpdateTypes.length ||
+					filterByUpdateTypes.includes(pkg.updateType);
+				return isValidType && pkg.upgradable;
+		  });
 };
 
 export default getDependencies;

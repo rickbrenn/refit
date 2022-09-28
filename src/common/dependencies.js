@@ -248,7 +248,7 @@ const getDependencyList = async ({
 	isHoisted,
 	rootPath,
 	filterByDeps = [],
-	filterByTypes = [],
+	filterByDepTypes = [],
 	updateProgress,
 	pMapOptions,
 	sortAlphabetical = false,
@@ -281,7 +281,7 @@ const getDependencyList = async ({
 			const isValidName =
 				!filterByDeps.length || filterByDeps.includes(name);
 			const isValidType =
-				!filterByTypes.length || filterByTypes.includes(type);
+				!filterByDepTypes.length || filterByDepTypes.includes(type);
 			if (isValidName && isValidType) {
 				const internal = packageList.has(name);
 				let hoisted = false;

@@ -23,6 +23,10 @@ const run = async () => {
 		c,
 		config,
 
+		// filter by dependency type
+		d,
+		depTypes,
+
 		// check for hoisted node modules
 		h,
 		hoisted,
@@ -43,6 +47,10 @@ const run = async () => {
 		t,
 		to,
 
+		// filter by update type
+		u,
+		updateTypes,
+
 		// show all columns of dependency information
 		v,
 		verbose,
@@ -58,6 +66,8 @@ const run = async () => {
 		sortAlphabetical: A || alpha,
 		showAll: a || all,
 		updateTo: t || to,
+		filterByDepTypes: d || depTypes,
+		filterByUpdateTypes: u || updateTypes,
 		verbose: v || verbose,
 		filterByDeps: depsToUpdate,
 	});
