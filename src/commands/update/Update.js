@@ -108,6 +108,10 @@ const Update = ({ config }) => {
 		return <Loader text={loaderState.text} />;
 	}
 
+	if (!dependencies.length) {
+		return <Text color="green">No dependencies need updated</Text>;
+	}
+
 	// TODO: maybe add a component that does the dep loading to share between this and update
 	return (
 		<Static>

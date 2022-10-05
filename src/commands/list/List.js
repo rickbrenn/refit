@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { Text } from 'ink';
 import NameColumn from '../../ui/NameColumn.js';
 import UpgradeColumn from '../../ui/UpgradeColumn.js';
 import Loader from '../../ui/Loader.js';
@@ -142,6 +143,10 @@ const List = ({ config }) => {
 
 	if (loading) {
 		return <Loader text={loaderState.text} />;
+	}
+
+	if (!dependencies.length) {
+		return <Text color="green">All dependencies up to date</Text>;
 	}
 
 	// TODO: maybe add a component that does the dep loading to share between this and update
