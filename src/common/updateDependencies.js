@@ -24,11 +24,11 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		rootPath,
 		isMonorepo,
 		packageDirs,
-		filterByPackages,
 	});
 
 	const dependencyList = await getDependencyList({
 		packageList,
+		filterByPackages,
 		isHoisted,
 		rootPath,
 		filterByDeps,

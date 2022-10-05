@@ -257,13 +257,16 @@ const getDependencyList = async ({
 		? await getInstalledDeps(rootPath)
 		: new Map();
 
-	const filteredPackages = filterByPackages.reduce((acc, pkgName) => {
-		if (packageList.has(pkgName)) {
-			return [...acc, packageList.get(pkgName)];
-		}
+	let filteredPackages = packageList.values();
+	if (filterByPackages.length) {
+		filteredPackages = filterByPackages.reduce((acc, pkgName) => {
+			if (packageList.has(pkgName)) {
+				return [...acc, packageList.get(pkgName)];
+			}
 
-		return acc;
-	}, []);
+			return acc;
+		}, []);
+	}
 
 	let dependencyList = [];
 	for (const {
