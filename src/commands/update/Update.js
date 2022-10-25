@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Text } from 'ink';
-import Loader from '../../ui/Loader.js';
-import updateDependencies from '../../common/updateDependencies.js';
-import NameColumn from '../../ui/NameColumn.js';
-import UpgradeColumn from '../../ui/UpgradeColumn.js';
-import Table from '../../ui/Table.js';
-import Static from '../../ui/Static.js';
-import useLoader from '../../ui/useLoader.js';
+import Loader from '../../ui/Loader';
+import updateDependencies from '../../common/updateDependencies';
+import NameColumn from '../../ui/NameColumn';
+import UpgradeColumn from '../../ui/UpgradeColumn';
+import Table from '../../ui/Table';
+import Static from '../../ui/Static';
+import useLoader from '../../ui/useLoader';
 
 // get table columns based on the config
 const getListColumns = () => [

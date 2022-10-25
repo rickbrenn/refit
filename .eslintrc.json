@@ -1,6 +1,5 @@
 {
 	"env": {
-		"es2021": true,
 		"node": true
 	},
 	"extends": [
@@ -10,21 +9,19 @@
 		"plugin:node/recommended"
 	],
 	"parserOptions": {
-		"ecmaFeatures": {
-			"jsx": true
-		},
-		"ecmaVersion": 12,
+		"ecmaVersion": "latest",
 		"sourceType": "module"
 	},
 	"plugins": ["react", "react-hooks", "prefer-arrow-functions"],
 	"rules": {
 		"prettier/prettier": "error",
 		"react/jsx-filename-extension": "off",
-		"import/extensions": "off",
-		"node/file-extension-in-import": ["error", "always"],
 		"react-hooks/rules-of-hooks": "error",
 		"react-hooks/exhaustive-deps": "warn",
-		"react/function-component-definition": [1, { "namedComponents": "arrow-function" }],
+		"react/function-component-definition": [
+			1,
+			{ "namedComponents": "arrow-function" }
+		],
 		"prefer-arrow-functions/prefer-arrow-functions": [
 			"warn",
 			{
@@ -34,7 +31,9 @@
 				"singleReturnOnly": false
 			}
 		],
-		"no-restricted-syntax": 0,
-		"no-await-in-loop": 0
+		"import/extensions": "off",
+		"node/file-extension-in-import": ["error", "always", { ".js": "never" }],
+		"no-restricted-syntax": "off",
+		"no-await-in-loop": "off"
 	}
 }

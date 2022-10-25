@@ -1,6 +1,6 @@
-import { getRootPath } from './filesystem.js';
-import { getPackages } from './packages.js';
-import { getDependencyList } from './dependencies.js';
+import { getRootPath } from './filesystem';
+import { getPackages } from './packages';
+import { getDependencyList } from './dependencies';
 
 /**
  * Get all dependency information for packages

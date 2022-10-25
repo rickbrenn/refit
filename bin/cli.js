@@ -1,5 +1,4 @@
 #!/usr/bin/env node
+import run from '../dist/main.bundle.js';
 
-import runRefit from '../dist/index.js';
-
-runRefit();
+run();

@@ -1,6 +1,6 @@
-import { getRootPath } from './filesystem.js';
-import { getPackages } from './packages.js';
-import { getDependencyList, depTypesList } from './dependencies.js';
+import { getRootPath } from './filesystem';
+import { getPackages } from './packages';
+import { getDependencyList, depTypesList } from './dependencies';
 
 const updateDependencies = async (config, onDepenencyProcessed) => {
 	const {

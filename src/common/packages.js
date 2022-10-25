@@ -1,7 +1,7 @@
 import mapWorkspaces from '@npmcli/map-workspaces';
 import PackageJson from '@npmcli/package-json';
 import getName from '@npmcli/name-from-folder';
-import { getDependenciesFromPackageJson } from './dependencies.js';
+import { getDependenciesFromPackageJson } from './dependencies';
 
 const getPackageData = async ({ path: pkgPath, isMonorepoRoot = false }) => {
 	const pkgJson = await PackageJson.load(pkgPath);

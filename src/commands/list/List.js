@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Text } from 'ink';
-import NameColumn from '../../ui/NameColumn.js';
-import UpgradeColumn from '../../ui/UpgradeColumn.js';
-import Loader from '../../ui/Loader.js';
-import Table from '../../ui/Table.js';
-import Static from '../../ui/Static.js';
-import useLoader from '../../ui/useLoader.js';
-import getDependencies from '../../common/getDependencies.js';
+import NameColumn from '../../ui/NameColumn';
+import UpgradeColumn from '../../ui/UpgradeColumn';
+import Loader from '../../ui/Loader';
+import Table from '../../ui/Table';
+import Static from '../../ui/Static';
+import useLoader from '../../ui/useLoader';
+import getDependencies from '../../common/getDependencies';
 
 // const fetchReleases = async (url) => {
 // 	const testUrl = 'https://api.github.com/repos/tannerlinsley/react-table/releases';

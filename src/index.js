@@ -2,9 +2,9 @@ import React from 'react';
 import parseArgs from 'minimist';
 import { render } from 'ink';
 
-import List from './commands/list/List.js';
-import Update from './commands/update/Update.js';
-import { loadConfig } from './config.js';
+import List from './commands/list/List';
+import Update from './commands/update/Update';
+import { loadConfig } from './config';
 
 const run = async () => {
 	// parse argument options
