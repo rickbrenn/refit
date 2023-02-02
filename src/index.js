@@ -2,11 +2,11 @@ import React from 'react';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { render } from 'ink';
-import List from './commands/list/List';
-import Update from './commands/update/Update';
+import List from './commands/List';
+import Update from './commands/Update';
 import { loadConfig } from './config';
 
-const listCommand = async ({ appConfig }) => {
+const listCommand = ({ appConfig }) => {
 	// console.log('list deps with:', appConfig);
 	render(<List config={appConfig} />);
 };
