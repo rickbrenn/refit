@@ -41,7 +41,8 @@
 		"react": "^17.0.2",
 		"read-package-json-fast": "^2.0.3",
 		"read-package-tree": "^5.3.1",
-		"semver": "^7.3.7"
+		"semver": "^7.3.7",
+		"yargs": "^17.6.2"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.17.10",

@@ -1,89 +1,179 @@
 import React from 'react';
-import parseArgs from 'minimist';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import { render } from 'ink';
-
 import List from './commands/list/List';
 import Update from './commands/update/Update';
 import { loadConfig } from './config';
 
-const run = async () => {
-	// parse argument options
-	const {
-		_: [command, ...depsToUpdate],
+const listCommand = async ({ appConfig }) => {
+	// console.log('list deps with:', appConfig);
+	render(<List config={appConfig} />);
+};
 
-		// show all dependencies including up to date ones
-		a,
-		all,
+const updateCommand = ({ appConfig }) => {
+	// console.log('update deps with:', appConfig);
+	render(<Update config={appConfig} />);
+};
 
-		// sort dependencies alphabetically
-		A,
-		alpha,
+const cliConfig = {
+	globalOptions: {
+		config: {
+			alias: 'c',
+			describe: '.refitrc file path',
+			type: 'string',
+			default: '.refitrc.json',
+		},
+		rootDir: {
+			alias: 'r',
+			describe: 'root directory of the package/repository',
+			type: 'string',
+			default: '',
+		},
+	},
+	commands: [
+		{
+			command: '*',
+			aliases: ['ls'],
+			desc: 'list all dependencies',
+			options: {
+				all: {
+					alias: 'a',
+					describe: 'show all dependencies including up to date ones',
+					type: 'boolean',
+					default: false,
+				},
+				alpha: {
+					alias: 'A',
+					describe: 'sort dependencies alphabetically',
+					type: 'boolean',
+					default: false,
+				},
+				depTypes: {
+					alias: 'd',
+					describe: 'filter by dependency type',
+					type: 'array',
+					default: [],
+				},
+				hoisted: {
+					alias: 'h',
+					describe: 'check for hoisted node modules',
+					type: 'boolean',
+					default: false,
+				},
+				monorepo: {
+					alias: 'm',
+					describe: 'specify if the package is a monorepo',
+					type: 'boolean',
+					default: false,
+				},
+				packages: {
+					alias: 'p',
+					describe: 'filter by package name',
+					type: 'array',
+					default: [],
+				},
+				updateTypes: {
+					alias: 'u',
+					describe: 'filter by update type',
+					type: 'array',
+					default: [],
+					choices: ['major', 'minor', 'patch'],
+				},
+				verbose: {
+					alias: 'v',
+					describe: 'display all columns of dependency information',
+					type: 'boolean',
+					default: false,
+				},
+			},
+			handler: listCommand,
+		},
+		{
+			command: 'update',
+			aliases: ['up'],
+			desc: 'update dependencies',
+			options: {
+				to: {
+					alias: 't',
+					describe: 'update dependencies to semver type',
+					type: 'string',
+					default: 'latest',
+					choices: ['latest', 'wanted', 'target'],
+				},
+			},
+			positional: {
+				key: 'dependencies',
+				options: {
+					describe: 'dependencies to update',
+					type: 'array',
+					default: [],
+				},
+			},
+			handler: updateCommand,
+		},
+	],
+};
 
-		// .refitrc file path
-		c,
-		config,
-
-		// filter by dependency type
-		d,
-		depTypes,
-
-		// check for hoisted node modules
-		h,
-		hoisted,
-
-		// specify if the package is a monorepo
-		m,
-		monorepo,
-
-		// filter by package
-		p,
-		package: filterByPackages,
-
-		// root directory of the monorepo
-		r,
-		rootDir,
-
-		// update dependencies to semver type
-		t,
-		to,
-
-		// filter by update type
-		u,
-		updateTypes,
-
-		// show all columns of dependency information
-		v,
-		verbose,
-	} = parseArgs(process.argv.slice(2));
-
+const withConfig = (argv) => {
 	// load the app config object
-	const appConfig = loadConfig(c || config, {
-		rootDir: r || rootDir,
-		filterByPackages: p || filterByPackages,
-		isMonorepo: m || monorepo,
-		isHoisted: h || hoisted,
-		config: c || config,
-		sortAlphabetical: A || alpha,
-		showAll: a || all,
-		updateTo: t || to,
-		filterByDepTypes: d || depTypes,
-		filterByUpdateTypes: u || updateTypes,
-		verbose: v || verbose,
-		filterByDeps: depsToUpdate,
+	const appConfig = loadConfig(argv.config, {
+		rootDir: argv.rootDir,
+		filterByPackages: argv.packages,
+		isMonorepo: argv.monorepo,
+		isHoisted: argv.hoisted,
+		sortAlphabetical: argv.alpha,
+		showAll: argv.all,
+		updateTo: argv.to,
+		filterByDepTypes: argv.depTypes,
+		filterByUpdateTypes: argv.updateTypes,
+		verbose: argv.verbose,
+		filterByDeps: argv.dependencies,
 	});
 
-	// TODO: maybe structure the base of this app like a standard react app
-	// create a base App component that renders the appropriate command
-	switch (command) {
-		case 'update':
-			render(<Update config={appConfig} />);
-			break;
+	// eslint-disable-next-line no-param-reassign
+	argv.appConfig = appConfig;
+};
 
-		case 'list':
-		default:
-			render(<List config={appConfig} />);
-			break;
+const createCli = (argv) => {
+	const cli = yargs(argv)
+		.middleware([withConfig])
+		.strict()
+		.help()
+		.showHelpOnFail(false)
+		.fail((msg, error) => {
+			console.log('cli:error :>> ', msg, error);
+		})
+		.scriptName('refit');
+
+	for (const command of cliConfig.commands) {
+		cli.command({
+			...command,
+			builder: (yargsInstance) => {
+				if (command.positional) {
+					yargsInstance.positional(
+						command.positional.key,
+						command.positional.options
+					);
+				}
+
+				if (command.options) {
+					yargsInstance.options(command.options);
+				}
+			},
+		});
 	}
+
+	cli.options(cliConfig.globalOptions);
+
+	return cli.parseAsync(argv);
+};
+
+const run = () => {
+	const argv = hideBin(process.argv);
+	createCli(argv).catch((error) => {
+		console.log('run:error', error);
+	});
 };
 
 export default run;
