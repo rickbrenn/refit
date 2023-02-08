@@ -4,6 +4,7 @@ import { hideBin } from 'yargs/helpers';
 import { render } from 'ink';
 import List from './commands/List';
 import Update from './commands/Update';
+import Wizard from './commands/Wizard';
 import { loadConfig } from './config';
 
 const listCommand = ({ appConfig }) => {
@@ -14,6 +15,11 @@ const listCommand = ({ appConfig }) => {
 const updateCommand = ({ appConfig }) => {
 	// console.log('update deps with:', appConfig);
 	render(<Update config={appConfig} />);
+};
+
+const wizardCommand = ({ appConfig }) => {
+	// console.log('update deps with:', appConfig);
+	render(<Wizard config={appConfig} />);
 };
 
 const cliConfig = {
@@ -111,6 +117,13 @@ const cliConfig = {
 				},
 			},
 			handler: updateCommand,
+		},
+		{
+			command: 'interactive',
+			aliases: ['i'],
+			desc: 'interactively update dependencies',
+			options: {},
+			handler: wizardCommand,
 		},
 	],
 };
