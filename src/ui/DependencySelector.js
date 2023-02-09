@@ -29,9 +29,9 @@ const DependencySelector = ({ items, onSelect, searchByKey }) => {
 			<Selector
 				items={filteredItems}
 				onSelect={onSelect}
-				limit={5}
+				limit={8}
 				createOption={searchText}
-				labelKey="value"
+				labelKey={searchByKey}
 			/>
 		</Box>
 	);

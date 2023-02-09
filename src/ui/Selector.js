@@ -2,14 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, useInput } from 'ink';
 
-const Selector = ({
-	items,
-	onSelect,
-	limit,
-	createOption,
-	labelKey,
-	valueKey,
-}) => {
+const Selector = ({ items, onSelect, limit, createOption, labelKey }) => {
 	const allItems = useMemo(() => {
 		const isInList = items.some((item) => item[labelKey] === createOption);
 		if (!createOption || isInList) {
@@ -19,12 +12,11 @@ const Selector = ({
 		return [
 			{
 				[labelKey]: createOption,
-				[valueKey]: createOption,
 				create: true,
 			},
 			...items,
 		];
-	}, [createOption, items, labelKey, valueKey]);
+	}, [createOption, items, labelKey]);
 
 	const lastItemIndex = allItems.length - 1;
 	const limitIndex = limit > 0 ? limit - 1 : lastItemIndex;
@@ -166,14 +158,12 @@ Selector.propTypes = {
 	limit: PropTypes.number,
 	createOption: PropTypes.string,
 	labelKey: PropTypes.string,
-	valueKey: PropTypes.string,
 };
 
 Selector.defaultProps = {
 	limit: 0,
 	createOption: null,
 	labelKey: 'label',
-	valueKey: 'value',
 };
 
 export default Selector;
