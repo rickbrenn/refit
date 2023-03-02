@@ -16,7 +16,7 @@ const semverUpdateColors = {
 	patch: 'green',
 };
 
-const getDiffVersionParts = (current, upgrade) => {
+const getDiffVersionParts = (current, upgrade, returnCurrent = false) => {
 	if (!current || !upgrade || current === upgrade) {
 		return {};
 	}
@@ -56,10 +56,12 @@ const getDiffVersionParts = (current, upgrade) => {
 		updateType = 'patch';
 	}
 
+	const returnParts = returnCurrent ? currentParts : upgradeParts;
+
 	// create strings for the colored and uncolored parts of the version
-	const midDot = diffIndex > 0 && diffIndex < upgradeParts.length ? '.' : '';
-	const uncoloredText = upgradeParts.slice(0, diffIndex).join('.');
-	const coloredText = upgradeParts.slice(diffIndex).join('.');
+	const midDot = diffIndex > 0 && diffIndex < returnParts.length ? '.' : '';
+	const uncoloredText = returnParts.slice(0, diffIndex).join('.');
+	const coloredText = returnParts.slice(diffIndex).join('.');
 
 	return {
 		color: semverUpdateColors[updateType],
@@ -111,6 +113,8 @@ const getDependencyInfo = async ({
 					uncoloredText: '',
 					coloredText: '',
 				},
+				versions: [],
+				distTags: {},
 			};
 		}
 
@@ -122,10 +126,11 @@ const getDependencyInfo = async ({
 		const registryData = await pacote.packument(name, {}); // TODO: add optional options?
 
 		const versions = Object.keys(registryData.versions);
+		const distTags = registryData['dist-tags'];
 
 		// versions
 		const wantedVersion = semver.maxSatisfying(versions, targetRange);
-		const latestVersion = registryData['dist-tags'].latest;
+		const latestVersion = distTags.latest;
 
 		// ranges
 		const wantedRange = currentWildcard + wantedVersion;
@@ -159,6 +164,7 @@ const getDependencyInfo = async ({
 		// ).json();
 		// const npmLink = npmsInfo?.collected?.metadata?.links?.npm;
 
+		// TODO: make a mapping function for this obj instead of copy/pasting it?
 		return {
 			name,
 			type,
@@ -188,6 +194,8 @@ const getDependencyInfo = async ({
 				uncoloredText,
 				coloredText,
 			},
+			versions,
+			distTags,
 		};
 	} catch (error) {
 		return {
@@ -220,6 +228,8 @@ const getDependencyInfo = async ({
 				uncoloredText: '',
 				coloredText: '',
 			},
+			versions: [],
+			distTags: {},
 		};
 	}
 };
@@ -384,6 +394,7 @@ const getDependenciesFromPackageJson = ({ pkgJsonData }) => {
 };
 
 export {
+	getDiffVersionParts,
 	getDependencyInfo,
 	getDependencyList,
 	getDependenciesFromPackageJson,

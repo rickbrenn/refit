@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import chalk from 'chalk';
 
 const defaultConfig = {
 	rootDir: '',
@@ -22,11 +21,6 @@ const loadConfig = (configFile, overrides = {}) => {
 	try {
 		const configPath = path.resolve(configFile || '.refitrc.json');
 		const configExists = fs.existsSync(configPath);
-
-		// notify the user of a bad config argument
-		if (configFile && !configExists) {
-			console.log(chalk.red('Config not found in specified location.'));
-		}
 
 		const userConfig = configExists ? fs.readFileSync(configPath) : {};
 

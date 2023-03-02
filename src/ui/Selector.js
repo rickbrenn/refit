@@ -1,22 +1,62 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, useInput } from 'ink';
+import inkInput from 'ink-text-input';
 
-const Selector = ({ items, onSelect, limit, createOption, labelKey }) => {
+const { default: TextInput } = inkInput;
+
+const Selector = ({
+	items,
+	onSelect,
+	limit,
+	labelKey,
+	title,
+	renderTitle,
+	searchable,
+	searchByKey,
+	creatable,
+	renderItem,
+}) => {
+	const [searchText, setSearchText] = useState('');
+
+	const getItemName = useCallback(
+		(item) => (typeof item === 'string' ? item : item[labelKey]),
+		[labelKey]
+	);
+
 	const allItems = useMemo(() => {
-		const isInList = items.some((item) => item[labelKey] === createOption);
-		if (!createOption || isInList) {
-			return items;
+		let baseItems = items;
+
+		// filter out items that don't match the search text
+		if (searchable && searchText) {
+			baseItems = items.filter((i) =>
+				i[searchByKey].includes(searchText)
+			);
+
+			// add the search text as a create option if it doesn't exist in the list
+			if (creatable) {
+				const isInList = baseItems.some(
+					(item) => getItemName(item) === searchText
+				);
+				if (!isInList) {
+					baseItems.unshift({
+						[labelKey]: searchText,
+						create: true,
+					});
+				}
+			}
 		}
 
-		return [
-			{
-				[labelKey]: createOption,
-				create: true,
-			},
-			...items,
-		];
-	}, [createOption, items, labelKey]);
+		return baseItems;
+	}, [
+		items,
+		labelKey,
+		getItemName,
+		searchText,
+		searchByKey,
+		creatable,
+		searchable,
+	]);
 
 	const lastItemIndex = allItems.length - 1;
 	const limitIndex = limit > 0 ? limit - 1 : lastItemIndex;
@@ -124,46 +164,90 @@ const Selector = ({ items, onSelect, limit, createOption, labelKey }) => {
 		return allItems.slice(listIndexes.viewStart, listIndexes.viewEnd + 1);
 	}, [limit, allItems, listIndexes]);
 
+	const titleComponent = useMemo(() => {
+		if (renderTitle) {
+			return renderTitle();
+		}
+
+		if (title) {
+			return (
+				<Box marginBottom={1}>
+					<Text>{title}</Text>
+				</Box>
+			);
+		}
+
+		return null;
+	}, [title, renderTitle]);
+
 	return (
-		<Box flexDirection="column">
-			{visibleItems.map((item, index) => {
-				const selected = listIndexes.viewSelected === index;
-				const itemName = item[labelKey];
+		<Box flexDirection="column" marginTop={1} marginBottom={1}>
+			{titleComponent}
+			{searchable && (
+				<Box marginBottom={1}>
+					<Text>search: </Text>
+					<TextInput value={searchText} onChange={setSearchText} />
+				</Box>
+			)}
+			<Box flexDirection="column">
+				{visibleItems.map((item, index) => {
+					const selected = listIndexes.viewSelected === index;
+					const itemName = getItemName(item);
+					const textColor = selected ? 'blue' : undefined;
 
-				const baseColor = item.create ? 'green' : undefined;
-				const selectedColor = item.create ? baseColor : 'blue';
-				const textColor = selected ? selectedColor : baseColor;
+					let itemComp = <Text color={textColor}>{itemName}</Text>;
 
-				return (
-					<Box key={itemName}>
-						<Box marginRight={1}>
-							<Text color="blue">{selected ? '>' : ' '}</Text>
-						</Box>
-						{item.create && (
-							<Box marginRight={1}>
-								<Text color="green">[+]</Text>
+					if (item.create) {
+						itemComp = (
+							<Box>
+								<Box marginRight={1}>
+									<Text color="green">[+]</Text>
+								</Box>
+								<Text color="green">{itemName}</Text>
 							</Box>
-						)}
-						<Text color={textColor}>{itemName}</Text>
-					</Box>
-				);
-			})}
+						);
+					} else if (renderItem) {
+						itemComp = renderItem(item, selected, textColor);
+					}
+
+					return (
+						<Box key={itemName}>
+							<Box marginRight={1}>
+								<Text color="blue">{selected ? '❯' : ' '}</Text>
+							</Box>
+							{itemComp}
+						</Box>
+					);
+				})}
+			</Box>
 		</Box>
 	);
 };
 
 Selector.propTypes = {
-	items: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+	items: PropTypes.arrayOf(
+		PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string])
+	).isRequired,
 	onSelect: PropTypes.func.isRequired,
 	limit: PropTypes.number,
-	createOption: PropTypes.string,
 	labelKey: PropTypes.string,
+	title: PropTypes.string,
+	renderTitle: PropTypes.func,
+	searchable: PropTypes.bool,
+	searchByKey: PropTypes.string,
+	creatable: PropTypes.bool,
+	renderItem: PropTypes.func,
 };
 
 Selector.defaultProps = {
 	limit: 0,
-	createOption: null,
 	labelKey: 'label',
+	title: '',
+	renderTitle: null,
+	searchable: false,
+	searchByKey: 'label',
+	creatable: false,
+	renderItem: null,
 };
 
 export default Selector;

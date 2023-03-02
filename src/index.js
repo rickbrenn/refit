@@ -122,7 +122,20 @@ const cliConfig = {
 			command: 'interactive',
 			aliases: ['i'],
 			desc: 'interactively update dependencies',
-			options: {},
+			options: {
+				hoisted: {
+					alias: 'h',
+					describe: 'check for hoisted node modules',
+					type: 'boolean',
+					default: false,
+				},
+				monorepo: {
+					alias: 'm',
+					describe: 'specify if the package is a monorepo',
+					type: 'boolean',
+					default: false,
+				},
+			},
 			handler: wizardCommand,
 		},
 	],
