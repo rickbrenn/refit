@@ -5,26 +5,83 @@ import inkInput from 'ink-text-input';
 
 const { default: TextInput } = inkInput;
 
-const Selector = ({
-	items,
-	onSelect,
-	limit,
-	labelKey,
-	title,
-	renderTitle,
-	searchable,
-	searchByKey,
-	creatable,
-	renderItem,
-}) => {
-	const [searchText, setSearchText] = useState('');
+const getItemName = (item, key) =>
+	typeof item === 'string' ? item : item[key];
 
-	const getItemName = useCallback(
-		(item) => (typeof item === 'string' ? item : item[labelKey]),
-		[labelKey]
+const useListView = ({ items, limit }) => {
+	const [highlightedIndex, setHighlightedIndex] = useState(0);
+
+	useInput((input, key) => {
+		// move up the list
+		if (key.upArrow) {
+			setHighlightedIndex((prev) => {
+				if (prev === 0) {
+					return items.length - 1;
+				}
+				return prev - 1;
+			});
+		}
+
+		// move down the list
+		if (key.downArrow) {
+			setHighlightedIndex((prev) => {
+				if (prev === items.length - 1) {
+					return 0;
+				}
+				return prev + 1;
+			});
+		}
+	});
+
+	useEffect(() => {
+		// reset the highlighted index when the items change
+		setHighlightedIndex(0);
+	}, [items]);
+
+	const visible = useMemo(() => {
+		if (!limit) {
+			return {
+				items,
+				indexes: Array(items).keys(),
+			};
+		}
+
+		const viewLimit = Math.min(limit, items.length);
+		let viewStart = Math.max(
+			0,
+			highlightedIndex - Math.floor(viewLimit / 2)
+		);
+		const viewEnd = Math.min(items.length - 1, viewStart + viewLimit - 1);
+		viewStart = Math.min(viewStart, viewEnd - viewLimit + 1);
+
+		const visibleItems = items.slice(viewStart, viewEnd + 1);
+		const visibleItemsIndexes = Array.from(
+			{ length: viewLimit },
+			(v, i) => viewStart + i
+		);
+
+		return {
+			items: visibleItems,
+			indexes: visibleItemsIndexes,
+		};
+	}, [highlightedIndex, limit, items]);
+
+	const getIndex = useCallback(
+		(index) => (visible.indexes.length ? visible.indexes[index] : index),
+		[visible.indexes]
 	);
 
-	const allItems = useMemo(() => {
+	return {
+		highlightedIndex,
+		visibleItems: visible.items,
+		getIndex,
+	};
+};
+
+const useSearch = ({ items, searchable, creatable, labelKey, searchByKey }) => {
+	const [searchText, setSearchText] = useState('');
+
+	const searchResults = useMemo(() => {
 		let baseItems = items;
 
 		// filter out items that don't match the search text
@@ -36,7 +93,7 @@ const Selector = ({
 			// add the search text as a create option if it doesn't exist in the list
 			if (creatable) {
 				const isInList = baseItems.some(
-					(item) => getItemName(item) === searchText
+					(item) => getItemName(item, labelKey) === searchText
 				);
 				if (!isInList) {
 					baseItems.unshift({
@@ -48,121 +105,37 @@ const Selector = ({
 		}
 
 		return baseItems;
-	}, [
-		items,
-		labelKey,
-		getItemName,
-		searchText,
-		searchByKey,
-		creatable,
-		searchable,
-	]);
+	}, [items, labelKey, searchText, searchByKey, creatable, searchable]);
 
-	const lastItemIndex = allItems.length - 1;
-	const limitIndex = limit > 0 ? limit - 1 : lastItemIndex;
-	const halfLimitIndex = Math.ceil(limitIndex / 2);
+	const searchComponent = useMemo(() => {
+		return searchable ? (
+			<Box marginBottom={1}>
+				<Text>search: </Text>
+				<TextInput value={searchText} onChange={setSearchText} />
+			</Box>
+		) : null;
+	}, [searchable, searchText]);
 
-	const initialState = useMemo(
-		() => ({
-			viewStart: 0,
-			viewEnd: limitIndex,
-			viewSelected: 0,
-			selected: 0,
-		}),
-		[limitIndex]
-	);
+	return {
+		searchResults,
+		searchComponent,
+	};
+};
 
-	const [listIndexes, setListIndexes] = useState(initialState);
-
-	useInput((input, key) => {
-		// select an item in the list
-		if (key.return) {
-			onSelect(allItems[listIndexes.selected]);
-			return;
-		}
-
-		// move up the list
-		if (key.upArrow) {
-			setListIndexes((prev) => {
-				const { viewStart, viewEnd, viewSelected, selected } = prev;
-
-				// if we're at the top of the list, go to the bottom
-				if (selected === 0) {
-					return {
-						viewStart: Math.max(0, lastItemIndex - limitIndex),
-						viewEnd: lastItemIndex,
-						viewSelected: Math.min(lastItemIndex, limitIndex),
-						selected: lastItemIndex,
-					};
-				}
-
-				// if there's a view limit scroll the list view up
-				if (limit && viewStart > 0) {
-					const middleIndex = viewStart + halfLimitIndex;
-
-					if (selected === middleIndex) {
-						return {
-							viewStart: viewStart - 1,
-							viewEnd: viewEnd - 1,
-							viewSelected: halfLimitIndex,
-							selected: selected - 1,
-						};
-					}
-				}
-
-				return {
-					...prev,
-					selected: selected - 1,
-					viewSelected: viewSelected - 1,
-				};
-			});
-		}
-
-		// move down the list
-		if (key.downArrow) {
-			setListIndexes((prev) => {
-				const { viewStart, viewEnd, viewSelected, selected } = prev;
-
-				// if we're at the bottom of the list, go to the top
-				if (selected === lastItemIndex) {
-					return initialState;
-				}
-
-				// if there's a view limit scroll the list view down
-				if (limit && viewEnd < lastItemIndex) {
-					const middleIndex = viewStart + halfLimitIndex;
-
-					if (selected === middleIndex) {
-						return {
-							viewStart: viewStart + 1,
-							viewEnd: viewEnd + 1,
-							viewSelected: halfLimitIndex,
-							selected: selected + 1,
-						};
-					}
-				}
-
-				return {
-					...prev,
-					selected: selected + 1,
-					viewSelected: viewSelected + 1,
-				};
-			});
-		}
-	});
-
-	useEffect(() => {
-		// reset the highlighted index when the items or limit change
-		setListIndexes(initialState);
-	}, [allItems, initialState]);
-
-	const visibleItems = useMemo(() => {
-		if (!limit) {
-			return allItems;
-		}
-
-		return allItems.slice(listIndexes.viewStart, listIndexes.viewEnd + 1);
-	}, [limit, allItems, listIndexes]);
+const List = ({
+	title,
+	renderTitle,
+	searchComponent,
+	items,
+	getIndex,
+	highlightedIndex,
+	labelKey,
+	selectedIndexes,
+	renderItem,
+	selectable,
+	creatable,
+}) => {
+	const isSelected = (index) => selectable && selectedIndexes.includes(index);
 
 	const titleComponent = useMemo(() => {
 		if (renderTitle) {
@@ -181,23 +154,24 @@ const Selector = ({
 	}, [title, renderTitle]);
 
 	return (
-		<Box flexDirection="column" marginTop={1} marginBottom={1}>
+		<Box flexDirection="column">
 			{titleComponent}
-			{searchable && (
-				<Box marginBottom={1}>
-					<Text>search: </Text>
-					<TextInput value={searchText} onChange={setSearchText} />
-				</Box>
-			)}
+			{searchComponent}
 			<Box flexDirection="column">
-				{visibleItems.map((item, index) => {
-					const selected = listIndexes.viewSelected === index;
-					const itemName = getItemName(item);
-					const textColor = selected ? 'blue' : undefined;
+				{items.map((item, index) => {
+					/*
+						const { actualIndex, itemName, highlighted, selected } = getItemInfo(item, index);
+					*/
+					const actualIndex = getIndex(index);
+					const highlighted = actualIndex === highlightedIndex;
+					const itemName = getItemName(item, labelKey);
+					const textColor = highlighted ? 'blue' : undefined;
+
+					const selected = isSelected(actualIndex);
 
 					let itemComp = <Text color={textColor}>{itemName}</Text>;
 
-					if (item.create) {
+					if (item.create && creatable) {
 						itemComp = (
 							<Box>
 								<Box marginRight={1}>
@@ -207,20 +181,194 @@ const Selector = ({
 							</Box>
 						);
 					} else if (renderItem) {
-						itemComp = renderItem(item, selected, textColor);
+						itemComp = renderItem(item, highlighted, textColor);
 					}
 
 					return (
 						<Box key={itemName}>
 							<Box marginRight={1}>
-								<Text color="blue">{selected ? '❯' : ' '}</Text>
+								<Text color="blue">
+									{highlighted ? '❯' : ' '}
+								</Text>
 							</Box>
+							{selectable && (
+								<Box marginRight={1}>
+									<Text>{selected ? '◉' : '◯'}</Text>
+								</Box>
+							)}
 							{itemComp}
 						</Box>
 					);
 				})}
 			</Box>
 		</Box>
+	);
+};
+
+List.propTypes = {
+	items: PropTypes.arrayOf(
+		PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string])
+	).isRequired,
+	labelKey: PropTypes.string,
+	title: PropTypes.string,
+	renderTitle: PropTypes.func,
+	renderItem: PropTypes.func,
+	searchComponent: PropTypes.node,
+	getIndex: PropTypes.func.isRequired,
+	highlightedIndex: PropTypes.number.isRequired,
+	selectedIndexes: PropTypes.arrayOf(PropTypes.number),
+	selectable: PropTypes.bool,
+	creatable: PropTypes.bool,
+};
+
+List.defaultProps = {
+	labelKey: 'label',
+	title: '',
+	renderTitle: null,
+	renderItem: null,
+	searchComponent: null,
+	selectedIndexes: [],
+	selectable: false,
+	creatable: false,
+};
+
+const CheckSelector = ({
+	items,
+	onSelect,
+	limit,
+	labelKey,
+	title,
+	renderTitle,
+	// searchable,
+	// searchByKey,
+	renderItem,
+}) => {
+	// const { searchResults, searchComponent } = useSearch({
+	// 	items,
+	// 	searchable,
+	// 	creatable: false,
+	// 	labelKey,
+	// 	searchByKey,
+	// });
+	const { highlightedIndex, visibleItems, getIndex } = useListView({
+		items,
+		limit,
+	});
+	const [selectedIndexes, setSelectedIndexes] = useState([]);
+
+	useInput((input, key) => {
+		// select an item in the list
+		if (key.return) {
+			onSelect(selectedIndexes.map((i) => items[i]));
+			return;
+		}
+
+		// select or deselect an item
+		if (input === ' ') {
+			setSelectedIndexes((prev) => {
+				if (prev.includes(highlightedIndex)) {
+					return prev.filter((i) => i !== highlightedIndex);
+				}
+				return [...prev, highlightedIndex];
+			});
+		}
+
+		// select all items
+		if (input === 'a') {
+			setSelectedIndexes((prev) => {
+				if (prev.length === items.length) {
+					return [];
+				}
+				return items.map((_, index) => index);
+			});
+		}
+	});
+
+	return (
+		<List
+			title={title}
+			renderTitle={renderTitle}
+			// searchComponent={searchComponent}
+			items={visibleItems}
+			getIndex={getIndex}
+			highlightedIndex={highlightedIndex}
+			labelKey={labelKey}
+			selectedIndexes={selectedIndexes}
+			renderItem={renderItem}
+			selectable
+			creatable={false}
+		/>
+	);
+};
+
+CheckSelector.propTypes = {
+	items: PropTypes.arrayOf(
+		PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string])
+	).isRequired,
+	onSelect: PropTypes.func.isRequired,
+	limit: PropTypes.number,
+	labelKey: PropTypes.string,
+	title: PropTypes.string,
+	renderTitle: PropTypes.func,
+	// searchable: PropTypes.bool,
+	// searchByKey: PropTypes.string,
+	renderItem: PropTypes.func,
+};
+
+CheckSelector.defaultProps = {
+	limit: 0,
+	labelKey: 'label',
+	title: '',
+	renderTitle: null,
+	// searchable: false,
+	// searchByKey: 'label',
+	renderItem: null,
+};
+
+const Selector = ({
+	items,
+	onSelect,
+	limit,
+	labelKey,
+	title,
+	renderTitle,
+	searchable,
+	searchByKey,
+	creatable,
+	renderItem,
+}) => {
+	const { searchResults, searchComponent } = useSearch({
+		items,
+		searchable,
+		creatable,
+		labelKey,
+		searchByKey,
+	});
+	const { highlightedIndex, visibleItems, getIndex } = useListView({
+		items: searchResults,
+		limit,
+	});
+
+	useInput((input, key) => {
+		// select an item in the list
+		if (key.return) {
+			onSelect(searchResults[highlightedIndex]);
+		}
+	});
+
+	return (
+		<List
+			title={title}
+			renderTitle={renderTitle}
+			searchComponent={searchComponent}
+			items={visibleItems}
+			getIndex={getIndex}
+			highlightedIndex={highlightedIndex}
+			labelKey={labelKey}
+			renderItem={renderItem}
+			selectable={false}
+			creatable
+		/>
 	);
 };
 
@@ -250,4 +398,4 @@ Selector.defaultProps = {
 	renderItem: null,
 };
 
-export default Selector;
+export { Selector, CheckSelector };

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 
 import Loader from '../ui/Loader';
-import Selector from '../ui/Selector';
+import { Selector, CheckSelector } from '../ui/Selector';
 
 import { getRootPath } from '../common/filesystem';
 import { getPackages } from '../common/packages';
@@ -346,7 +346,7 @@ const Wizard = ({ config }) => {
 		{
 			title: 'Selected Dependency:',
 			value: selections.dependency?.name,
-			show: false,
+			show: true,
 			component: (
 				<Selector
 					items={dependencies}
@@ -364,7 +364,7 @@ const Wizard = ({ config }) => {
 		{
 			title: 'Selected Version:',
 			value: selections.version?.version,
-			show: false,
+			show: true,
 			component: (
 				<Selector
 					items={versionOptions}
@@ -409,7 +409,14 @@ const Wizard = ({ config }) => {
 			value: selections.packages,
 			show: config.isMonorepo,
 			component: (
-				<Selector
+				// <Selector
+				// 	items={Object.keys(packages).map((pkg) => ({ name: pkg }))}
+				// 	onSelect={handlePackageSelect}
+				// 	limit={8}
+				// 	labelKey="name"
+				// 	title="Select a package below"
+				// />
+				<CheckSelector
 					items={Object.keys(packages).map((pkg) => ({ name: pkg }))}
 					onSelect={handlePackageSelect}
 					limit={8}
@@ -425,27 +432,25 @@ const Wizard = ({ config }) => {
 				</Box>
 			),
 		},
-		{
-			component: (
-				<Box>
-					<Text>Done</Text>
-				</Box>
-			),
-		},
 	].filter((p) => p.show !== false);
 
 	return (
-		<Box flexDirection="column" marginTop={1}>
-			{steps.map((result) => {
-				return result.value ? (
-					<Box flexDirection="row" key={result.value}>
-						<Box marginRight={1}>
-							<Text bold>{result.title}</Text>
+		<Box flexDirection="column" marginTop={1} marginBottom={1}>
+			<Box
+				flexDirection="column"
+				marginBottom={steps.some(({ value }) => !!value) ? 1 : 0}
+			>
+				{steps.map((result) => {
+					return result.value ? (
+						<Box flexDirection="row" key={result.value}>
+							<Box marginRight={1}>
+								<Text bold>{result.title}</Text>
+							</Box>
+							<Text color="green">{result.value}</Text>
 						</Box>
-						<Text color="green">{result.value}</Text>
-					</Box>
-				) : null;
-			})}
+					) : null;
+				})}
+			</Box>
 			{steps[step].component}
 		</Box>
 	);
