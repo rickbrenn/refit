@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useLayoutEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, useInput } from 'ink';
 import inkInput from 'ink-text-input';
@@ -33,7 +33,7 @@ const useListView = ({ items, limit }) => {
 		}
 	});
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		// reset the highlighted index when the items change
 		setHighlightedIndex(0);
 	}, [items]);
@@ -134,6 +134,8 @@ const List = ({
 	renderItem,
 	selectable,
 	creatable,
+	renderHighlighter,
+	renderSelector,
 }) => {
 	const isSelected = (index) => selectable && selectedIndexes.includes(index);
 
@@ -181,20 +183,33 @@ const List = ({
 							</Box>
 						);
 					} else if (renderItem) {
-						itemComp = renderItem(item, highlighted, textColor);
+						itemComp = renderItem(
+							item,
+							highlighted,
+							selected,
+							textColor
+						);
+					}
+
+					let highlightComp = (
+						<Text color="blue">{highlighted ? '❯' : ' '}</Text>
+					);
+
+					if (renderHighlighter) {
+						highlightComp = renderHighlighter(item, highlighted);
+					}
+
+					let selectorComp = <Text>{selected ? '◉' : '◯'}</Text>;
+
+					if (renderSelector) {
+						selectorComp = renderSelector(item, selected);
 					}
 
 					return (
 						<Box key={itemName}>
-							<Box marginRight={1}>
-								<Text color="blue">
-									{highlighted ? '❯' : ' '}
-								</Text>
-							</Box>
+							<Box marginRight={1}>{highlightComp}</Box>
 							{selectable && (
-								<Box marginRight={1}>
-									<Text>{selected ? '◉' : '◯'}</Text>
-								</Box>
+								<Box marginRight={1}>{selectorComp}</Box>
 							)}
 							{itemComp}
 						</Box>
@@ -219,6 +234,8 @@ List.propTypes = {
 	selectedIndexes: PropTypes.arrayOf(PropTypes.number),
 	selectable: PropTypes.bool,
 	creatable: PropTypes.bool,
+	renderHighlighter: PropTypes.func,
+	renderSelector: PropTypes.func,
 };
 
 List.defaultProps = {
@@ -230,6 +247,8 @@ List.defaultProps = {
 	selectedIndexes: [],
 	selectable: false,
 	creatable: false,
+	renderHighlighter: null,
+	renderSelector: null,
 };
 
 const CheckSelector = ({
@@ -242,6 +261,8 @@ const CheckSelector = ({
 	// searchable,
 	// searchByKey,
 	renderItem,
+	renderHighlighter,
+	renderSelector,
 }) => {
 	// const { searchResults, searchComponent } = useSearch({
 	// 	items,
@@ -288,6 +309,8 @@ const CheckSelector = ({
 		<List
 			title={title}
 			renderTitle={renderTitle}
+			renderHighlighter={renderHighlighter}
+			renderSelector={renderSelector}
 			// searchComponent={searchComponent}
 			items={visibleItems}
 			getIndex={getIndex}
@@ -313,6 +336,8 @@ CheckSelector.propTypes = {
 	// searchable: PropTypes.bool,
 	// searchByKey: PropTypes.string,
 	renderItem: PropTypes.func,
+	renderHighlighter: PropTypes.func,
+	renderSelector: PropTypes.func,
 };
 
 CheckSelector.defaultProps = {
@@ -323,6 +348,8 @@ CheckSelector.defaultProps = {
 	// searchable: false,
 	// searchByKey: 'label',
 	renderItem: null,
+	renderHighlighter: null,
+	renderSelector: null,
 };
 
 const Selector = ({
@@ -336,6 +363,8 @@ const Selector = ({
 	searchByKey,
 	creatable,
 	renderItem,
+	renderHighlighter,
+	renderSelector,
 }) => {
 	const { searchResults, searchComponent } = useSearch({
 		items,
@@ -360,6 +389,8 @@ const Selector = ({
 		<List
 			title={title}
 			renderTitle={renderTitle}
+			renderHighlighter={renderHighlighter}
+			renderSelector={renderSelector}
 			searchComponent={searchComponent}
 			items={visibleItems}
 			getIndex={getIndex}
@@ -385,6 +416,8 @@ Selector.propTypes = {
 	searchByKey: PropTypes.string,
 	creatable: PropTypes.bool,
 	renderItem: PropTypes.func,
+	renderHighlighter: PropTypes.func,
+	renderSelector: PropTypes.func,
 };
 
 Selector.defaultProps = {
@@ -396,6 +429,8 @@ Selector.defaultProps = {
 	searchByKey: 'label',
 	creatable: false,
 	renderItem: null,
+	renderHighlighter: null,
+	renderSelector: null,
 };
 
 export { Selector, CheckSelector };
