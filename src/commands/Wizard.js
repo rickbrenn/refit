@@ -9,37 +9,25 @@ import { getRootPath } from '../common/filesystem';
 import { getPackages } from '../common/packages';
 import { getDependencyList, getDiffVersionParts } from '../common/dependencies';
 
-/* 
-	- figure out steps config / only showing packages step for monorepos
-	- figure out packages options structure and what data is needed
-	- add summary step
-	- add final update step
+/*
+	NEXT:
+	- add final step to update packages
 
-	- consolidate loader state
-	- abstract out loader functionality
-	- address TODOs 
-	- handle no packages
-	- trim search text (bug in ink-text-input with this)
-	- add selected options from previous steps to top of UI
 */
 
 const Wizard = ({ config }) => {
 	const [loading, setLoading] = useState(true);
 	const [loaderText, setLoaderText] = useState('Loading the truck..');
 
-	const [step, setStep] = useState(0);
-
 	const [packages, setPackages] = useState([]);
 	const [dependencies, setDependencies] = useState([]);
 
-	const [selections, setSelections] = useState({
+	const [wizardState, setWizardState] = useState({
+		step: 0,
+		updates: [],
 		dependency: null,
 		version: null,
-		packages: null,
 	});
-
-	// const [dependency, setDependency] = useState(null);
-	// const [version, setVersion] = useState(null);
 
 	const updateProgress = useCallback(
 		(progressCurrent, progressMax, packageName) => {
@@ -209,36 +197,76 @@ const Wizard = ({ config }) => {
 	}, [config, updateProgress]);
 
 	const handleDependencySelect = (value) => {
-		// console.log('selected: ', value);
-
-		setSelections((prevState) => ({
+		setWizardState((prevState) => ({
 			...prevState,
 			dependency: value,
+			step: 1,
 		}));
-
-		setStep(1);
 	};
 
 	const handleVersionSelect = (value) => {
-		console.log('selected: ', value);
-
-		setSelections((prevState) => ({
+		setWizardState((prevState) => ({
 			...prevState,
 			version: value,
+			step: 2,
 		}));
-
-		setStep(2);
 	};
 
 	const handlePackageSelect = (value) => {
-		console.log('selected: ', value);
-
-		setSelections((prevState) => ({
+		setWizardState((prevState) => ({
 			...prevState,
-			packages: value.name,
+			updates: [
+				...prevState.updates,
+				{
+					dependency: prevState.dependency,
+					version: prevState.version,
+					packages: value,
+				},
+			],
+			step: 3,
 		}));
+	};
 
-		setStep(3);
+	const handleFinalStep = (value) => {
+		if (value === 'Done') {
+			setWizardState((prevState) => ({
+				...prevState,
+				version: null,
+				dependency: null,
+				step: 5,
+			}));
+		}
+
+		if (value === 'Edit updates') {
+			setWizardState((prevState) => ({
+				...prevState,
+				version: null,
+				dependency: null,
+				step: 4,
+			}));
+		}
+
+		if (value === 'Add another') {
+			setWizardState((prevState) => ({
+				...prevState,
+				version: null,
+				dependency: null,
+				step: 0,
+			}));
+		}
+	};
+
+	const handleRemoveUpdate = (value) => {
+		setWizardState((prevState) => {
+			const updates = prevState.updates.filter(
+				(_, index) => index !== value.index
+			);
+			return {
+				...prevState,
+				updates,
+				step: updates.length ? 3 : 0,
+			};
+		});
 	};
 
 	useEffect(() => {
@@ -250,7 +278,7 @@ const Wizard = ({ config }) => {
 			versions = [],
 			distTags = {},
 			apps = {},
-		} = selections.dependency || {};
+		} = wizardState?.dependency || {};
 
 		const sortedVersions = [...versions].reverse();
 
@@ -280,9 +308,9 @@ const Wizard = ({ config }) => {
 		}
 
 		return options;
-	}, [selections.dependency]);
+	}, [wizardState?.dependency]);
 
-	const renderDependencyItem = (item, selected, textColor) => {
+	const renderDependencyItem = (item, highlighted, selected, textColor) => {
 		const installedVersions = Object.values(item.versionData);
 
 		const coloredVersionsComponent = installedVersions.reduce(
@@ -345,11 +373,15 @@ const Wizard = ({ config }) => {
 	const steps = [
 		{
 			title: 'Selected Dependency:',
-			value: selections.dependency?.name,
-			show: true,
+			value: wizardState?.dependency?.name,
 			component: (
 				<Selector
-					items={dependencies}
+					items={dependencies.filter(
+						(dep) =>
+							!wizardState.updates.some(
+								(update) => update.dependency.name === dep.name
+							)
+					)}
 					onSelect={handleDependencySelect}
 					limit={8}
 					labelKey="name"
@@ -363,8 +395,7 @@ const Wizard = ({ config }) => {
 		},
 		{
 			title: 'Selected Version:',
-			value: selections.version?.version,
-			show: true,
+			value: wizardState?.version?.version,
 			component: (
 				<Selector
 					items={versionOptions}
@@ -374,7 +405,7 @@ const Wizard = ({ config }) => {
 					title="Select a version below to install"
 					searchable
 					searchByKey="version"
-					renderItem={(item, selected, textColor) => {
+					renderItem={(item, highlighted, selected, textColor) => {
 						// console.log('item :>> ', item);
 
 						return (
@@ -405,23 +436,83 @@ const Wizard = ({ config }) => {
 			),
 		},
 		{
-			title: 'Selected Package:',
-			value: selections.packages,
-			show: config.isMonorepo,
+			// show: config.isMonorepo,
 			component: (
-				// <Selector
-				// 	items={Object.keys(packages).map((pkg) => ({ name: pkg }))}
-				// 	onSelect={handlePackageSelect}
-				// 	limit={8}
-				// 	labelKey="name"
-				// 	title="Select a package below"
-				// />
 				<CheckSelector
-					items={Object.keys(packages).map((pkg) => ({ name: pkg }))}
+					items={Object.keys(packages)}
 					onSelect={handlePackageSelect}
 					limit={8}
-					labelKey="name"
 					title="Select a package below"
+				/>
+			),
+		},
+		{
+			showProgress: false,
+			component: (
+				<Box flexDirection="column">
+					<Box marginBottom={1}>
+						<Text>Summary:</Text>
+					</Box>
+					<Box marginLeft={1} marginBottom={1} flexDirection="column">
+						{wizardState.updates.map((update) => {
+							return (
+								<Box key={update.dependency.name}>
+									<Box marginRight={1}>
+										<Text>{`${update.dependency.name}@${update.version.version}`}</Text>
+									</Box>
+									{
+										/* config.isMonorepo */ true && (
+											<Text>{`(${update.packages.join(
+												', '
+											)})`}</Text>
+										)
+									}
+								</Box>
+							);
+						})}
+					</Box>
+					<Selector
+						items={['Add another', 'Edit updates', 'Done']}
+						onSelect={handleFinalStep}
+					/>
+				</Box>
+			),
+		},
+		{
+			showProgress: false,
+			component: (
+				<Selector
+					items={wizardState.updates.map((u, i) => ({
+						...u,
+						name: u.dependency.name,
+						index: i,
+					}))}
+					onSelect={handleRemoveUpdate}
+					limit={8}
+					labelKey="name"
+					title="Select updates to remove"
+					renderHighlighter={(item, highlighted) => {
+						return (
+							<Text color="red">{highlighted ? 'X' : ' '}</Text>
+						);
+					}}
+					renderItem={(item) => {
+						const value = `${item.dependency.name}@${item.version.version}`;
+						return (
+							<Box key={value}>
+								<Box marginRight={1}>
+									<Text>{value}</Text>
+								</Box>
+								{
+									/* config.isMonorepo */ true && (
+										<Text>{`(${item.packages.join(
+											', '
+										)})`}</Text>
+									)
+								}
+							</Box>
+						);
+					}}
 				/>
 			),
 		},
@@ -434,24 +525,28 @@ const Wizard = ({ config }) => {
 		},
 	].filter((p) => p.show !== false);
 
+	const { component, showProgress } = steps[wizardState.step];
+
 	return (
 		<Box flexDirection="column" marginTop={1} marginBottom={1}>
-			<Box
-				flexDirection="column"
-				marginBottom={steps.some(({ value }) => !!value) ? 1 : 0}
-			>
-				{steps.map((result) => {
-					return result.value ? (
-						<Box flexDirection="row" key={result.value}>
-							<Box marginRight={1}>
-								<Text bold>{result.title}</Text>
+			{showProgress !== false && (
+				<Box
+					flexDirection="column"
+					marginBottom={steps.some(({ value }) => !!value) ? 1 : 0}
+				>
+					{steps.map((result) => {
+						return result.value ? (
+							<Box flexDirection="row" key={result.value}>
+								<Box marginRight={1}>
+									<Text bold>{result.title}</Text>
+								</Box>
+								<Text color="green">{result.value}</Text>
 							</Box>
-							<Text color="green">{result.value}</Text>
-						</Box>
-					) : null;
-				})}
-			</Box>
-			{steps[step].component}
+						) : null;
+					})}
+				</Box>
+			)}
+			{component}
 		</Box>
 	);
 };
