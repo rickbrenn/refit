@@ -7,19 +7,24 @@ import { Selector, CheckSelector } from '../ui/Selector';
 
 import { getRootPath } from '../common/filesystem';
 import { getPackages } from '../common/packages';
-import { getDependencyList, getDiffVersionParts } from '../common/dependencies';
+import {
+	getDependencyList,
+	getDiffVersionParts,
+	depTypesList,
+} from '../common/dependencies';
 
 /*
 	NEXT:
-	- add final step to update packages
-
+	- add version prefix to version selector
+	- clean up
+	- go through TODOs in trello card
 */
 
 const Wizard = ({ config }) => {
 	const [loading, setLoading] = useState(true);
 	const [loaderText, setLoaderText] = useState('Loading the truck..');
 
-	const [packages, setPackages] = useState([]);
+	const [packages, setPackages] = useState({});
 	const [dependencies, setDependencies] = useState([]);
 
 	const [wizardState, setWizardState] = useState({
@@ -196,10 +201,47 @@ const Wizard = ({ config }) => {
 		}
 	}, [config, updateProgress]);
 
+	const updateDependencies = async () => {
+		// console.log(wizardState.updates);
+
+		const pkgsToUpdate = new Set();
+
+		for (const update of wizardState.updates) {
+			for (const pkgName of update.packages) {
+				const pkg = packages[pkgName];
+				const pkgDep = pkg.dependencies.get(update.dependency);
+				const depType = depTypesList[pkgDep.type];
+				pkgsToUpdate.add(pkgName);
+				pkg.pkgJsonInstance.update({
+					[depType]: {
+						...pkg.pkgJsonInstance.content[depType],
+						[update.dependency]: update.version,
+					},
+				});
+			}
+		}
+
+		const pkgListArray = Array.from(pkgsToUpdate);
+
+		await Promise.all(
+			pkgListArray.map(async (pkgName) => {
+				const pkg = packages[pkgName];
+				return pkg.pkgJsonInstance.save();
+			})
+		);
+
+		setWizardState((prevState) => ({
+			...prevState,
+			version: null,
+			dependency: null,
+			step: 5,
+		}));
+	};
+
 	const handleDependencySelect = (value) => {
 		setWizardState((prevState) => ({
 			...prevState,
-			dependency: value,
+			dependency: value.name,
 			step: 1,
 		}));
 	};
@@ -207,7 +249,7 @@ const Wizard = ({ config }) => {
 	const handleVersionSelect = (value) => {
 		setWizardState((prevState) => ({
 			...prevState,
-			version: value,
+			version: value.version,
 			step: 2,
 		}));
 	};
@@ -229,12 +271,7 @@ const Wizard = ({ config }) => {
 
 	const handleFinalStep = (value) => {
 		if (value === 'Done') {
-			setWizardState((prevState) => ({
-				...prevState,
-				version: null,
-				dependency: null,
-				step: 5,
-			}));
+			updateDependencies();
 		}
 
 		if (value === 'Edit updates') {
@@ -274,11 +311,8 @@ const Wizard = ({ config }) => {
 	}, [fetchPackagesAndDependencies]);
 
 	const versionOptions = useMemo(() => {
-		const {
-			versions = [],
-			distTags = {},
-			apps = {},
-		} = wizardState?.dependency || {};
+		const dep = dependencies.find((d) => d.name === wizardState.dependency);
+		const { versions = [], distTags = {}, apps = {} } = dep || {};
 
 		const sortedVersions = [...versions].reverse();
 
@@ -308,7 +342,7 @@ const Wizard = ({ config }) => {
 		}
 
 		return options;
-	}, [wizardState?.dependency]);
+	}, [wizardState?.dependency, dependencies]);
 
 	const renderDependencyItem = (item, highlighted, selected, textColor) => {
 		const installedVersions = Object.values(item.versionData);
@@ -379,7 +413,7 @@ const Wizard = ({ config }) => {
 					items={dependencies.filter(
 						(dep) =>
 							!wizardState.updates.some(
-								(update) => update.dependency.name === dep.name
+								(update) => update.dependency === dep.name
 							)
 					)}
 					onSelect={handleDependencySelect}
@@ -456,9 +490,9 @@ const Wizard = ({ config }) => {
 					<Box marginLeft={1} marginBottom={1} flexDirection="column">
 						{wizardState.updates.map((update) => {
 							return (
-								<Box key={update.dependency.name}>
+								<Box key={update.dependency}>
 									<Box marginRight={1}>
-										<Text>{`${update.dependency.name}@${update.version.version}`}</Text>
+										<Text>{`${update.dependency}@${update.version}`}</Text>
 									</Box>
 									{
 										/* config.isMonorepo */ true && (
@@ -484,7 +518,7 @@ const Wizard = ({ config }) => {
 				<Selector
 					items={wizardState.updates.map((u, i) => ({
 						...u,
-						name: u.dependency.name,
+						name: u.dependency,
 						index: i,
 					}))}
 					onSelect={handleRemoveUpdate}
@@ -497,7 +531,7 @@ const Wizard = ({ config }) => {
 						);
 					}}
 					renderItem={(item) => {
-						const value = `${item.dependency.name}@${item.version.version}`;
+						const value = `${item.dependency}@${item.version}`;
 						return (
 							<Box key={value}>
 								<Box marginRight={1}>
