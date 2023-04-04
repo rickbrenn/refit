@@ -15,7 +15,8 @@ import {
 
 /*
 	NEXT:
-	- add version prefix to version selector
+	- packages selector should have the installed version and pre-select packages that have the dep installed
+	- fix text wrap on version selector
 	- clean up
 	- go through TODOs in trello card
 */
@@ -84,48 +85,9 @@ const Wizard = ({ config }) => {
 				sortAlphabetical,
 			});
 
-			// remove duplicates and format data
-			// const depOptions = dependencyList.reduce((acc, item) => {
-			// 	const existingDepIndex = acc.findIndex(
-			// 		({ name }) => name === item.name
-			// 	);
-			// 	console.log('existingDepIndex :>> ', existingDepIndex);
-
-			// 	const appVersions = item.apps.map((app) => ({
-			// 		name: app.name,
-			// 		version: item.version.installed,
-			// 	}));
-
-			// 	if (existingDepIndex > -1) {
-			// 		acc[existingDepIndex].apps = [
-			// 			...acc[existingDepIndex].apps,
-			// 			...appVersions,
-			// 		];
-			// 	} else {
-			// 		acc.push({
-			// 			name: item.name,
-			// 			versions: item.versions,
-			// 			distTags: item.distTags,
-			// 			apps: appVersions,
-			// 		});
-			// 	}
-
-			// 	return acc;
-			// }, []);
-
 			const depOptions = dependencyList.reduce((acc, item) => {
 				const existingDepIndex = acc.findIndex(
 					({ name }) => name === item.name
-				);
-
-				const appVersions = Object.fromEntries(
-					item.apps.map((app) => [
-						app,
-						{
-							installed: item.version.installed,
-							target: item.versionRange.target,
-						},
-					])
 				);
 
 				const {
@@ -139,6 +101,17 @@ const Wizard = ({ config }) => {
 					item.versionRange.target,
 					item.versionRange.latest,
 					true
+				);
+
+				const appVersions = Object.fromEntries(
+					item.apps.map((app) => [
+						app,
+						{
+							installed: item.version.installed,
+							target: item.versionRange.target,
+							wildcard,
+						},
+					])
 				);
 
 				const versionData = item.upgradable
@@ -207,15 +180,19 @@ const Wizard = ({ config }) => {
 		const pkgsToUpdate = new Set();
 
 		for (const update of wizardState.updates) {
+			const dep = dependencies.find((d) => d.name === update.dependency);
 			for (const pkgName of update.packages) {
 				const pkg = packages[pkgName];
 				const pkgDep = pkg.dependencies.get(update.dependency);
 				const depType = depTypesList[pkgDep.type];
+				// TODO: add wildcard selection step?
+				const { wildcard } = dep.apps[pkgName] || {};
+				const depWildcard = wildcard === undefined ? '^' : wildcard;
 				pkgsToUpdate.add(pkgName);
 				pkg.pkgJsonInstance.update({
 					[depType]: {
 						...pkg.pkgJsonInstance.content[depType],
-						[update.dependency]: update.version,
+						[update.dependency]: depWildcard + update.version,
 					},
 				});
 			}
@@ -440,8 +417,6 @@ const Wizard = ({ config }) => {
 					searchable
 					searchByKey="version"
 					renderItem={(item, highlighted, selected, textColor) => {
-						// console.log('item :>> ', item);
-
 						return (
 							<Box>
 								<Box marginRight={1}>
