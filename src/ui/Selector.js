@@ -263,6 +263,7 @@ const CheckSelector = ({
 	renderItem,
 	renderHighlighter,
 	renderSelector,
+	defaultSelected,
 }) => {
 	// const { searchResults, searchComponent } = useSearch({
 	// 	items,
@@ -275,7 +276,7 @@ const CheckSelector = ({
 		items,
 		limit,
 	});
-	const [selectedIndexes, setSelectedIndexes] = useState([]);
+	const [selectedIndexes, setSelectedIndexes] = useState(defaultSelected);
 
 	useInput((input, key) => {
 		// select an item in the list
@@ -338,6 +339,7 @@ CheckSelector.propTypes = {
 	renderItem: PropTypes.func,
 	renderHighlighter: PropTypes.func,
 	renderSelector: PropTypes.func,
+	defaultSelected: PropTypes.arrayOf(PropTypes.number),
 };
 
 CheckSelector.defaultProps = {
@@ -350,6 +352,7 @@ CheckSelector.defaultProps = {
 	renderItem: null,
 	renderHighlighter: null,
 	renderSelector: null,
+	defaultSelected: [],
 };
 
 const Selector = ({

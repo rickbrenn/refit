@@ -15,7 +15,7 @@ import {
 
 /*
 	NEXT:
-	- packages selector should have the installed version and pre-select packages that have the dep installed
+	- change usage of 'installed' to 'target' for versioning. All versions should be based off of the package.json version
 	- fix text wrap on version selector
 	- clean up
 	- go through TODOs in trello card
@@ -239,7 +239,7 @@ const Wizard = ({ config }) => {
 				{
 					dependency: prevState.dependency,
 					version: prevState.version,
-					packages: value,
+					packages: value.map((v) => v.name),
 				},
 			],
 			step: 3,
@@ -321,6 +321,24 @@ const Wizard = ({ config }) => {
 		return options;
 	}, [wizardState?.dependency, dependencies]);
 
+	const packageOptions = useMemo(() => {
+		const dep = dependencies.find((d) => d.name === wizardState.dependency);
+		const { apps = {} } = dep || {};
+		const installedApps = Object.keys(apps);
+		const options = Object.keys(packages);
+		const defaultSelected = installedApps.map((app) =>
+			options.indexOf(app)
+		);
+
+		return {
+			options: options.map((option) => ({
+				name: option,
+				...(apps[option] || {}),
+			})),
+			defaultSelected,
+		};
+	}, [wizardState?.dependency, dependencies, packages]);
+
 	const renderDependencyItem = (item, highlighted, selected, textColor) => {
 		const installedVersions = Object.values(item.versionData);
 
@@ -384,7 +402,7 @@ const Wizard = ({ config }) => {
 	const steps = [
 		{
 			title: 'Selected Dependency:',
-			value: wizardState?.dependency?.name,
+			value: wizardState?.dependency,
 			component: (
 				<Selector
 					items={dependencies.filter(
@@ -406,7 +424,7 @@ const Wizard = ({ config }) => {
 		},
 		{
 			title: 'Selected Version:',
-			value: wizardState?.version?.version,
+			value: wizardState?.version,
 			component: (
 				<Selector
 					items={versionOptions}
@@ -448,10 +466,26 @@ const Wizard = ({ config }) => {
 			// show: config.isMonorepo,
 			component: (
 				<CheckSelector
-					items={Object.keys(packages)}
+					items={packageOptions.options}
 					onSelect={handlePackageSelect}
 					limit={8}
 					title="Select a package below"
+					defaultSelected={packageOptions.defaultSelected}
+					labelKey="name"
+					renderItem={(item, highlighted, selected, textColor) => {
+						return (
+							<Box>
+								<Box marginRight={1}>
+									<Text color={textColor}>{item.name}</Text>
+								</Box>
+								{item.target && (
+									<Box marginRight={1}>
+										<Text color="green">{`(${item.target})`}</Text>
+									</Box>
+								)}
+							</Box>
+						);
+					}}
 				/>
 			),
 		},
