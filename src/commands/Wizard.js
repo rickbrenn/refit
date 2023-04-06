@@ -15,10 +15,9 @@ import {
 
 /*
 	NEXT:
-	- clear search on step change
-	- add q input handler to exit the edit screen
-	- change color of version number on packages select
+	- move installed version options up to the top of the versions list
 	- clean up
+	- test responsiveness / overflow / wrapping
 	- go through TODOs in trello card
 */
 
@@ -228,7 +227,17 @@ const Wizard = ({ config }) => {
 		setWizardState((prevState) => ({
 			...prevState,
 			version: value.version,
-			step: 2,
+			...(!config.isMonorepo && {
+				updates: [
+					...prevState.updates,
+					{
+						dependency: prevState.dependency,
+						version: value.version,
+						packages: [Object.keys(packages)[0]],
+					},
+				],
+			}),
+			step: config.isMonorepo ? 2 : 3,
 		}));
 	};
 
@@ -324,7 +333,7 @@ const Wizard = ({ config }) => {
 
 	const packageOptions = useMemo(() => {
 		const dep = dependencies.find((d) => d.name === wizardState.dependency);
-		const { apps = {} } = dep || {};
+		const { apps = {}, versionData = {} } = dep || {};
 		const installedApps = Object.keys(apps);
 		const options = Object.keys(packages);
 		const defaultSelected = installedApps.map((app) =>
@@ -332,10 +341,14 @@ const Wizard = ({ config }) => {
 		);
 
 		return {
-			options: options.map((option) => ({
-				name: option,
-				...(apps[option] || {}),
-			})),
+			options: options.map((option) => {
+				const appVersions = apps[option] || {};
+				return {
+					name: option,
+					...appVersions,
+					versionData: versionData[appVersions.target] || {},
+				};
+			}),
 			defaultSelected,
 		};
 	}, [wizardState?.dependency, dependencies, packages]);
@@ -467,7 +480,6 @@ const Wizard = ({ config }) => {
 			),
 		},
 		{
-			show: config.isMonorepo,
 			component: (
 				<CheckSelector
 					key="packages"
@@ -478,6 +490,14 @@ const Wizard = ({ config }) => {
 					defaultSelected={packageOptions.defaultSelected}
 					labelKey="name"
 					renderItem={(item, highlighted, selected, textColor) => {
+						const {
+							color,
+							wildcard,
+							midDot,
+							uncoloredText,
+							coloredText,
+						} = item.versionData || {};
+
 						return (
 							<Box>
 								<Box marginRight={1} flexShrink={0}>
@@ -485,7 +505,13 @@ const Wizard = ({ config }) => {
 								</Box>
 								{item.target && (
 									<Box marginRight={1}>
-										<Text color="green">{`(${item.target})`}</Text>
+										<Text>
+											({wildcard + uncoloredText + midDot}
+											<Text color={color}>
+												{coloredText}
+											</Text>
+											)
+										</Text>
 									</Box>
 								)}
 							</Box>
@@ -538,6 +564,14 @@ const Wizard = ({ config }) => {
 					limit={8}
 					labelKey="name"
 					title="Select updates to remove"
+					inputHandler={(input) => {
+						if (input === 'q') {
+							setWizardState((prevState) => ({
+								...prevState,
+								step: 3,
+							}));
+						}
+					}}
 					renderHighlighter={(item, highlighted) => {
 						return (
 							<Text color="red">{highlighted ? 'X' : ' '}</Text>
@@ -568,7 +602,7 @@ const Wizard = ({ config }) => {
 				</Box>
 			),
 		},
-	].filter((p) => p.show !== false);
+	];
 
 	const { component, showProgress } = steps[wizardState.step];
 

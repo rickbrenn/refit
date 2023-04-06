@@ -363,6 +363,7 @@ const Selector = ({
 	renderItem,
 	renderHighlighter,
 	renderSelector,
+	inputHandler,
 }) => {
 	const { searchResults, searchComponent } = useSearch({
 		items,
@@ -380,6 +381,10 @@ const Selector = ({
 		// select an item in the list
 		if (key.return) {
 			onSelect(searchResults[highlightedIndex]);
+		}
+
+		if (inputHandler) {
+			inputHandler(input, key);
 		}
 	});
 
@@ -416,6 +421,7 @@ Selector.propTypes = {
 	renderItem: PropTypes.func,
 	renderHighlighter: PropTypes.func,
 	renderSelector: PropTypes.func,
+	inputHandler: PropTypes.func,
 };
 
 Selector.defaultProps = {
@@ -429,6 +435,7 @@ Selector.defaultProps = {
 	renderItem: null,
 	renderHighlighter: null,
 	renderSelector: null,
+	inputHandler: null,
 };
 
 export { Selector, CheckSelector };
