@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, useInput } from 'ink';
 import inkInput from 'ink-text-input';
@@ -32,11 +32,6 @@ const useListView = ({ items, limit }) => {
 			});
 		}
 	});
-
-	useLayoutEffect(() => {
-		// reset the highlighted index when the items change
-		setHighlightedIndex(0);
-	}, [items]);
 
 	const visible = useMemo(() => {
 		if (!limit) {

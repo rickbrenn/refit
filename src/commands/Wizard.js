@@ -406,6 +406,7 @@ const Wizard = ({ config }) => {
 			value: wizardState?.dependency,
 			component: (
 				<Selector
+					key="dependencies"
 					items={dependencies.filter(
 						(dep) =>
 							!wizardState.updates.some(
@@ -428,6 +429,7 @@ const Wizard = ({ config }) => {
 			value: wizardState?.version,
 			component: (
 				<Selector
+					key="versions"
 					items={versionOptions}
 					onSelect={handleVersionSelect}
 					limit={8}
@@ -468,6 +470,7 @@ const Wizard = ({ config }) => {
 			show: config.isMonorepo,
 			component: (
 				<CheckSelector
+					key="packages"
 					items={packageOptions.options}
 					onSelect={handlePackageSelect}
 					limit={8}
@@ -525,6 +528,7 @@ const Wizard = ({ config }) => {
 			showProgress: false,
 			component: (
 				<Selector
+					key="removeUpdate"
 					items={wizardState.updates.map((u, i) => ({
 						...u,
 						name: u.dependency,
