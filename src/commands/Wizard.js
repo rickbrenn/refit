@@ -15,8 +15,9 @@ import {
 
 /*
 	NEXT:
-	- change usage of 'installed' to 'target' for versioning. All versions should be based off of the package.json version
-	- fix text wrap on version selector
+	- clear search on step change
+	- add q input handler to exit the edit screen
+	- change color of version number on packages select
 	- clean up
 	- go through TODOs in trello card
 */
@@ -369,7 +370,7 @@ const Wizard = ({ config }) => {
 
 		return (
 			<Box>
-				<Box marginRight={1}>
+				<Box marginRight={1} flexShrink={0}>
 					<Text color={textColor}>{item.name}</Text>
 				</Box>
 				{item.upgradable && (
@@ -437,13 +438,14 @@ const Wizard = ({ config }) => {
 					renderItem={(item, highlighted, selected, textColor) => {
 						return (
 							<Box>
-								<Box marginRight={1}>
+								<Box marginRight={1} flexShrink={0}>
 									<Text color={textColor}>
 										{item.version}
 									</Text>
 								</Box>
+
 								{item.distTag && (
-									<Box marginRight={1}>
+									<Box marginRight={1} flexShrink={0}>
 										<Text color="green">{`#${item.distTag}`}</Text>
 									</Box>
 								)}
@@ -463,7 +465,7 @@ const Wizard = ({ config }) => {
 			),
 		},
 		{
-			// show: config.isMonorepo,
+			show: config.isMonorepo,
 			component: (
 				<CheckSelector
 					items={packageOptions.options}
@@ -475,7 +477,7 @@ const Wizard = ({ config }) => {
 					renderItem={(item, highlighted, selected, textColor) => {
 						return (
 							<Box>
-								<Box marginRight={1}>
+								<Box marginRight={1} flexShrink={0}>
 									<Text color={textColor}>{item.name}</Text>
 								</Box>
 								{item.target && (
@@ -500,16 +502,14 @@ const Wizard = ({ config }) => {
 						{wizardState.updates.map((update) => {
 							return (
 								<Box key={update.dependency}>
-									<Box marginRight={1}>
+									<Box marginRight={1} flexShrink={0}>
 										<Text>{`${update.dependency}@${update.version}`}</Text>
 									</Box>
-									{
-										/* config.isMonorepo */ true && (
-											<Text>{`(${update.packages.join(
-												', '
-											)})`}</Text>
-										)
-									}
+									{config.isMonorepo && (
+										<Text>{`(${update.packages.join(
+											', '
+										)})`}</Text>
+									)}
 								</Box>
 							);
 						})}
@@ -543,16 +543,14 @@ const Wizard = ({ config }) => {
 						const value = `${item.dependency}@${item.version}`;
 						return (
 							<Box key={value}>
-								<Box marginRight={1}>
+								<Box marginRight={1} flexShrink={0}>
 									<Text>{value}</Text>
 								</Box>
-								{
-									/* config.isMonorepo */ true && (
-										<Text>{`(${item.packages.join(
-											', '
-										)})`}</Text>
-									)
-								}
+								{config.isMonorepo && (
+									<Text>{`(${item.packages.join(
+										', '
+									)})`}</Text>
+								)}
 							</Box>
 						);
 					}}
