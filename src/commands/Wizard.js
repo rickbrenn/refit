@@ -303,10 +303,10 @@ const Wizard = ({ config }) => {
 
 		const sortedVersions = [...versions].reverse();
 
-		const options = [];
+		const distTagOptions = [];
 
 		for (const [distTag, version] of Object.entries(distTags)) {
-			options.push({
+			distTagOptions.push({
 				version,
 				distTag,
 				apps: Object.keys(apps).filter(
@@ -315,10 +315,19 @@ const Wizard = ({ config }) => {
 			});
 		}
 
+		const installedVersions = [];
+		const restOfOptions = [];
+
 		const versionsToExclude = Object.values(distTags);
 		for (const version of sortedVersions) {
 			if (!versionsToExclude.includes(version)) {
-				options.push({
+				const optionTypeArray = Object.keys(apps).some(
+					(app) => apps[app].installed === version
+				)
+					? installedVersions
+					: restOfOptions;
+
+				optionTypeArray.push({
 					version,
 					distTag: null,
 					apps: Object.keys(apps).filter(
@@ -328,7 +337,7 @@ const Wizard = ({ config }) => {
 			}
 		}
 
-		return options;
+		return [...distTagOptions, ...installedVersions, ...restOfOptions];
 	}, [wizardState?.dependency, dependencies]);
 
 	const packageOptions = useMemo(() => {
