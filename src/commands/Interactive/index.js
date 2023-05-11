@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Text } from 'ink';
 
-import Loader from '../../ui/Loader';
+import LoaderBoundary from '../../ui/LoaderBoundary';
+import useDependencyLoader from '../../ui/useDependencyLoader';
 import { Wizard } from '../../ui/Wizard';
 
 import { getRootPath } from '../../common/filesystem';
@@ -19,16 +20,9 @@ import PackagesStep from './PackagesStep';
 import SummaryStep from './SummaryStep';
 import CompleteStep from './CompleteStep';
 
-/*
-	NEXT:
-	- clean up
-	- test responsiveness / overflow / wrapping
-	- go through TODOs in trello card
-*/
-
 const Interactive = ({ config }) => {
-	const [loading, setLoading] = useState(true);
-	const [loaderText, setLoaderText] = useState('Loading the truck..');
+	const { loading, setLoading, loaderText, setLoaderText, updateProgress } =
+		useDependencyLoader();
 
 	const [packages, setPackages] = useState({});
 	const [dependencies, setDependencies] = useState([]);
@@ -38,17 +32,6 @@ const Interactive = ({ config }) => {
 		dependency: null,
 		version: null,
 	});
-
-	const updateProgress = useCallback(
-		(progressCurrent, progressMax, packageName) => {
-			const percentComplete = (progressCurrent * 100) / progressMax;
-			const fixedPercent = percentComplete.toFixed();
-			setLoaderText(
-				`Delivering packages | ${fixedPercent}% | ${packageName}`
-			);
-		},
-		[]
-	);
 
 	const fetchPackagesAndDependencies = useCallback(async () => {
 		const {
@@ -176,7 +159,7 @@ const Interactive = ({ config }) => {
 			setLoaderText('Error!');
 			throw error;
 		}
-	}, [config, updateProgress]);
+	}, [config, updateProgress, setLoading, setLoaderText]);
 
 	const updateDependencies = async () => {
 		// console.log(wizardState.updates);
@@ -216,44 +199,42 @@ const Interactive = ({ config }) => {
 		fetchPackagesAndDependencies();
 	}, [fetchPackagesAndDependencies]);
 
-	if (loading) {
-		return <Loader text={loaderText} />;
-	}
-
 	if (!dependencies.length) {
 		return <Text color="green">All dependencies up to date</Text>;
 	}
 
 	return (
-		<Box flexDirection="column" marginTop={1} marginBottom={1}>
-			<Wizard>
-				<DependencyStep
-					dependencies={dependencies}
-					wizardState={wizardState}
-					setWizardState={setWizardState}
-				/>
-				<VersionStep
-					dependencies={dependencies}
-					wizardState={wizardState}
-					packages={packages}
-					setWizardState={setWizardState}
-					isMonorepo={config.isMonorepo}
-				/>
-				<PackagesStep
-					dependencies={dependencies}
-					wizardState={wizardState}
-					packages={packages}
-					setWizardState={setWizardState}
-				/>
-				<SummaryStep
-					wizardState={wizardState}
-					setWizardState={setWizardState}
-					updateDependencies={updateDependencies}
-					isMonorepo={config.isMonorepo}
-				/>
-				<CompleteStep />
-			</Wizard>
-		</Box>
+		<LoaderBoundary loading={loading} text={loaderText}>
+			<Box flexDirection="column" marginTop={1} marginBottom={1}>
+				<Wizard>
+					<DependencyStep
+						dependencies={dependencies}
+						wizardState={wizardState}
+						setWizardState={setWizardState}
+					/>
+					<VersionStep
+						dependencies={dependencies}
+						wizardState={wizardState}
+						packages={packages}
+						setWizardState={setWizardState}
+						isMonorepo={config.isMonorepo}
+					/>
+					<PackagesStep
+						dependencies={dependencies}
+						wizardState={wizardState}
+						packages={packages}
+						setWizardState={setWizardState}
+					/>
+					<SummaryStep
+						wizardState={wizardState}
+						setWizardState={setWizardState}
+						updateDependencies={updateDependencies}
+						isMonorepo={config.isMonorepo}
+					/>
+					<CompleteStep />
+				</Wizard>
+			</Box>
+		</LoaderBoundary>
 	);
 };
 
