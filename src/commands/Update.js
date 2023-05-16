@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Text } from 'ink';
-import Loader from '../ui/Loader';
 import updateDependencies from '../common/updateDependencies';
 import NameColumn from '../ui/NameColumn';
 import UpgradeColumn from '../ui/UpgradeColumn';
 import Table from '../ui/Table';
 import Static from '../ui/Static';
+import UpToDateBoundary from '../ui/UpToDateBoundary';
+import LoaderBoundary from '../ui/LoaderBoundary';
 import useLoader from '../ui/useLoader';
 
 // get table columns based on the config
@@ -56,18 +57,14 @@ const Update = ({ config }) => {
 		return baseColumns.filter((c) => c.show);
 	}, [config]);
 
-	if (loading) {
-		return <Loader text={loaderState.text} />;
-	}
-
-	if (!dependencies.length) {
-		return <Text color="green">No dependencies need updated</Text>;
-	}
-
 	return (
-		<Static>
-			<Table data={dependencies} columns={columns} />
-		</Static>
+		<LoaderBoundary loading={loading} text={loaderState.text}>
+			<UpToDateBoundary enabled={!dependencies.length}>
+				<Static>
+					<Table data={dependencies} columns={columns} />
+				</Static>
+			</UpToDateBoundary>
+		</LoaderBoundary>
 	);
 };
 

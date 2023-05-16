@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Text } from 'ink';
+import { Box } from 'ink';
 
 import LoaderBoundary from '../../ui/LoaderBoundary';
 import useDependencyLoader from '../../ui/useDependencyLoader';
+import UpToDateBoundary from '../../ui/UpToDateBoundary';
 import { Wizard } from '../../ui/Wizard';
 
 import { getRootPath } from '../../common/filesystem';
@@ -199,41 +200,39 @@ const Interactive = ({ config }) => {
 		fetchPackagesAndDependencies();
 	}, [fetchPackagesAndDependencies]);
 
-	if (!dependencies.length) {
-		return <Text color="green">All dependencies up to date</Text>;
-	}
-
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>
-			<Box flexDirection="column" marginTop={1} marginBottom={1}>
-				<Wizard>
-					<DependencyStep
-						dependencies={dependencies}
-						wizardState={wizardState}
-						setWizardState={setWizardState}
-					/>
-					<VersionStep
-						dependencies={dependencies}
-						wizardState={wizardState}
-						packages={packages}
-						setWizardState={setWizardState}
-						isMonorepo={config.isMonorepo}
-					/>
-					<PackagesStep
-						dependencies={dependencies}
-						wizardState={wizardState}
-						packages={packages}
-						setWizardState={setWizardState}
-					/>
-					<SummaryStep
-						wizardState={wizardState}
-						setWizardState={setWizardState}
-						updateDependencies={updateDependencies}
-						isMonorepo={config.isMonorepo}
-					/>
-					<CompleteStep />
-				</Wizard>
-			</Box>
+			<UpToDateBoundary enabled={!dependencies.length}>
+				<Box flexDirection="column" marginTop={1} marginBottom={1}>
+					<Wizard>
+						<DependencyStep
+							dependencies={dependencies}
+							wizardState={wizardState}
+							setWizardState={setWizardState}
+						/>
+						<VersionStep
+							dependencies={dependencies}
+							wizardState={wizardState}
+							packages={packages}
+							setWizardState={setWizardState}
+							isMonorepo={config.isMonorepo}
+						/>
+						<PackagesStep
+							dependencies={dependencies}
+							wizardState={wizardState}
+							packages={packages}
+							setWizardState={setWizardState}
+						/>
+						<SummaryStep
+							wizardState={wizardState}
+							setWizardState={setWizardState}
+							updateDependencies={updateDependencies}
+							isMonorepo={config.isMonorepo}
+						/>
+						<CompleteStep />
+					</Wizard>
+				</Box>
+			</UpToDateBoundary>
 		</LoaderBoundary>
 	);
 };
