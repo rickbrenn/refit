@@ -1,5 +1,4 @@
-import { useState, useCallback } from 'react';
-import { useMemo } from 'react/cjs/react.production.min';
+import { useState, useCallback, useMemo } from 'react';
 
 const useDependencyLoader = () => {
 	const [loading, setLoading] = useState(true);
