@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { CheckSelector } from '../../ui/Selector';
@@ -12,6 +12,7 @@ const PackagesStep = ({
 	setWizardState,
 }) => {
 	const { goToNextStep } = useWizard();
+	const [hasValidationError, setHasValidationError] = useState(false);
 
 	const packageOptions = useMemo(() => {
 		const dep = dependencies.find((d) => d.name === wizardState.dependency);
@@ -38,22 +39,29 @@ const PackagesStep = ({
 	return (
 		<>
 			<Header wizardState={wizardState} />
+			{hasValidationError && (
+				<Text color="red">Please select at least one package</Text>
+			)}
 			<CheckSelector
 				key="packages"
 				items={packageOptions.options}
 				onSelect={(value) => {
-					setWizardState((prevState) => ({
-						...prevState,
-						updates: [
-							...prevState.updates,
-							{
-								dependency: prevState.dependency,
-								version: prevState.version,
-								packages: value.map((v) => v.name),
-							},
-						],
-					}));
-					goToNextStep();
+					if (!value || value?.length === 0) {
+						setHasValidationError(true);
+					} else {
+						setWizardState((prevState) => ({
+							...prevState,
+							updates: [
+								...prevState.updates,
+								{
+									dependency: prevState.dependency,
+									version: prevState.version,
+									packages: value.map((v) => v.name),
+								},
+							],
+						}));
+						goToNextStep();
+					}
 				}}
 				limit={8}
 				title="Select a package below"
