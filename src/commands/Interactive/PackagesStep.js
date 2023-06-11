@@ -65,6 +65,22 @@ const PackagesStep = ({
 				}}
 				limit={8}
 				title="Select a package below"
+				renderTitle={() => {
+					return (
+						<Box>
+							<Box marginRight="1">
+								<Text>Select a package below</Text>
+							</Box>
+							<Box>
+								<Text color="gray">(</Text>
+								<Text color="blue">{'<space>'}</Text>
+								<Text color="gray">{' to select, '}</Text>
+								<Text color="blue">{'<a>'}</Text>
+								<Text color="gray">{' to select all)'}</Text>
+							</Box>
+						</Box>
+					);
+				}}
 				defaultSelected={packageOptions.defaultSelected}
 				labelKey="name"
 				renderItem={(item, highlighted, selected, textColor) => {
