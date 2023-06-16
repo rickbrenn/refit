@@ -19,7 +19,11 @@ import DependencyStep from './DependencyStep';
 import VersionStep from './VersionStep';
 import PackagesStep from './PackagesStep';
 import SummaryStep from './SummaryStep';
+import EditStep from './EditStep';
 import CompleteStep from './CompleteStep';
+
+// import monorepoDeps from '../../../examples/monorepoDeps.json';
+// import monorepoPackages from '../../../examples/monorepoPackages.json';
 
 const Interactive = ({ config }) => {
 	const { loading, setLoading, loaderText, setLoaderText, updateProgress } =
@@ -153,6 +157,9 @@ const Interactive = ({ config }) => {
 
 			const packageOptions = Object.fromEntries(packageList);
 
+			// setPackages(monorepoPackages);
+			// setDependencies(monorepoDeps);
+
 			setPackages(packageOptions);
 			setDependencies(depOptions);
 			setLoading(false);
@@ -227,6 +234,11 @@ const Interactive = ({ config }) => {
 							wizardState={wizardState}
 							setWizardState={setWizardState}
 							updateDependencies={updateDependencies}
+							isMonorepo={config.isMonorepo}
+						/>
+						<EditStep
+							wizardState={wizardState}
+							setWizardState={setWizardState}
 							isMonorepo={config.isMonorepo}
 						/>
 						<CompleteStep />

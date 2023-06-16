@@ -12,7 +12,6 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 		<>
 			<Header wizardState={wizardState} />
 			<Selector
-				key="dependencies"
 				items={dependencies.filter(
 					(dep) =>
 						!wizardState.updates.some(

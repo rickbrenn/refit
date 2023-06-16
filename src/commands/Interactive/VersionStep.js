@@ -61,7 +61,6 @@ const VersionStep = ({
 		<>
 			<Header wizardState={wizardState} />
 			<Selector
-				key="versions"
 				items={versionOptions}
 				onSelect={(value) => {
 					setWizardState((prevState) => ({

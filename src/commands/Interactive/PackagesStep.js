@@ -43,7 +43,6 @@ const PackagesStep = ({
 				<Text color="red">Please select at least one package</Text>
 			)}
 			<CheckSelector
-				key="packages"
 				items={packageOptions.options}
 				onSelect={(value) => {
 					if (!value || value?.length === 0) {
@@ -64,7 +63,6 @@ const PackagesStep = ({
 					}
 				}}
 				limit={8}
-				title="Select a package below"
 				renderTitle={() => {
 					return (
 						<Box>
