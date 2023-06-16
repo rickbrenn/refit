@@ -13,11 +13,18 @@ const useWizard = () => useContext(WizardContext);
 const Wizard = ({ children }) => {
 	const [step, setStep] = useState(0);
 
-	// TODO: add step number validation
 	const values = useMemo(() => {
+		const changeStep = (stepSetter) => {
+			if (typeof newStep !== 'number') {
+				throw new Error('Step number must be a number');
+			}
+
+			setStep(stepSetter);
+		};
+
 		return {
-			goToNextStep: () => setStep((prevState) => prevState + 1),
-			goToPreviousStep: () => setStep((prevState) => prevState - 1),
+			goToNextStep: () => changeStep((prevState) => prevState + 1),
+			goToPreviousStep: () => changeStep((prevState) => prevState - 1),
 			goToStep: setStep,
 		};
 	}, []);
