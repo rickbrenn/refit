@@ -1,4 +1,3 @@
-import { getRootPath } from './filesystem';
 import { getPackages } from './packages';
 import { getDependencyList } from './dependencies';
 
@@ -10,7 +9,7 @@ import { getDependencyList } from './dependencies';
  */
 const getDependencies = async (config, onDepenencyProcessed) => {
 	const {
-		rootDir,
+		rootPath,
 		filterByPackages,
 		packageDirs,
 		isMonorepo,
@@ -22,8 +21,6 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		filterByDepTypes,
 		filterByUpdateTypes,
 	} = config;
-
-	const rootPath = getRootPath(rootDir);
 
 	const packageList = await getPackages({
 		rootPath,

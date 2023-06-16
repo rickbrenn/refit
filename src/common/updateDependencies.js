@@ -1,10 +1,9 @@
-import { getRootPath } from './filesystem';
 import { getPackages } from './packages';
 import { getDependencyList, depTypesList } from './dependencies';
 
 const updateDependencies = async (config, onDepenencyProcessed) => {
 	const {
-		rootDir,
+		rootPath,
 		filterByPackages,
 		packageDirs,
 		isMonorepo,
@@ -15,10 +14,6 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		updateTo,
 		filterByDeps,
 	} = config;
-
-	// get list of packages to update
-	// maybe do this stuff in an init function for the whole refit app?
-	const rootPath = getRootPath(rootDir);
 
 	const packageList = await getPackages({
 		rootPath,

@@ -7,7 +7,6 @@ import useDependencyLoader from '../../ui/useDependencyLoader';
 import UpToDateBoundary from '../../ui/UpToDateBoundary';
 import { Wizard } from '../../ui/Wizard';
 
-import { getRootPath } from '../../common/filesystem';
 import { getPackages } from '../../common/packages';
 import {
 	getDependencyList,
@@ -40,7 +39,7 @@ const Interactive = ({ config }) => {
 
 	const fetchPackagesAndDependencies = useCallback(async () => {
 		const {
-			rootDir,
+			rootPath,
 			filterByPackages,
 			packageDirs,
 			isMonorepo,
@@ -54,9 +53,6 @@ const Interactive = ({ config }) => {
 		} = config;
 
 		try {
-			// TODO: root path should prob be in the config
-			const rootPath = getRootPath(rootDir);
-
 			const packageList = await getPackages({
 				rootPath,
 				isMonorepo,
@@ -251,7 +247,7 @@ const Interactive = ({ config }) => {
 
 Interactive.propTypes = {
 	config: PropTypes.shape({
-		rootDir: PropTypes.string,
+		rootPath: PropTypes.string,
 		filterByPackages: PropTypes.arrayOf(PropTypes.string),
 		packageDirs: PropTypes.arrayOf(PropTypes.string),
 		isMonorepo: PropTypes.bool,

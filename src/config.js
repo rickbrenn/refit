@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const defaultConfig = {
-	rootDir: '',
+	rootPath: '',
 	packageDirs: ['packages/*', 'modules/*'],
 	filterByPackages: [],
 	sortAlphabetical: false,
@@ -25,11 +25,18 @@ const loadConfig = (configFile, overrides = {}) => {
 		const userConfig = configExists ? fs.readFileSync(configPath) : {};
 
 		return Object.keys(defaultConfig).reduce((acc, cur) => {
-			acc[cur] = overrides[cur] || userConfig[cur] || defaultConfig[cur];
+			const val = overrides[cur] || userConfig[cur] || defaultConfig[cur];
+
+			acc[cur] = val;
 
 			// convert single entry values to arrays
-			if (Array.isArray(defaultConfig[cur]) && !Array.isArray(acc[cur])) {
-				acc[cur] = [acc[cur]];
+			if (Array.isArray(defaultConfig[cur]) && !Array.isArray(val)) {
+				acc[cur] = [val];
+			}
+
+			// convert rootPath to absolute path
+			if (cur === 'rootPath') {
+				acc[cur] = val ? path.resolve(val) : process.cwd();
 			}
 
 			return acc;
