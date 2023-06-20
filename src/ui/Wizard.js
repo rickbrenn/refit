@@ -14,18 +14,16 @@ const Wizard = ({ children }) => {
 	const [step, setStep] = useState(0);
 
 	const values = useMemo(() => {
-		const changeStep = (stepSetter) => {
-			if (typeof newStep !== 'number') {
-				throw new Error('Step number must be a number');
-			}
-
-			setStep(stepSetter);
-		};
-
 		return {
-			goToNextStep: () => changeStep((prevState) => prevState + 1),
-			goToPreviousStep: () => changeStep((prevState) => prevState - 1),
-			goToStep: setStep,
+			goToNextStep: () => setStep((prevState) => prevState + 1),
+			goToPreviousStep: () => setStep((prevState) => prevState - 1),
+			goToStep: (newStep) => {
+				if (typeof newStep !== 'number') {
+					throw new Error('Step number must be a number');
+				}
+
+				setStep(newStep);
+			},
 		};
 	}, []);
 

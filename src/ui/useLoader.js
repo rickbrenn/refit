@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 
 const useLoader = (loaderFunc, config) => {
-	const [dependencies, setDependencies] = useState(null);
+	const [dependencies, setDependencies] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [loaderState, setLoaderState] = useState({
 		text: 'Loading the truck..',

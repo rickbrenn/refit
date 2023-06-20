@@ -136,6 +136,7 @@ const List = ({
 	creatable,
 	renderHighlighter,
 	renderSelector,
+	itemKey,
 }) => {
 	const isSelected = (index) => selectable && selectedIndexes.includes(index);
 
@@ -168,6 +169,7 @@ const List = ({
 					const highlighted = actualIndex === highlightedIndex;
 					const itemName = getItemName(item, labelKey);
 					const textColor = highlighted ? 'blue' : undefined;
+					const key = itemKey ? item[itemKey] : itemName;
 
 					const selected = isSelected(actualIndex);
 
@@ -206,7 +208,7 @@ const List = ({
 					}
 
 					return (
-						<Box key={itemName}>
+						<Box key={key}>
 							<Box marginRight={1}>{highlightComp}</Box>
 							{selectable && (
 								<Box marginRight={1}>{selectorComp}</Box>
@@ -236,6 +238,7 @@ List.propTypes = {
 	creatable: PropTypes.bool,
 	renderHighlighter: PropTypes.func,
 	renderSelector: PropTypes.func,
+	itemKey: PropTypes.string,
 };
 
 List.defaultProps = {
@@ -249,6 +252,7 @@ List.defaultProps = {
 	creatable: false,
 	renderHighlighter: null,
 	renderSelector: null,
+	itemKey: null,
 };
 
 const CheckSelector = ({
@@ -369,6 +373,7 @@ const Selector = ({
 	renderHighlighter,
 	renderSelector,
 	inputHandler,
+	itemKey,
 }) => {
 	const { searchResults, searchComponent } = useSearch({
 		items,
@@ -407,6 +412,7 @@ const Selector = ({
 			renderItem={renderItem}
 			selectable={false}
 			creatable
+			itemKey={itemKey}
 		/>
 	);
 };
@@ -427,6 +433,7 @@ Selector.propTypes = {
 	renderHighlighter: PropTypes.func,
 	renderSelector: PropTypes.func,
 	inputHandler: PropTypes.func,
+	itemKey: PropTypes.string,
 };
 
 Selector.defaultProps = {
@@ -441,6 +448,7 @@ Selector.defaultProps = {
 	renderHighlighter: null,
 	renderSelector: null,
 	inputHandler: null,
+	itemKey: null,
 };
 
 export { Selector, CheckSelector };

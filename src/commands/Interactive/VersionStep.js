@@ -29,6 +29,7 @@ const VersionStep = ({
 				apps: Object.keys(apps).filter(
 					(app) => apps[app].installed === version
 				),
+				key: version + distTag,
 			});
 		}
 
@@ -50,6 +51,7 @@ const VersionStep = ({
 					apps: Object.keys(apps).filter(
 						(app) => apps[app].installed === version
 					),
+					key: version,
 				});
 			}
 		}
@@ -85,6 +87,7 @@ const VersionStep = ({
 				title="Select a version below to install"
 				searchable
 				searchByKey="version"
+				itemKey="key"
 				renderItem={(item, highlighted, selected, textColor) => {
 					return (
 						<Box>
