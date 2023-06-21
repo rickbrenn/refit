@@ -1,9 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, useInput } from 'ink';
-import inkInput from 'ink-text-input';
-
-const { default: TextInput } = inkInput;
+import TextInput from 'ink-text-input';
 
 const getItemName = (item, key) =>
 	typeof item === 'string' ? item : item[key];
