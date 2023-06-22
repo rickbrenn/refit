@@ -24,7 +24,7 @@ const Loader = ({ frames, interval, text, loaderColor, textColor }) => {
 	}, [frames, interval]);
 
 	return (
-		<Box>
+		<Box gap={1}>
 			<Text color={loaderColor}>{frames[frame]}</Text>
 			<Text color={textColor}>{text}</Text>
 		</Box>
