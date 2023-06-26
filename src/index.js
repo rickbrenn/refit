@@ -6,19 +6,17 @@ import List from './commands/List';
 import Update from './commands/Update';
 import Interactive from './commands/Interactive';
 import { loadConfig } from './config';
+import log from './logger';
 
-const listCommand = ({ appConfig }) => {
-	// console.log('list deps with:', appConfig);
+const listCommand = async ({ appConfig }) => {
 	render(<List config={appConfig} />);
 };
 
 const updateCommand = ({ appConfig }) => {
-	// console.log('update deps with:', appConfig);
 	render(<Update config={appConfig} />);
 };
 
 const interactiveCommand = ({ appConfig }) => {
-	// console.log('update deps with:', appConfig);
 	render(<Interactive config={appConfig} />);
 };
 
@@ -161,14 +159,15 @@ const withConfig = (argv) => {
 	argv.appConfig = appConfig;
 };
 
-const createCli = (argv) => {
+const createCli = async (argv) => {
 	const cli = yargs(argv)
 		.middleware([withConfig])
 		.strict()
 		.help()
 		.showHelpOnFail(false)
 		.fail((msg, error) => {
-			console.log('cli:error :>> ', msg, error);
+			// if there's a yargs error handle it higher up
+			throw error || new Error(msg);
 		})
 		.scriptName('refit');
 
@@ -198,7 +197,8 @@ const createCli = (argv) => {
 const run = () => {
 	const argv = hideBin(process.argv);
 	createCli(argv).catch((error) => {
-		console.log('run:error', error);
+		log.error(error.message);
+		process.exitCode = 1;
 	});
 };
 

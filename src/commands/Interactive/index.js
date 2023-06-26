@@ -166,8 +166,6 @@ const Interactive = ({ config }) => {
 	}, [config, updateProgress, setLoading, setLoaderText]);
 
 	const updateDependencies = async () => {
-		// console.log(wizardState.updates);
-
 		const pkgsToUpdate = new Set();
 
 		for (const update of wizardState.updates) {

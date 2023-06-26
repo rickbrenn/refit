@@ -18,33 +18,27 @@ const defaultConfig = {
 };
 
 const loadConfig = (configFile, overrides = {}) => {
-	try {
-		const configPath = path.resolve(configFile || '.refitrc.json');
-		const configExists = fs.existsSync(configPath);
+	const configPath = path.resolve(configFile || '.refitrc.json');
+	const configExists = fs.existsSync(configPath);
 
-		const userConfig = configExists ? fs.readFileSync(configPath) : {};
+	const userConfig = configExists ? fs.readFileSync(configPath) : {};
 
-		return Object.keys(defaultConfig).reduce((acc, cur) => {
-			const val = overrides[cur] || userConfig[cur] || defaultConfig[cur];
+	return Object.keys(defaultConfig).reduce((acc, cur) => {
+		const val = overrides[cur] || userConfig[cur] || defaultConfig[cur];
 
-			acc[cur] = val;
+		acc[cur] = val;
 
-			// convert single entry values to arrays
-			if (Array.isArray(defaultConfig[cur]) && !Array.isArray(val)) {
-				acc[cur] = [val];
-			}
+		// convert single entry values to arrays
+		if (Array.isArray(defaultConfig[cur]) && !Array.isArray(val)) {
+			acc[cur] = [val];
+		}
 
-			// convert rootPath to absolute path
-			if (cur === 'rootPath') {
-				acc[cur] = val ? path.resolve(val) : process.cwd();
-			}
+		// convert rootPath to absolute path
+		if (cur === 'rootPath') {
+			acc[cur] = val ? path.resolve(val) : process.cwd();
+		}
 
-			return acc;
-		}, {});
-	} catch (err) {
-		console.error(err);
-		return false;
-	}
+		return acc;
+	}, {});
 };
-
 export { defaultConfig, loadConfig };

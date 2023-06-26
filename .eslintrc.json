@@ -34,6 +34,7 @@
 		"import/extensions": "off",
 		"node/file-extension-in-import": ["error", "always", { ".js": "never" }],
 		"no-restricted-syntax": "off",
-		"no-await-in-loop": "off"
+		"no-await-in-loop": "off",
+		"no-console": "off"
 	}
 }
