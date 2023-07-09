@@ -17,21 +17,37 @@ const PackagesStep = ({
 	const packageOptions = useMemo(() => {
 		const dep = dependencies.find((d) => d.name === wizardState.dependency);
 		const { apps = {}, versionData = {} } = dep || {};
+
+		const packageList = Object.keys(packages).sort();
+		const options = packageList
+			.map((name) => {
+				const { target } = apps[name] || {};
+				return {
+					name,
+					hasPackage: !!target,
+					versionData: versionData[target] || {},
+				};
+			})
+			// sort packages by ones with the dep, then alphabetically
+			.sort((a, b) => {
+				if (a.hasPackage && !b.hasPackage) {
+					return -1;
+				}
+
+				if (!a.hasPackage && b.hasPackage) {
+					return 1;
+				}
+
+				return a.name.localeCompare(b.name);
+			});
+
 		const installedApps = Object.keys(apps);
-		const options = Object.keys(packages);
 		const defaultSelected = installedApps.map((app) =>
-			options.indexOf(app)
+			options.findIndex((opt) => opt.name === app)
 		);
 
 		return {
-			options: options.map((option) => {
-				const appVersions = apps[option] || {};
-				return {
-					name: option,
-					...appVersions,
-					versionData: versionData[appVersions.target] || {},
-				};
-			}),
+			options,
 			defaultSelected,
 		};
 	}, [wizardState?.dependency, dependencies, packages]);
@@ -95,7 +111,7 @@ const PackagesStep = ({
 							<Box marginRight={1} flexShrink={0}>
 								<Text color={textColor}>{item.name}</Text>
 							</Box>
-							{item.target && (
+							{item.hasPackage && (
 								<Box marginRight={1}>
 									<Text>
 										({wildcard + uncoloredText + midDot}
