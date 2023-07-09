@@ -1,53 +1,44 @@
 import { getPackages } from './packages';
 import { getDependencyList } from './dependencies';
 
-/**
- * Get all dependency information for packages
- * @param {Object} config - refit config
- * @param {Function} onDepenencyProcessed - event fired when a dependency has been processed
- * @returns {Promise<Object[]>} array of dependency data objects
- */
 const getDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootPath,
-		filterByPackages,
-		packageDirs,
-		isMonorepo,
-		isHoisted,
-		showAll,
-		sortAlphabetical,
+		monorepo,
+		hoisted,
 		concurrency,
-		filterByDeps,
-		filterByDepTypes,
-		filterByUpdateTypes,
+		packageDirs,
+		packages,
+		sortAlpha,
+		all,
+		depTypes,
+		updateTypes,
 	} = config;
 
 	const packageList = await getPackages({
 		rootPath,
-		isMonorepo,
+		isMonorepo: monorepo,
 		packageDirs,
 	});
 
 	const dependencyList = await getDependencyList({
 		packageList,
-		filterByPackages,
-		isHoisted,
+		filterByPackages: packages,
+		isHoisted: hoisted,
 		rootPath,
-		filterByDeps,
-		filterByDepTypes,
+		filterByDepTypes: depTypes,
 		updateProgress: onDepenencyProcessed,
 		pMapOptions: {
 			concurrency,
 		},
-		sortAlphabetical,
+		sortAlphabetical: sortAlpha,
 	});
 
-	return showAll
+	return all
 		? dependencyList
 		: dependencyList.filter((pkg) => {
 				const isValidType =
-					!filterByUpdateTypes.length ||
-					filterByUpdateTypes.includes(pkg.updateType);
+					!updateTypes.length || updateTypes.includes(pkg.updateType);
 				return isValidType && pkg.upgradable;
 		  });
 };

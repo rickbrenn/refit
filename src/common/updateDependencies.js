@@ -4,35 +4,34 @@ import { getDependencyList, depTypesList } from './dependencies';
 const updateDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootPath,
-		filterByPackages,
-		packageDirs,
-		isMonorepo,
-		isHoisted,
-		filterByTypes,
-		sortAlphabetical,
+		monorepo,
+		hoisted,
+		packages,
 		concurrency,
+		packageDirs,
 		updateTo,
-		filterByDeps,
+		dependencies,
+		depTypes,
 	} = config;
 
 	const packageList = await getPackages({
 		rootPath,
-		isMonorepo,
+		isMonorepo: monorepo,
 		packageDirs,
 	});
 
 	const dependencyList = await getDependencyList({
 		packageList,
-		filterByPackages,
-		isHoisted,
+		filterByPackages: packages,
+		isHoisted: hoisted,
 		rootPath,
-		filterByDeps,
-		filterByTypes,
+		filterByDeps: dependencies,
+		filterByDepTypes: depTypes,
 		updateProgress: onDepenencyProcessed,
 		pMapOptions: {
 			concurrency,
 		},
-		sortAlphabetical,
+		sortAlphabetical: true,
 	});
 
 	const depsToUpdate = dependencyList.filter((dep) => dep.upgradable);

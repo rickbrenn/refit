@@ -1,5 +1,1 @@
-{
-	"packageJsonPath": "./package.json",
-	"packageLockPath": "./package-lock.json",
-	"packageTypes": ["dependencies", "devDependencies"]
-}
+{}

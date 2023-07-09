@@ -1,44 +1,192 @@
 import fs from 'fs';
 import path from 'path';
 
-const defaultConfig = {
-	rootPath: '',
-	packageDirs: ['packages/*', 'modules/*'],
-	filterByPackages: [],
-	sortAlphabetical: false,
-	showAll: false,
-	isMonorepo: false,
-	verbose: false,
-	isHoisted: false,
-	updateTo: 'latest',
-	filterByDepTypes: [],
-	filterByUpdateTypes: [],
-	concurrency: 8,
-	filterByDeps: [],
+const configOptions = [
+	{
+		name: 'all',
+		options: {
+			alias: 'a',
+			describe: 'show all dependencies including up to date ones',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list'],
+		inUserConfig: false,
+	},
+	{
+		name: 'concurrency',
+		options: {
+			alias: 'C',
+			describe: '',
+			type: 'number',
+			default: 8,
+		},
+		yargsType: 'global',
+		yargsCommmands: [],
+		inUserConfig: true,
+	},
+	{
+		name: 'depTypes',
+		options: {
+			alias: 'd',
+			describe: 'filter by dependency type',
+			type: 'array',
+			default: [],
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list', 'update', 'interactive'],
+		inUserConfig: false,
+	},
+	{
+		name: 'hoisted',
+		options: {
+			alias: 'h',
+			describe: 'check for hoisted node modules',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'global',
+		yargsCommmands: [],
+		inUserConfig: true,
+	},
+	{
+		name: 'monorepo',
+		options: {
+			alias: 'm',
+			describe: 'specify if the package is a monorepo',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'global',
+		yargsCommmands: [],
+		inUserConfig: true,
+	},
+	{
+		name: 'packageDirs',
+		options: {
+			alias: 'P',
+			describe: 'directories of the monorepo packages',
+			type: 'array',
+			default: ['packages/*', 'modules/*'],
+		},
+		yargsType: 'global',
+		yargsCommmands: [],
+		inUserConfig: true,
+	},
+	{
+		name: 'packages',
+		options: {
+			alias: 'p',
+			describe: 'filter by package name',
+			type: 'array',
+			default: [],
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list', 'update', 'interactive'],
+		inUserConfig: false,
+	},
+	{
+		name: 'sortAlpha',
+		options: {
+			alias: 'A',
+			describe: 'sort dependencies alphabetically',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list'],
+		inUserConfig: false,
+	},
+	{
+		name: 'updateTo',
+		options: {
+			alias: 't',
+			describe: 'update dependencies to semver type',
+			type: 'string',
+			default: 'latest',
+			choices: ['latest', 'wanted', 'target'],
+		},
+		yargsType: 'command',
+		yargsCommmands: ['update'],
+		inUserConfig: false,
+	},
+	{
+		name: 'updateTypes',
+		options: {
+			alias: 'u',
+			describe: 'filter by update type',
+			type: 'array',
+			default: [],
+			choices: ['major', 'minor', 'patch'],
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list'],
+		inUserConfig: false,
+	},
+	{
+		name: 'verbose',
+		options: {
+			alias: 'v',
+			describe: 'display all columns of dependency information',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list'],
+		inUserConfig: false,
+	},
+];
+
+const getGlobalOptions = () => {
+	return configOptions.reduce((acc, cur) => {
+		if (cur.yargsType === 'global') {
+			acc[cur.name] = cur.options;
+		}
+		return acc;
+	}, {});
 };
 
-const loadConfig = (configFile, overrides = {}) => {
-	const configPath = path.resolve(configFile || '.refitrc.json');
+const getCommandOptions = (commandId) => {
+	return configOptions.reduce((acc, cur) => {
+		if (cur.yargsCommmands.includes(commandId)) {
+			acc[cur.name] = cur.options;
+		}
+		return acc;
+	}, {});
+};
+
+const loadConfig = ({ config, ...overrides } = {}) => {
+	const configPath = path.resolve(config || '.refitrc.json');
 	const configExists = fs.existsSync(configPath);
 
 	const userConfig = configExists ? fs.readFileSync(configPath) : {};
 
-	return Object.keys(defaultConfig).reduce((acc, cur) => {
-		const val = overrides[cur] || userConfig[cur] || defaultConfig[cur];
+	const baseConfig = {
+		rootPath: process.cwd(),
+	};
 
-		acc[cur] = val;
+	return configOptions.reduce((acc, cur) => {
+		const { name, options, inUserConfig } = cur;
+
+		// set initial value to the default
+		let val = options.default;
+
+		// user value or default if nullish
+		if (inUserConfig) {
+			val = userConfig[name] ?? val;
+		}
+
+		// override value or user/default if nullish
+		val = overrides[name] ?? val;
 
 		// convert single entry values to arrays
-		if (Array.isArray(defaultConfig[cur]) && !Array.isArray(val)) {
-			acc[cur] = [val];
+		if (Array.isArray(options.default) && !Array.isArray(val)) {
+			val = [val];
 		}
 
-		// convert rootPath to absolute path
-		if (cur === 'rootPath') {
-			acc[cur] = val ? path.resolve(val) : process.cwd();
-		}
-
+		acc[name] = val;
 		return acc;
-	}, {});
+	}, baseConfig);
 };
-export { defaultConfig, loadConfig };
+export { configOptions, loadConfig, getGlobalOptions, getCommandOptions };

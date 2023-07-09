@@ -40,16 +40,12 @@ const Interactive = ({ config }) => {
 	const fetchPackagesAndDependencies = useCallback(async () => {
 		const {
 			rootPath,
-			filterByPackages,
-			packageDirs,
-			isMonorepo,
-			isHoisted,
-			// showAll,
-			sortAlphabetical,
+			monorepo: isMonorepo,
+			hoisted: isHoisted,
 			concurrency,
-			filterByDeps,
-			filterByDepTypes,
-			// filterByUpdateTypes,
+			packageDirs,
+			packages: filterByPackages,
+			depTypes: filterByDepTypes,
 		} = config;
 
 		try {
@@ -64,13 +60,11 @@ const Interactive = ({ config }) => {
 				filterByPackages,
 				isHoisted,
 				rootPath,
-				filterByDeps,
 				filterByDepTypes,
 				updateProgress,
 				pMapOptions: {
 					concurrency,
 				},
-				sortAlphabetical,
 			});
 
 			const depOptions = dependencyList.reduce((acc, item) => {
@@ -216,7 +210,7 @@ const Interactive = ({ config }) => {
 							wizardState={wizardState}
 							packages={packages}
 							setWizardState={setWizardState}
-							isMonorepo={config.isMonorepo}
+							isMonorepo={config.monorepo}
 						/>
 						<PackagesStep
 							dependencies={dependencies}
@@ -228,12 +222,12 @@ const Interactive = ({ config }) => {
 							wizardState={wizardState}
 							setWizardState={setWizardState}
 							updateDependencies={updateDependencies}
-							isMonorepo={config.isMonorepo}
+							isMonorepo={config.monorepo}
 						/>
 						<EditStep
 							wizardState={wizardState}
 							setWizardState={setWizardState}
-							isMonorepo={config.isMonorepo}
+							isMonorepo={config.monorepo}
 						/>
 						<CompleteStep />
 					</Wizard>
@@ -246,14 +240,12 @@ const Interactive = ({ config }) => {
 Interactive.propTypes = {
 	config: PropTypes.shape({
 		rootPath: PropTypes.string,
-		filterByPackages: PropTypes.arrayOf(PropTypes.string),
-		packageDirs: PropTypes.arrayOf(PropTypes.string),
-		isMonorepo: PropTypes.bool,
-		isHoisted: PropTypes.bool,
-		sortAlphabetical: PropTypes.bool,
+		monorepo: PropTypes.bool,
+		hoisted: PropTypes.bool,
 		concurrency: PropTypes.number,
-		filterByDeps: PropTypes.arrayOf(PropTypes.string),
-		filterByDepTypes: PropTypes.arrayOf(PropTypes.string),
+		packages: PropTypes.arrayOf(PropTypes.string),
+		packageDirs: PropTypes.arrayOf(PropTypes.string),
+		depTypes: PropTypes.arrayOf(PropTypes.string),
 	}).isRequired,
 };
 

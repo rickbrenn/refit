@@ -5,10 +5,10 @@ import { render } from 'ink';
 import List from './commands/List';
 import Update from './commands/Update';
 import Interactive from './commands/Interactive';
-import { loadConfig } from './config';
+import { loadConfig, getGlobalOptions, getCommandOptions } from './config';
 import log from './logger';
 
-const listCommand = async ({ appConfig }) => {
+const listCommand = ({ appConfig }) => {
 	render(<List config={appConfig} />);
 };
 
@@ -20,140 +20,47 @@ const interactiveCommand = ({ appConfig }) => {
 	render(<Interactive config={appConfig} />);
 };
 
-const cliConfig = {
-	globalOptions: {
-		config: {
-			alias: 'c',
-			describe: '.refitrc file path',
-			type: 'string',
-			default: '.refitrc.json',
-		},
-		rootDir: {
-			alias: 'r',
-			describe: 'root directory of the package/repository',
-			type: 'string',
-			default: '',
-		},
-	},
-	commands: [
-		{
+const cliCommands = [
+	{
+		id: 'list',
+		yargsConfig: {
 			command: '*',
 			aliases: ['ls'],
 			desc: 'list all dependencies',
-			options: {
-				all: {
-					alias: 'a',
-					describe: 'show all dependencies including up to date ones',
-					type: 'boolean',
-					default: false,
-				},
-				alpha: {
-					alias: 'A',
-					describe: 'sort dependencies alphabetically',
-					type: 'boolean',
-					default: false,
-				},
-				depTypes: {
-					alias: 'd',
-					describe: 'filter by dependency type',
-					type: 'array',
-					default: [],
-				},
-				hoisted: {
-					alias: 'h',
-					describe: 'check for hoisted node modules',
-					type: 'boolean',
-					default: false,
-				},
-				monorepo: {
-					alias: 'm',
-					describe: 'specify if the package is a monorepo',
-					type: 'boolean',
-					default: false,
-				},
-				packages: {
-					alias: 'p',
-					describe: 'filter by package name',
-					type: 'array',
-					default: [],
-				},
-				updateTypes: {
-					alias: 'u',
-					describe: 'filter by update type',
-					type: 'array',
-					default: [],
-					choices: ['major', 'minor', 'patch'],
-				},
-				verbose: {
-					alias: 'v',
-					describe: 'display all columns of dependency information',
-					type: 'boolean',
-					default: false,
-				},
-			},
 			handler: listCommand,
 		},
-		{
+	},
+	{
+		id: 'update',
+		yargsConfig: {
 			command: 'update',
 			aliases: ['up'],
 			desc: 'update dependencies',
-			options: {
-				to: {
-					alias: 't',
-					describe: 'update dependencies to semver type',
-					type: 'string',
-					default: 'latest',
-					choices: ['latest', 'wanted', 'target'],
-				},
-			},
-			positional: {
-				key: 'dependencies',
-				options: {
-					describe: 'dependencies to update',
-					type: 'array',
-					default: [],
-				},
-			},
 			handler: updateCommand,
 		},
-		{
+		positional: {
+			key: 'dependencies',
+			options: {
+				describe: 'dependencies to update',
+				type: 'array',
+				default: [],
+			},
+		},
+	},
+	{
+		id: 'interactive',
+		yargsConfig: {
 			command: 'interactive',
 			aliases: ['i'],
 			desc: 'interactively update dependencies',
-			options: {
-				hoisted: {
-					alias: 'h',
-					describe: 'check for hoisted node modules',
-					type: 'boolean',
-					default: false,
-				},
-				monorepo: {
-					alias: 'm',
-					describe: 'specify if the package is a monorepo',
-					type: 'boolean',
-					default: false,
-				},
-			},
 			handler: interactiveCommand,
 		},
-	],
-};
+	},
+];
 
 const withConfig = (argv) => {
 	// load the app config object
-	const appConfig = loadConfig(argv.config, {
-		rootDir: argv.rootDir,
-		filterByPackages: argv.packages,
-		isMonorepo: argv.monorepo,
-		isHoisted: argv.hoisted,
-		sortAlphabetical: argv.alpha,
-		showAll: argv.all,
-		updateTo: argv.to,
-		filterByDepTypes: argv.depTypes,
-		filterByUpdateTypes: argv.updateTypes,
-		verbose: argv.verbose,
-		filterByDeps: argv.dependencies,
-	});
+	const appConfig = loadConfig(argv);
 
 	// eslint-disable-next-line no-param-reassign
 	argv.appConfig = appConfig;
@@ -171,9 +78,11 @@ const createCli = async (argv) => {
 		})
 		.scriptName('refit');
 
-	for (const command of cliConfig.commands) {
+	for (const command of cliCommands) {
+		const commandOptions = getCommandOptions(command.id);
+
 		cli.command({
-			...command,
+			...command.yargsConfig,
 			builder: (yargsInstance) => {
 				if (command.positional) {
 					yargsInstance.positional(
@@ -182,14 +91,13 @@ const createCli = async (argv) => {
 					);
 				}
 
-				if (command.options) {
-					yargsInstance.options(command.options);
-				}
+				yargsInstance.options(commandOptions);
 			},
 		});
 	}
 
-	cli.options(cliConfig.globalOptions);
+	const globalOptions = getGlobalOptions();
+	cli.options(globalOptions);
 
 	return cli.parseAsync(argv);
 };
