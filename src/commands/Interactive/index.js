@@ -96,18 +96,16 @@ const Interactive = ({ config }) => {
 					])
 				);
 
-				const versionData = item.upgradable
-					? {
-							[item.versionRange.target]: {
-								color,
-								updateType,
-								wildcard,
-								midDot,
-								uncoloredText,
-								coloredText,
-							},
-					  }
-					: {};
+				const versionData = {
+					[item.versionRange.target]: {
+						color,
+						updateType,
+						wildcard,
+						midDot,
+						uncoloredText,
+						coloredText,
+					},
+				};
 
 				if (existingDepIndex > -1) {
 					acc[existingDepIndex].apps = {

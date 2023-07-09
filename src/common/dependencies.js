@@ -17,7 +17,7 @@ const semverUpdateColors = {
 };
 
 const getDiffVersionParts = (current, upgrade, returnCurrent = false) => {
-	if (!current || !upgrade || current === upgrade) {
+	if (!current || !upgrade) {
 		return {};
 	}
 
