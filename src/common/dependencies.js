@@ -262,6 +262,7 @@ const getDependencyList = async ({
 	updateProgress,
 	pMapOptions,
 	sortAlphabetical = false,
+	ignoreInternalDeps = true,
 }) => {
 	const hoistedDeps = isHoisted
 		? await getInstalledDeps(rootPath)
@@ -295,8 +296,12 @@ const getDependencyList = async ({
 				!filterByDeps.length || filterByDeps.includes(name);
 			const isValidType =
 				!filterByDepTypes.length || filterByDepTypes.includes(type);
-			if (isValidName && isValidType) {
-				const internal = packageList.has(name);
+			const internal = packageList.has(name);
+
+			const isValidDep =
+				(ignoreInternalDeps && !internal) || !ignoreInternalDeps;
+
+			if (isValidName && isValidType && isValidDep) {
 				let hoisted = false;
 				const installedDep = installedDeps?.get(name);
 				const hoistedDep = hoistedDeps?.get(name);
@@ -341,7 +346,10 @@ const getDependencyList = async ({
 	} else {
 		// sort by semver update type
 		dependencyList.sort((a, b) => {
-			if (b.updateType === a.updateType) {
+			if (
+				b.updateType === a.updateType ||
+				(!b.updateType && !a.updateType)
+			) {
 				return a.name.localeCompare(b.name);
 			}
 
