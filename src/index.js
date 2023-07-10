@@ -1,6 +1,7 @@
 import React from 'react';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { render } from 'ink';
 import List from './commands/List';
 import Update from './commands/Update';

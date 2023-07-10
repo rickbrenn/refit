@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
 import Header from './Header';
-import { useWizard } from '../../ui/Wizard';
 
 const VersionStep = ({
 	dependencies,
@@ -12,8 +12,6 @@ const VersionStep = ({
 	packages,
 	isMonorepo,
 }) => {
-	const { goToStep } = useWizard();
-
 	const versionOptions = useMemo(() => {
 		const dep = dependencies.find((d) => d.name === wizardState.dependency);
 		const { versions = [], distTags = {}, apps = {} } = dep || {};
@@ -68,6 +66,7 @@ const VersionStep = ({
 					setWizardState((prevState) => ({
 						...prevState,
 						version: value.version,
+						step: isMonorepo ? 2 : 3,
 						...(!isMonorepo && {
 							updates: [
 								...prevState.updates,
@@ -79,8 +78,6 @@ const VersionStep = ({
 							],
 						}),
 					}));
-
-					goToStep(isMonorepo ? 2 : 3);
 				}}
 				limit={8}
 				labelKey="version"

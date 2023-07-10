@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box } from 'ink';
 import { CheckSelector } from '../../ui/Selector';
 import Header from './Header';
-import { useWizard } from '../../ui/Wizard';
 
 const PackagesStep = ({
 	dependencies,
@@ -11,7 +11,6 @@ const PackagesStep = ({
 	packages,
 	setWizardState,
 }) => {
-	const { goToNextStep } = useWizard();
 	const [hasValidationError, setHasValidationError] = useState(false);
 
 	const packageOptions = useMemo(() => {
@@ -66,6 +65,7 @@ const PackagesStep = ({
 					} else {
 						setWizardState((prevState) => ({
 							...prevState,
+							step: prevState.step + 1,
 							updates: [
 								...prevState.updates,
 								{
@@ -75,7 +75,6 @@ const PackagesStep = ({
 								},
 							],
 						}));
-						goToNextStep();
 					}
 				}}
 				limit={8}

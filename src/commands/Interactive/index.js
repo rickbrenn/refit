@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Box } from 'ink';
 
 import LoaderBoundary from '../../ui/LoaderBoundary';
@@ -32,6 +33,9 @@ const Interactive = ({ config }) => {
 	const [dependencies, setDependencies] = useState([]);
 
 	const [wizardState, setWizardState] = useState({
+		// making the step controlled since ink doesn't batch state updates
+		// and the states rendering separately causes flickering
+		step: 0,
 		updates: [],
 		dependency: null,
 		version: null,
@@ -197,7 +201,7 @@ const Interactive = ({ config }) => {
 		<LoaderBoundary loading={loading} text={loaderText}>
 			<UpToDateBoundary enabled={!dependencies.length}>
 				<Box flexDirection="column" marginTop={1} marginBottom={1}>
-					<Wizard>
+					<Wizard controlledStep={wizardState.step}>
 						<DependencyStep
 							dependencies={dependencies}
 							wizardState={wizardState}

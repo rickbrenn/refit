@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box } from 'ink';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import TextInput from 'ink-text-input';
 import { getItemName } from './utils';
 

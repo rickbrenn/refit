@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { useInput } from 'ink';
 
 const useListView = ({ items, limit }) => {

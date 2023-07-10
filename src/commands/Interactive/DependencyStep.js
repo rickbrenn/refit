@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
 import Header from './Header';
-import { useWizard } from '../../ui/Wizard';
 
 const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
-	const { goToNextStep } = useWizard();
-
 	return (
 		<>
 			<Header wizardState={wizardState} />
@@ -22,9 +20,8 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 					setWizardState((prevState) => ({
 						...prevState,
 						dependency: value.name,
+						step: prevState.step + 1,
 					}));
-
-					goToNextStep();
 				}}
 				limit={8}
 				labelKey="name"

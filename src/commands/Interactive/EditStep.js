@@ -1,12 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
-import { useWizard } from '../../ui/Wizard';
 
 const EditStep = ({ wizardState, setWizardState, isMonorepo }) => {
-	const { goToStep } = useWizard();
-
 	const handleRemoveUpdate = (value) => {
 		const updates = wizardState.updates.filter(
 			(_, index) => index !== value.index
@@ -16,10 +14,9 @@ const EditStep = ({ wizardState, setWizardState, isMonorepo }) => {
 			return {
 				...prevState,
 				updates,
+				step: updates.length ? 3 : 0,
 			};
 		});
-
-		goToStep(updates.length ? 3 : 0);
 	};
 
 	return (
@@ -50,7 +47,12 @@ const EditStep = ({ wizardState, setWizardState, isMonorepo }) => {
 			}}
 			inputHandler={(input) => {
 				if (input === 'q') {
-					goToStep(3);
+					setWizardState((prevState) => {
+						return {
+							...prevState,
+							step: 3,
+						};
+					});
 				}
 			}}
 			renderHighlighter={(item, highlighted) => {

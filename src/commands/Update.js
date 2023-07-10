@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text } from 'ink';
 import updateDependencies from '../common/updateDependencies';
 import NameColumn from '../ui/NameColumn';

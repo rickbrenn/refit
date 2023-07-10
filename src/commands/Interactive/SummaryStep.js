@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
-import { useWizard } from '../../ui/Wizard';
 
 const SummaryStep = ({
 	wizardState,
@@ -10,8 +10,6 @@ const SummaryStep = ({
 	updateDependencies,
 	isMonorepo,
 }) => {
-	const { goToStep } = useWizard();
-
 	return (
 		<Box flexDirection="column">
 			<Box marginBottom={1}>
@@ -40,8 +38,8 @@ const SummaryStep = ({
 							...prevState,
 							version: null,
 							dependency: null,
+							step: 5,
 						}));
-						goToStep(5);
 					}
 
 					if (value === 'Edit updates') {
@@ -49,8 +47,8 @@ const SummaryStep = ({
 							...prevState,
 							version: null,
 							dependency: null,
+							step: 4,
 						}));
-						goToStep(4);
 					}
 
 					if (value === 'Add another') {
@@ -58,8 +56,8 @@ const SummaryStep = ({
 							...prevState,
 							version: null,
 							dependency: null,
+							step: 0,
 						}));
-						goToStep(0);
 					}
 				}}
 			/>
