@@ -121,7 +121,7 @@ const configOptions = [
 			choices: ['major', 'minor', 'patch'],
 		},
 		yargsType: 'command',
-		yargsCommmands: ['list'],
+		yargsCommmands: ['list', 'update'],
 		inUserConfig: false,
 	},
 	{

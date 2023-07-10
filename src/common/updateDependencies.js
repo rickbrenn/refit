@@ -12,6 +12,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		updateTo,
 		dependencies,
 		depTypes,
+		updateTypes,
 	} = config;
 
 	const packageList = await getPackages({
@@ -34,7 +35,11 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		sortAlphabetical: true,
 	});
 
-	const depsToUpdate = dependencyList.filter((dep) => dep.upgradable);
+	const depsToUpdate = dependencyList.filter((dep) => {
+		const isValidType =
+			!updateTypes.length || updateTypes.includes(dep.updateType);
+		return isValidType && dep.upgradable;
+	});
 	const pkgsToUpdate = new Set();
 
 	for (const dep of depsToUpdate) {
