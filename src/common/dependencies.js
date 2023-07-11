@@ -401,11 +401,41 @@ const getDependenciesFromPackageJson = ({ pkgJsonData }) => {
 	return dependenciesMap;
 };
 
+// map the dependencies data to table row objects
+const mapDataToRows = (pkgs) => {
+	return pkgs.map((p) => {
+		// display version to upgrade to
+		const upgradeVersion = p.upgradable && p.versionRange.latest;
+
+		// if the dependency is not in node_modules display 'missing'
+		const installedText = p.missing ? 'MISSING' : p.version?.installed;
+
+		// how to display the list of dependencies
+		const manyApps = p.apps.length > 1;
+		const appsText = manyApps ? `${p.apps.length} Packages` : p.apps[0];
+
+		return {
+			name: p.name || '',
+			target: p.versionRange?.target || '',
+			installed: installedText || '',
+			wanted: p.version?.wanted || '',
+			latest: p.version?.latest || '',
+			upgrade: upgradeVersion || '',
+			type: p.type || '',
+			hoisted: p.hoisted.toString() || '',
+			in: appsText || '',
+			color: p.color,
+			upgradeParts: p.upgradeParts || {},
+		};
+	});
+};
+
 export {
 	getDiffVersionParts,
 	getDependencyInfo,
 	getDependencyList,
 	getDependenciesFromPackageJson,
 	getInstalledDeps,
+	mapDataToRows,
 	depTypesList,
 };

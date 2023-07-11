@@ -26,8 +26,13 @@ import CompleteStep from './CompleteStep';
 // import monorepoPackages from '../../../examples/monorepoPackages.json';
 
 const Interactive = ({ config }) => {
-	const { loading, setLoading, loaderText, setLoaderText, updateProgress } =
-		useDependencyLoader();
+	const {
+		loading,
+		updateLoading,
+		loaderText,
+		showLoaderError,
+		updateProgress,
+	} = useDependencyLoader();
 
 	const [packages, setPackages] = useState({});
 	const [dependencies, setDependencies] = useState([]);
@@ -154,12 +159,12 @@ const Interactive = ({ config }) => {
 
 			setPackages(packageOptions);
 			setDependencies(depOptions);
-			setLoading(false);
+			updateLoading(false);
 		} catch (error) {
-			setLoaderText('Error!');
+			showLoaderError();
 			throw error;
 		}
-	}, [config, updateProgress, setLoading, setLoaderText]);
+	}, [config, updateProgress, updateLoading, showLoaderError]);
 
 	const updateDependencies = async () => {
 		const pkgsToUpdate = new Set();
