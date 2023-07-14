@@ -11,6 +11,10 @@ const UpgradeColumn = ({ row }) => {
 		return null;
 	}
 
+	if (upgrade === 'NOT FOUND') {
+		return <Text>{upgrade}</Text>;
+	}
+
 	return (
 		<Text>
 			{wildcard + uncoloredText + midDot}

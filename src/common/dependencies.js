@@ -73,6 +73,59 @@ const getDiffVersionParts = (current, upgrade, returnCurrent = false) => {
 	};
 };
 
+const createDependencyOject = ({
+	name = '',
+	type,
+	apps = [],
+	hoisted,
+	version = {
+		installed: '',
+		wanted: '',
+		latest: '',
+	},
+	versionRange = {
+		target: '',
+		wanted: '',
+		latest: '',
+	},
+	internal = false,
+	notOnRegistry = false,
+	missing = false,
+	installNeeded = false,
+	upgradable = false,
+	upgradableToWanted = false,
+	upgradableToLatest = false,
+	color,
+	updateType,
+	upgradeParts = {
+		wildcard: '',
+		midDot: '',
+		uncoloredText: '',
+		coloredText: '',
+	},
+	versions = [],
+	distTags = {},
+}) => ({
+	name,
+	type,
+	apps,
+	hoisted,
+	version,
+	versionRange,
+	internal,
+	notOnRegistry,
+	missing,
+	installNeeded,
+	upgradable,
+	upgradableToWanted,
+	upgradableToLatest,
+	color,
+	updateType,
+	upgradeParts,
+	versions,
+	distTags,
+});
+
 const getDependencyInfo = async ({
 	targetRange,
 	installedVersion,
@@ -84,38 +137,18 @@ const getDependencyInfo = async ({
 }) => {
 	try {
 		if (internal) {
-			return {
+			return createDependencyOject({
 				name,
 				type,
 				apps,
 				hoisted,
-				version: {
-					installed: '',
-					wanted: '',
-					latest: '',
-				},
 				versionRange: {
 					target: targetRange,
 					wanted: targetRange,
 					latest: targetRange,
 				},
 				internal,
-				missing: false,
-				installNeeded: false,
-				upgradable: false,
-				upgradableToWanted: false,
-				upgradableToLatest: false,
-				color: '',
-				updateType: '',
-				upgradeParts: {
-					wildcard: '',
-					midDot: '',
-					uncoloredText: '',
-					coloredText: '',
-				},
-				versions: [],
-				distTags: {},
-			};
+			});
 		}
 
 		// TODO: support more semver types
@@ -124,6 +157,33 @@ const getDependencyInfo = async ({
 			wildcards.find((wildcard) => targetRange.includes(wildcard)) || '';
 
 		const registryData = await pacote.packument(name, {}); // TODO: add optional options?
+
+		// missing from the npm registry
+		if (!registryData.versions) {
+			return createDependencyOject({
+				name,
+				type,
+				apps,
+				hoisted,
+				version: {
+					installed: installedVersion,
+					wanted: '',
+					latest: '',
+				},
+				versionRange: {
+					target: targetRange,
+					wanted: '',
+					latest: '',
+				},
+				internal: false,
+				notOnRegistry: true,
+				missing: !installedVersion,
+				installNeeded: false,
+				upgradable: true,
+				upgradableToWanted: true,
+				upgradableToLatest: true,
+			});
+		}
 
 		const versions = Object.keys(registryData.versions);
 		const distTags = registryData['dist-tags'];
@@ -164,8 +224,7 @@ const getDependencyInfo = async ({
 		// ).json();
 		// const npmLink = npmsInfo?.collected?.metadata?.links?.npm;
 
-		// TODO: make a mapping function for this obj instead of copy/pasting it?
-		return {
+		return createDependencyOject({
 			name,
 			type,
 			apps,
@@ -181,6 +240,7 @@ const getDependencyInfo = async ({
 				latest: latestRange,
 			},
 			internal,
+			notOnRegistry: false,
 			missing,
 			installNeeded,
 			upgradable,
@@ -196,41 +256,21 @@ const getDependencyInfo = async ({
 			},
 			versions,
 			distTags,
-		};
+		});
 	} catch (error) {
-		return {
+		return createDependencyOject({
 			name,
 			type,
 			apps,
 			hoisted,
-			version: {
-				installed: '',
-				current: '',
-				wanted: '',
-				latest: '',
-			},
-			versionRange: {
-				target: '',
-				wanted: '',
-				latest: '',
-			},
 			internal,
+			notOnRegistry: false,
 			missing: true,
 			installNeeded: true,
 			upgradable: true,
 			upgradableToWanted: true,
 			upgradableToLatest: true,
-			color: '',
-			updateType: '',
-			upgradeParts: {
-				wildcard: '',
-				midDot: '',
-				uncoloredText: '',
-				coloredText: '',
-			},
-			versions: [],
-			distTags: {},
-		};
+		});
 	}
 };
 
@@ -405,10 +445,14 @@ const getDependenciesFromPackageJson = ({ pkgJsonData }) => {
 const mapDataToRows = (pkgs) => {
 	return pkgs.map((p) => {
 		// display version to upgrade to
-		const upgradeVersion = p.upgradable && p.versionRange.latest;
+		const upgradeVersion = p.notOnRegistry
+			? 'NOT FOUND'
+			: p.upgradable && p.versionRange.latest;
 
 		// if the dependency is not in node_modules display 'missing'
 		const installedText = p.missing ? 'MISSING' : p.version?.installed;
+
+		const latestText = p.notOnRegistry ? 'NOT FOUND' : p.version?.latest;
 
 		// how to display the list of dependencies
 		const manyApps = p.apps.length > 1;
@@ -419,7 +463,7 @@ const mapDataToRows = (pkgs) => {
 			target: p.versionRange?.target || '',
 			installed: installedText || '',
 			wanted: p.version?.wanted || '',
-			latest: p.version?.latest || '',
+			latest: latestText || '',
 			upgrade: upgradeVersion || '',
 			type: p.type || '',
 			hoisted: p.hoisted.toString() || '',

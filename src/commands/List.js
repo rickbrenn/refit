@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
+import { Box, Text } from 'ink';
 import NameColumn from '../ui/NameColumn';
 import UpgradeColumn from '../ui/UpgradeColumn';
-import Table from '../ui/Table';
+import Table, { calculateColumnWidths } from '../ui/Table';
 import Static from '../ui/Static';
 import useDependencyLoader from '../ui/useDependencyLoader';
 import UpToDateBoundary from '../ui/UpToDateBoundary';
@@ -69,8 +71,37 @@ const getListColumns = ({ verbose, monorepo }) => [
 	},
 ];
 
+const problemColumns = [
+	{
+		name: 'Name',
+		accessor: 'name',
+		Component: NameColumn,
+		show: true,
+	},
+	{
+		name: 'Target',
+		accessor: 'target',
+		show: true,
+		noWrap: true,
+	},
+	{
+		name: 'Installed',
+		accessor: 'installed',
+		show: true,
+		noWrap: true,
+	},
+	{
+		name: 'Upgrade',
+		accessor: 'upgrade',
+		Component: UpgradeColumn,
+		show: true,
+		noWrap: true,
+	},
+];
+
 const List = ({ config }) => {
 	const [dependencies, setDependencies] = useState([]);
+	const [dependencyProblems, setDependencyProblems] = useState(null);
 	const {
 		loading,
 		updateLoading,
@@ -91,6 +122,14 @@ const List = ({ config }) => {
 			const formattedData = mapDataToRows(dependenciesData);
 
 			setDependencies(formattedData);
+			setDependencyProblems({
+				installNeeded: mapDataToRows(
+					dependenciesData.filter((d) => d.installNeeded)
+				),
+				notOnRegistry: mapDataToRows(
+					dependenciesData.filter((d) => d.notOnRegistry)
+				),
+			});
 			updateLoading(false);
 		} catch (error) {
 			showLoaderError();
@@ -107,11 +146,65 @@ const List = ({ config }) => {
 		return baseColumns.filter((c) => c.show);
 	}, [config]);
 
+	const columnWidths = useMemo(
+		() => calculateColumnWidths({ data: dependencies, columns }),
+		[columns, dependencies]
+	);
+
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>
 			<UpToDateBoundary enabled={!dependencies.length}>
 				<Static>
-					<Table data={dependencies} columns={columns} />
+					<Table
+						data={dependencies}
+						columns={columns}
+						maxColumnWidths={columnWidths.max}
+					/>
+
+					{dependencyProblems && (
+						<Box flexDirection="column">
+							<Box>
+								<Text color="red" bold>
+									Issues Detected:
+								</Text>
+							</Box>
+							{dependencyProblems.installNeeded.length > 0 && (
+								<>
+									<Text color="red">
+										dependencies requiring install
+									</Text>
+									<Table
+										data={dependencyProblems.installNeeded}
+										columns={problemColumns}
+										borderColor="red"
+										maxColumnWidths={columnWidths.max}
+									/>
+								</>
+							)}
+
+							{dependencyProblems.notOnRegistry.length > 0 && (
+								<>
+									<Text color="red">
+										dependencies missing from the registry
+									</Text>
+									<Table
+										data={dependencyProblems.notOnRegistry}
+										columns={problemColumns}
+										borderColor="red"
+										maxColumnWidths={columnWidths.max}
+									/>
+								</>
+							)}
+
+							{dependencyProblems.installNeeded.length > 0 && (
+								<Box>
+									<Text>Run </Text>
+									<Text color="blue">npm install </Text>
+									<Text>to resolve dependency issues</Text>
+								</Box>
+							)}
+						</Box>
+					)}
 				</Static>
 			</UpToDateBoundary>
 		</LoaderBoundary>

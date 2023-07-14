@@ -39,7 +39,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		: dependencyList.filter((pkg) => {
 				const isValidType =
 					!updateTypes.length || updateTypes.includes(pkg.updateType);
-				return isValidType && pkg.upgradable;
+				return isValidType && (pkg.upgradable || pkg.installNeeded);
 		  });
 };
 

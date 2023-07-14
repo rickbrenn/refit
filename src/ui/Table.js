@@ -20,19 +20,19 @@ const calculateColumnWidths = ({ data, columns }) => {
 		return acc;
 	}, minColumnWidths);
 
-	return { minColumnWidths, maxColumnWidths };
+	return { min: minColumnWidths, max: maxColumnWidths };
 };
 
-const Table = ({ data, columns }) => {
-	const { maxColumnWidths } = calculateColumnWidths({
-		data,
-		columns,
-	});
+const Table = ({ data, columns, borderColor, maxColumnWidths }) => {
+	let columnWidths = maxColumnWidths;
+	if (!columnWidths) {
+		columnWidths = calculateColumnWidths({ data, columns }).max;
+	}
 
 	const columnsConfig = columns.map((c) => {
 		const columnGap = 4;
 
-		const width = c.width || maxColumnWidths[c.accessor];
+		const width = c.width || columnWidths[c.accessor];
 		return {
 			...c,
 			width: width + columnGap,
@@ -46,7 +46,7 @@ const Table = ({ data, columns }) => {
 				flexDirection="column"
 				paddingX={2}
 				borderStyle="round"
-				borderColor="blue"
+				borderColor={borderColor}
 			>
 				<Box>
 					{columnsConfig.map((c) => (
@@ -87,6 +87,14 @@ const Table = ({ data, columns }) => {
 Table.propTypes = {
 	data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 	columns: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+	borderColor: PropTypes.string,
+	maxColumnWidths: PropTypes.shape({}),
+};
+
+Table.defaultProps = {
+	borderColor: 'blue',
+	maxColumnWidths: null,
 };
 
 export default Table;
+export { calculateColumnWidths };
