@@ -41,45 +41,43 @@ const Table = ({ data, columns, borderColor, maxColumnWidths }) => {
 	});
 
 	return (
-		<Box marginBottom={1}>
-			<Box
-				flexDirection="column"
-				paddingX={2}
-				borderStyle="round"
-				borderColor={borderColor}
-			>
-				<Box>
+		<Box
+			flexDirection="column"
+			paddingX={2}
+			borderStyle="round"
+			borderColor={borderColor}
+		>
+			<Box>
+				{columnsConfig.map((c) => (
+					<Box
+						key={c.name}
+						width={c.width}
+						minWidth={c.noWrap && c.baseWidth}
+					>
+						<Text color={c.color} wrap={c.wrap}>
+							{c.name}
+						</Text>
+					</Box>
+				))}
+			</Box>
+
+			{data.map((d) => (
+				<Box key={d.name + d.in}>
 					{columnsConfig.map((c) => (
 						<Box
 							key={c.name}
 							width={c.width}
 							minWidth={c.noWrap && c.baseWidth}
 						>
-							<Text color={c.color} wrap={c.wrap}>
-								{c.name}
-							</Text>
+							{c.Component ? (
+								<c.Component row={d} />
+							) : (
+								<Text wrap={c.wrap}>{d[c.accessor]}</Text>
+							)}
 						</Box>
 					))}
 				</Box>
-
-				{data.map((d) => (
-					<Box key={d.name + d.in}>
-						{columnsConfig.map((c) => (
-							<Box
-								key={c.name}
-								width={c.width}
-								minWidth={c.noWrap && c.baseWidth}
-							>
-								{c.Component ? (
-									<c.Component row={d} />
-								) : (
-									<Text wrap={c.wrap}>{d[c.accessor]}</Text>
-								)}
-							</Box>
-						))}
-					</Box>
-				))}
-			</Box>
+			))}
 		</Box>
 	);
 };

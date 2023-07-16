@@ -135,95 +135,30 @@ const getDependencyInfo = async ({
 	hoisted,
 	internal,
 }) => {
-	try {
-		if (internal) {
-			return createDependencyOject({
-				name,
-				type,
-				apps,
-				hoisted,
-				versionRange: {
-					target: targetRange,
-					wanted: targetRange,
-					latest: targetRange,
-				},
-				internal,
-			});
-		}
+	if (internal) {
+		return createDependencyOject({
+			name,
+			type,
+			apps,
+			hoisted,
+			versionRange: {
+				target: targetRange,
+				wanted: targetRange,
+				latest: targetRange,
+			},
+			internal,
+		});
+	}
 
-		// TODO: support more semver types
-		const wildcards = ['^', '~'];
-		const currentWildcard =
-			wildcards.find((wildcard) => targetRange.includes(wildcard)) || '';
+	// TODO: support more semver types
+	const wildcards = ['^', '~'];
+	const currentWildcard =
+		wildcards.find((wildcard) => targetRange.includes(wildcard)) || '';
 
-		const registryData = await pacote.packument(name, {}); // TODO: add optional options?
+	const registryData = await pacote.packument(name, {}); // TODO: add optional options?
 
-		// missing from the npm registry
-		if (!registryData.versions) {
-			return createDependencyOject({
-				name,
-				type,
-				apps,
-				hoisted,
-				version: {
-					installed: installedVersion,
-					wanted: '',
-					latest: '',
-				},
-				versionRange: {
-					target: targetRange,
-					wanted: '',
-					latest: '',
-				},
-				internal: false,
-				notOnRegistry: true,
-				missing: !installedVersion,
-				installNeeded: false,
-				upgradable: true,
-				upgradableToWanted: true,
-				upgradableToLatest: true,
-			});
-		}
-
-		const versions = Object.keys(registryData.versions);
-		const distTags = registryData['dist-tags'];
-
-		// versions
-		const wantedVersion = semver.maxSatisfying(versions, targetRange);
-		const latestVersion = distTags.latest;
-
-		// ranges
-		const wantedRange = currentWildcard + wantedVersion;
-		const latestRange = currentWildcard + latestVersion;
-
-		// upgrades
-		const upgradableToWanted = targetRange !== wantedRange;
-		const upgradableToLatest = targetRange !== latestRange;
-		const upgradable = upgradableToWanted || upgradableToLatest;
-
-		// issues
-		const missing = !installedVersion;
-		const installedIsOff = !semver.satisfies(installedVersion, targetRange);
-		const installNeeded = missing || installedIsOff;
-
-		// get coloring and version parts for the upgrade text
-		const {
-			color,
-			updateType,
-			wildcard,
-			midDot,
-			uncoloredText,
-			coloredText,
-		} = getDiffVersionParts(targetRange, latestRange);
-
-		// get the package link
-		// TODO: npms has a bulk API, maybe run a bunch of these using the bulk API instead
-		// TODO: will have to change this for yarn support
-		// const npmsInfo = await (
-		// 	await fetch(`https://api.npms.io/v2/package/${name}`)
-		// ).json();
-		// const npmLink = npmsInfo?.collected?.metadata?.links?.npm;
-
+	// missing from the npm registry
+	if (!registryData.versions) {
 		return createDependencyOject({
 			name,
 			type,
@@ -231,47 +166,90 @@ const getDependencyInfo = async ({
 			hoisted,
 			version: {
 				installed: installedVersion,
-				wanted: wantedVersion,
-				latest: latestVersion,
+				wanted: '',
+				latest: '',
 			},
 			versionRange: {
 				target: targetRange,
-				wanted: wantedRange,
-				latest: latestRange,
+				wanted: '',
+				latest: '',
 			},
-			internal,
-			notOnRegistry: false,
-			missing,
-			installNeeded,
-			upgradable,
-			upgradableToWanted,
-			upgradableToLatest,
-			color,
-			updateType,
-			upgradeParts: {
-				wildcard,
-				midDot,
-				uncoloredText,
-				coloredText,
-			},
-			versions,
-			distTags,
-		});
-	} catch (error) {
-		return createDependencyOject({
-			name,
-			type,
-			apps,
-			hoisted,
-			internal,
-			notOnRegistry: false,
-			missing: true,
-			installNeeded: true,
+			internal: false,
+			notOnRegistry: true,
+			missing: !installedVersion,
+			installNeeded: false,
 			upgradable: true,
 			upgradableToWanted: true,
 			upgradableToLatest: true,
 		});
 	}
+
+	const versions = Object.keys(registryData.versions);
+	const distTags = registryData['dist-tags'];
+
+	// versions
+	const wantedVersion = semver.maxSatisfying(versions, targetRange);
+	const latestVersion = distTags.latest;
+
+	// ranges
+	const wantedRange = currentWildcard + wantedVersion;
+	const latestRange = currentWildcard + latestVersion;
+
+	// upgrades
+	const upgradableToWanted = targetRange !== wantedRange;
+	const upgradableToLatest = targetRange !== latestRange;
+	const upgradable = upgradableToWanted || upgradableToLatest;
+
+	// issues
+	const missing = !installedVersion;
+	const installedIsOff = !semver.satisfies(installedVersion, targetRange);
+	const installNeeded = missing || installedIsOff;
+
+	// get coloring and version parts for the upgrade text
+	const { color, updateType, wildcard, midDot, uncoloredText, coloredText } =
+		getDiffVersionParts(targetRange, latestRange);
+
+	// get the package link
+	// TODO: npms has a bulk API, maybe run a bunch of these using the bulk API instead
+	// TODO: will have to change this for yarn support
+	// const npmsInfo = await (
+	// 	await fetch(`https://api.npms.io/v2/package/${name}`)
+	// ).json();
+	// const npmLink = npmsInfo?.collected?.metadata?.links?.npm;
+
+	return createDependencyOject({
+		name,
+		type,
+		apps,
+		hoisted,
+		version: {
+			installed: installedVersion,
+			wanted: wantedVersion,
+			latest: latestVersion,
+		},
+		versionRange: {
+			target: targetRange,
+			wanted: wantedRange,
+			latest: latestRange,
+		},
+		internal,
+		notOnRegistry: false,
+		missing,
+		installNeeded,
+		upgradable,
+		upgradableToWanted,
+		upgradableToLatest,
+		color,
+		updateType,
+		upgradeParts: {
+			wildcard,
+			midDot,
+			uncoloredText,
+			coloredText,
+		},
+		versions,
+		distTags,
+	});
 };
 
 const getInstalledDeps = async (pkgPath) => {

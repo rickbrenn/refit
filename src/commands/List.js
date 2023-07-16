@@ -151,6 +151,10 @@ const List = ({ config }) => {
 		[columns, dependencies]
 	);
 
+	const showInstallNeeded = dependencyProblems?.installNeeded?.length > 0;
+	const showNotOnRegistry = dependencyProblems?.notOnRegistry?.length > 0;
+	const hasProblems = showInstallNeeded || showNotOnRegistry;
+
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>
 			<UpToDateBoundary enabled={!dependencies.length}>
@@ -161,14 +165,14 @@ const List = ({ config }) => {
 						maxColumnWidths={columnWidths.max}
 					/>
 
-					{dependencyProblems && (
-						<Box flexDirection="column">
+					{hasProblems && (
+						<Box flexDirection="column" marginTop={1}>
 							<Box>
 								<Text color="red" bold>
 									Issues Detected:
 								</Text>
 							</Box>
-							{dependencyProblems.installNeeded.length > 0 && (
+							{showInstallNeeded && (
 								<>
 									<Text color="red">
 										dependencies requiring install
@@ -182,7 +186,7 @@ const List = ({ config }) => {
 								</>
 							)}
 
-							{dependencyProblems.notOnRegistry.length > 0 && (
+							{showNotOnRegistry && (
 								<>
 									<Text color="red">
 										dependencies missing from the registry
@@ -196,7 +200,7 @@ const List = ({ config }) => {
 								</>
 							)}
 
-							{dependencyProblems.installNeeded.length > 0 && (
+							{showInstallNeeded && (
 								<Box>
 									<Text>Run </Text>
 									<Text color="blue">npm install </Text>
