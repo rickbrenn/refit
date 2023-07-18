@@ -9,10 +9,11 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		concurrency,
 		packageDirs,
 		packages,
-		sortAlpha,
+		sort,
 		all,
 		depTypes,
 		updateTypes,
+		verbose,
 	} = config;
 
 	const packageList = await getPackages({
@@ -31,7 +32,10 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		pMapOptions: {
 			concurrency,
 		},
-		sortAlphabetical: sortAlpha,
+		sortBy: sort,
+		packumentOptions: {
+			fullMetadata: verbose,
+		},
 	});
 
 	return all

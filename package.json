@@ -29,6 +29,7 @@
 		"@npmcli/name-from-folder": "^2.0.0",
 		"@npmcli/package-json": "^3.1.1",
 		"chalk": "^5.2.0",
+		"dayjs": "^1.11.9",
 		"ink": "^4.2.0",
 		"ink-text-input": "^5.0.1",
 		"p-map": "^6.0.0",

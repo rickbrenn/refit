@@ -87,12 +87,13 @@ const configOptions = [
 		inUserConfig: false,
 	},
 	{
-		name: 'sortAlpha',
+		name: 'sort',
 		options: {
-			alias: 'A',
-			describe: 'sort dependencies alphabetically',
-			type: 'boolean',
-			default: false,
+			alias: 's',
+			describe: 'sort dependencies',
+			type: 'string',
+			default: 'type',
+			choices: ['name', 'date', 'type'],
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list'],

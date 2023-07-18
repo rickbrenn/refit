@@ -52,6 +52,11 @@ const getListColumns = ({ verbose, monorepo }) => [
 		noWrap: true,
 	},
 	{
+		name: 'Last Updated',
+		accessor: 'lastPublishedAt',
+		show: verbose,
+	},
+	{
 		name: 'Type',
 		accessor: 'type',
 		show: verbose,

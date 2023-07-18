@@ -2,6 +2,11 @@ import pMap from 'p-map';
 import pacote from 'pacote';
 import semver from 'semver';
 import Arborist from '@npmcli/arborist';
+import dayjs from 'dayjs';
+// eslint-disable-next-line node/file-extension-in-import
+import relativeTime from 'dayjs/plugin/relativeTime.js';
+
+dayjs.extend(relativeTime);
 
 const depTypesList = {
 	dev: 'devDependencies',
@@ -105,6 +110,7 @@ const createDependencyOject = ({
 	},
 	versions = [],
 	distTags = {},
+	lastPublishedAt = '',
 }) => ({
 	name,
 	type,
@@ -124,17 +130,13 @@ const createDependencyOject = ({
 	upgradeParts,
 	versions,
 	distTags,
+	lastPublishedAt,
 });
 
-const getDependencyInfo = async ({
-	targetRange,
-	installedVersion,
-	apps,
-	name,
-	type,
-	hoisted,
-	internal,
-}) => {
+const getDependencyInfo = async (
+	{ targetRange, installedVersion, apps, name, type, hoisted, internal },
+	packumentOptions = {}
+) => {
 	if (internal) {
 		return createDependencyOject({
 			name,
@@ -155,7 +157,9 @@ const getDependencyInfo = async ({
 	const currentWildcard =
 		wildcards.find((wildcard) => targetRange.includes(wildcard)) || '';
 
-	const registryData = await pacote.packument(name, {}); // TODO: add optional options?
+	const registryData = await pacote.packument(name, packumentOptions);
+
+	// console.log('registryData :>> ', { ...registryData, versions: null });
 
 	// missing from the npm registry
 	if (!registryData.versions) {
@@ -209,6 +213,8 @@ const getDependencyInfo = async ({
 	const { color, updateType, wildcard, midDot, uncoloredText, coloredText } =
 		getDiffVersionParts(targetRange, latestRange);
 
+	const lastPublishedAt = registryData?.time?.[distTags.latest] || '';
+
 	// get the package link
 	// TODO: npms has a bulk API, maybe run a bunch of these using the bulk API instead
 	// TODO: will have to change this for yarn support
@@ -249,6 +255,7 @@ const getDependencyInfo = async ({
 		},
 		versions,
 		distTags,
+		lastPublishedAt,
 	});
 };
 
@@ -259,14 +266,14 @@ const getInstalledDeps = async (pkgPath) => {
 	return installedDeps;
 };
 
-const processDependency = (updateFunc, total) => {
+const processDependency = (updateFunc, total, packumentOptions) => {
 	return async (dependencyData, index) => {
 		const progressCurrent = index + 1;
 		const progressMax = total;
 
 		updateFunc(progressCurrent, progressMax, dependencyData.name);
 
-		return getDependencyInfo(dependencyData);
+		return getDependencyInfo(dependencyData, packumentOptions);
 	};
 };
 
@@ -279,8 +286,9 @@ const getDependencyList = async ({
 	filterByDepTypes = [],
 	updateProgress,
 	pMapOptions,
-	sortAlphabetical = false,
+	sortBy,
 	ignoreInternalDeps = true,
+	packumentOptions = {},
 }) => {
 	const hoistedDeps = isHoisted
 		? await getInstalledDeps(rootPath)
@@ -354,13 +362,29 @@ const getDependencyList = async ({
 		}
 	}
 
-	const func = processDependency(updateProgress, dependencyList.length);
+	const func = processDependency(
+		updateProgress,
+		dependencyList.length,
+		packumentOptions
+	);
 
 	dependencyList = await pMap(dependencyList, func, pMapOptions);
 
-	// sort alphabetically by name
-	if (sortAlphabetical) {
+	if (sortBy === 'name') {
+		// sort alphabetically by name
 		dependencyList.sort((a, b) => a.name.localeCompare(b.name));
+	} else if (sortBy === 'date') {
+		// sort by date
+		dependencyList.sort((a, b) => {
+			const aDate = dayjs(a.lastPublishedAt);
+			const bDate = dayjs(b.lastPublishedAt);
+
+			if (aDate.isSame(bDate)) {
+				return a.name.localeCompare(b.name);
+			}
+
+			return aDate.isBefore(bDate) ? 1 : -1;
+		});
 	} else {
 		// sort by semver update type
 		dependencyList.sort((a, b) => {
@@ -436,6 +460,10 @@ const mapDataToRows = (pkgs) => {
 		const manyApps = p.apps.length > 1;
 		const appsText = manyApps ? `${p.apps.length} Packages` : p.apps[0];
 
+		const lastPublishedAtText = p.lastPublishedAt
+			? dayjs().to(dayjs(p.lastPublishedAt))
+			: '';
+
 		return {
 			name: p.name || '',
 			target: p.versionRange?.target || '',
@@ -448,6 +476,7 @@ const mapDataToRows = (pkgs) => {
 			in: appsText || '',
 			color: p.color,
 			upgradeParts: p.upgradeParts || {},
+			lastPublishedAt: lastPublishedAtText,
 		};
 	});
 };

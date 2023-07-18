@@ -32,7 +32,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		pMapOptions: {
 			concurrency,
 		},
-		sortAlphabetical: true,
+		sortBy: 'name',
 	});
 
 	const depsToUpdate = dependencyList.filter((dep) => {
