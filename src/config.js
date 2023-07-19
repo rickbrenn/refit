@@ -17,7 +17,7 @@ const configOptions = [
 	{
 		name: 'concurrency',
 		options: {
-			alias: 'C',
+			alias: 'c',
 			describe: '',
 			type: 'number',
 			default: 8,
@@ -25,6 +25,17 @@ const configOptions = [
 		yargsType: 'global',
 		yargsCommmands: [],
 		inUserConfig: true,
+	},
+	{
+		name: 'dependencies',
+		options: {
+			describe: 'dependencies to update',
+			type: 'array',
+			default: [],
+		},
+		yargsType: 'positional',
+		yargsCommmands: ['update'],
+		inUserConfig: false,
 	},
 	{
 		name: 'deprecated',
@@ -171,12 +182,22 @@ const getGlobalOptions = () => {
 };
 
 const getCommandOptions = (commandId) => {
-	return configOptions.reduce((acc, cur) => {
-		if (cur.yargsCommmands.includes(commandId)) {
-			acc[cur.name] = cur.options;
-		}
-		return acc;
-	}, {});
+	return configOptions.reduce(
+		(acc, cur) => {
+			if (cur.yargsCommmands.includes(commandId)) {
+				if (cur.yargsType === 'command') {
+					acc.options[cur.name] = cur.options;
+				}
+
+				if (cur.yargsType === 'positional') {
+					acc.positional.push(cur.name, cur.options);
+				}
+			}
+
+			return acc;
+		},
+		{ options: {}, positional: [] }
+	);
 };
 
 const loadConfig = ({ config, ...overrides } = {}) => {

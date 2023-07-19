@@ -34,18 +34,10 @@ const cliCommands = [
 	{
 		id: 'update',
 		yargsConfig: {
-			command: 'update',
+			command: 'update [dependencies..]',
 			aliases: ['up'],
 			desc: 'update dependencies',
 			handler: updateCommand,
-		},
-		positional: {
-			key: 'dependencies',
-			options: {
-				describe: 'dependencies to update',
-				type: 'array',
-				default: [],
-			},
 		},
 	},
 	{
@@ -85,14 +77,11 @@ const createCli = async (argv) => {
 		cli.command({
 			...command.yargsConfig,
 			builder: (yargsInstance) => {
-				if (command.positional) {
-					yargsInstance.positional(
-						command.positional.key,
-						command.positional.options
-					);
+				if (commandOptions.positional.length) {
+					yargsInstance.positional(...commandOptions.positional);
 				}
 
-				yargsInstance.options(commandOptions);
+				yargsInstance.options(commandOptions.options);
 			},
 		});
 	}
