@@ -76,34 +76,6 @@ const getListColumns = ({ verbose, monorepo }) => [
 	},
 ];
 
-const problemColumns = [
-	{
-		name: 'Name',
-		accessor: 'name',
-		Component: NameColumn,
-		show: true,
-	},
-	{
-		name: 'Target',
-		accessor: 'target',
-		show: true,
-		noWrap: true,
-	},
-	{
-		name: 'Installed',
-		accessor: 'installed',
-		show: true,
-		noWrap: true,
-	},
-	{
-		name: 'Upgrade',
-		accessor: 'upgrade',
-		Component: UpgradeColumn,
-		show: true,
-		noWrap: true,
-	},
-];
-
 const List = ({ config }) => {
 	const [dependencies, setDependencies] = useState([]);
 	const [dependencyProblems, setDependencyProblems] = useState(null);
@@ -134,6 +106,9 @@ const List = ({ config }) => {
 				notOnRegistry: mapDataToRows(
 					dependenciesData.filter((d) => d.notOnRegistry)
 				),
+				deprecated: mapDataToRows(
+					dependenciesData.filter((d) => d.deprecated)
+				),
 			});
 			updateLoading(false);
 		} catch (error) {
@@ -158,7 +133,9 @@ const List = ({ config }) => {
 
 	const showInstallNeeded = dependencyProblems?.installNeeded?.length > 0;
 	const showNotOnRegistry = dependencyProblems?.notOnRegistry?.length > 0;
-	const hasProblems = showInstallNeeded || showNotOnRegistry;
+	const showDeprecated = dependencyProblems?.deprecated?.length > 0;
+	const hasProblems =
+		showInstallNeeded || showNotOnRegistry || showDeprecated;
 
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>
@@ -184,7 +161,7 @@ const List = ({ config }) => {
 									</Text>
 									<Table
 										data={dependencyProblems.installNeeded}
-										columns={problemColumns}
+										columns={columns}
 										borderColor="red"
 										maxColumnWidths={columnWidths.max}
 									/>
@@ -198,7 +175,21 @@ const List = ({ config }) => {
 									</Text>
 									<Table
 										data={dependencyProblems.notOnRegistry}
-										columns={problemColumns}
+										columns={columns}
+										borderColor="red"
+										maxColumnWidths={columnWidths.max}
+									/>
+								</>
+							)}
+
+							{showDeprecated && (
+								<>
+									<Text color="red">
+										dependencies that are deprecated
+									</Text>
+									<Table
+										data={dependencyProblems.deprecated}
+										columns={columns}
 										borderColor="red"
 										maxColumnWidths={columnWidths.max}
 									/>

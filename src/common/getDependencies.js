@@ -14,6 +14,8 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		depTypes,
 		updateTypes,
 		verbose,
+		prerelease,
+		deprecated,
 	} = config;
 
 	const packageList = await getPackages({
@@ -36,6 +38,8 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		packumentOptions: {
 			fullMetadata: verbose,
 		},
+		allowPrerelease: prerelease,
+		allowDeprecated: deprecated,
 	});
 
 	return all

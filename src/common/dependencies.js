@@ -21,6 +21,7 @@ const semverUpdateColors = {
 	patch: 'green',
 };
 
+// TODO: could probably simplify this with the semver package
 const getDiffVersionParts = (current, upgrade, returnCurrent = false) => {
 	if (!current || !upgrade) {
 		return {};
@@ -78,6 +79,21 @@ const getDiffVersionParts = (current, upgrade, returnCurrent = false) => {
 	};
 };
 
+const isPrerelease = (version) => {
+	// prerelease versions return an array of prelease parts
+	return semver.prerelease(version)?.length > 0;
+};
+
+const isDeprecated = (registryVersion) => {
+	// deprecated versions return a deprecated key with a message
+	return !!registryVersion?.deprecated;
+};
+
+const isMissing = (registryVersion) => {
+	// when a package is no longer on the registry it does not have a versions key
+	return !registryVersion?.versions;
+};
+
 const createDependencyOject = ({
 	name = '',
 	type,
@@ -94,6 +110,7 @@ const createDependencyOject = ({
 		latest: '',
 	},
 	internal = false,
+	deprecated = false,
 	notOnRegistry = false,
 	missing = false,
 	installNeeded = false,
@@ -119,6 +136,7 @@ const createDependencyOject = ({
 	version,
 	versionRange,
 	internal,
+	deprecated,
 	notOnRegistry,
 	missing,
 	installNeeded,
@@ -134,9 +152,21 @@ const createDependencyOject = ({
 });
 
 const getDependencyInfo = async (
-	{ targetRange, installedVersion, apps, name, type, hoisted, internal },
-	packumentOptions = {}
+	dependency,
+	packumentOptions = {},
+	config = {}
 ) => {
+	const {
+		targetRange,
+		installedVersion,
+		apps,
+		name,
+		type,
+		hoisted,
+		internal,
+	} = dependency;
+	const { allowPrerelease, allowDeprecated } = config;
+
 	if (internal) {
 		return createDependencyOject({
 			name,
@@ -159,10 +189,8 @@ const getDependencyInfo = async (
 
 	const registryData = await pacote.packument(name, packumentOptions);
 
-	// console.log('registryData :>> ', { ...registryData, versions: null });
-
 	// missing from the npm registry
-	if (!registryData.versions) {
+	if (isMissing(registryData)) {
 		return createDependencyOject({
 			name,
 			type,
@@ -188,32 +216,55 @@ const getDependencyInfo = async (
 		});
 	}
 
-	const versions = Object.keys(registryData.versions);
 	const distTags = registryData['dist-tags'];
 
-	// versions
-	const wantedVersion = semver.maxSatisfying(versions, targetRange);
-	const latestVersion = distTags.latest;
+	// allow prerelease versions if option is set or the target range is a prerelease
+	const includePrerelease = allowPrerelease || isPrerelease(targetRange);
 
-	// ranges
-	const wantedRange = currentWildcard + wantedVersion;
-	const latestRange = currentWildcard + latestVersion;
+	const versions = Object.keys(registryData.versions);
+	const validVersions = versions.filter((version) => {
+		const isPrereleaseVersion = isPrerelease(version);
+		const isDeprecatedVersion = isDeprecated(
+			registryData.versions[version]
+		);
 
-	// upgrades
-	const upgradableToWanted = targetRange !== wantedRange;
-	const upgradableToLatest = targetRange !== latestRange;
+		const prePassed = includePrerelease || !isPrereleaseVersion;
+		const depPassed = allowDeprecated || !isDeprecatedVersion;
+
+		return prePassed && depPassed;
+	});
+
+	const wantedVersion = semver.maxSatisfying(versions, targetRange, {
+		includePrerelease,
+	});
+
+	// will use the latest distTag if there are no valid versions. This is in the case
+	// that a package only has prerelease versions but they are filtered out
+	const latestVersion =
+		semver.maxSatisfying(validVersions, `>=${wantedVersion}`, {
+			// set to true here because they are filtered out or allowed already
+			includePrerelease: true,
+		}) || distTags.latest;
+
+	const wantedRange = wantedVersion ? currentWildcard + wantedVersion : '';
+	const latestRange = latestVersion ? currentWildcard + latestVersion : '';
+
+	const upgradableToWanted =
+		targetRange && wantedRange && targetRange !== wantedRange;
+	const upgradableToLatest =
+		targetRange && latestRange && targetRange !== latestRange;
 	const upgradable = upgradableToWanted || upgradableToLatest;
 
-	// issues
 	const missing = !installedVersion;
 	const installedIsOff = !semver.satisfies(installedVersion, targetRange);
 	const installNeeded = missing || installedIsOff;
+	const deprecated = isDeprecated(registryData.versions[installedVersion]);
 
 	// get coloring and version parts for the upgrade text
 	const { color, updateType, wildcard, midDot, uncoloredText, coloredText } =
 		getDiffVersionParts(targetRange, latestRange);
 
-	const lastPublishedAt = registryData?.time?.[distTags.latest] || '';
+	const lastPublishedAt = registryData?.time?.[latestVersion] || '';
 
 	// get the package link
 	// TODO: npms has a bulk API, maybe run a bunch of these using the bulk API instead
@@ -239,6 +290,7 @@ const getDependencyInfo = async (
 			latest: latestRange,
 		},
 		internal,
+		deprecated,
 		notOnRegistry: false,
 		missing,
 		installNeeded,
@@ -266,14 +318,14 @@ const getInstalledDeps = async (pkgPath) => {
 	return installedDeps;
 };
 
-const processDependency = (updateFunc, total, packumentOptions) => {
+const processDependency = (updateFunc, total, packumentOptions, config) => {
 	return async (dependencyData, index) => {
 		const progressCurrent = index + 1;
 		const progressMax = total;
 
 		updateFunc(progressCurrent, progressMax, dependencyData.name);
 
-		return getDependencyInfo(dependencyData, packumentOptions);
+		return getDependencyInfo(dependencyData, packumentOptions, config);
 	};
 };
 
@@ -289,6 +341,8 @@ const getDependencyList = async ({
 	sortBy,
 	ignoreInternalDeps = true,
 	packumentOptions = {},
+	allowDeprecated = false,
+	allowPrerelease = false,
 }) => {
 	const hoistedDeps = isHoisted
 		? await getInstalledDeps(rootPath)
@@ -365,7 +419,8 @@ const getDependencyList = async ({
 	const func = processDependency(
 		updateProgress,
 		dependencyList.length,
-		packumentOptions
+		packumentOptions,
+		{ allowDeprecated, allowPrerelease }
 	);
 
 	dependencyList = await pMap(dependencyList, func, pMapOptions);

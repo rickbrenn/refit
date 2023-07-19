@@ -27,6 +27,17 @@ const configOptions = [
 		inUserConfig: true,
 	},
 	{
+		name: 'deprecated',
+		options: {
+			describe: 'allow updating to deprecated versions',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list', 'update'],
+		inUserConfig: false,
+	},
+	{
 		name: 'depTypes',
 		options: {
 			alias: 'd',
@@ -73,6 +84,17 @@ const configOptions = [
 		yargsType: 'global',
 		yargsCommmands: [],
 		inUserConfig: true,
+	},
+	{
+		name: 'prerelease',
+		options: {
+			describe: 'allow updating to prerelease versions',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list', 'update'],
+		inUserConfig: false,
 	},
 	{
 		name: 'packages',
