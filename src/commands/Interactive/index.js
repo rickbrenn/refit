@@ -100,6 +100,7 @@ const Interactive = ({ config }) => {
 						{
 							installed: item.version.installed,
 							target: item.versionRange.target,
+							wanted: item.version.wanted,
 							wildcard,
 						},
 					])

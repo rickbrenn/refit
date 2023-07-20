@@ -25,36 +25,36 @@ const VersionStep = ({
 				version,
 				distTag,
 				apps: Object.keys(apps).filter(
-					(app) => apps[app].installed === version
+					(app) => apps[app].wanted === version
 				),
 				key: version + distTag,
 			});
 		}
 
-		const installedVersions = [];
+		const wantedVersions = [];
 		const restOfOptions = [];
 
 		const versionsToExclude = Object.values(distTags);
 		for (const version of sortedVersions) {
 			if (!versionsToExclude.includes(version)) {
 				const optionTypeArray = Object.keys(apps).some(
-					(app) => apps[app].installed === version
+					(app) => apps[app].wanted === version
 				)
-					? installedVersions
+					? wantedVersions
 					: restOfOptions;
 
 				optionTypeArray.push({
 					version,
 					distTag: null,
 					apps: Object.keys(apps).filter(
-						(app) => apps[app].installed === version
+						(app) => apps[app].wanted === version
 					),
 					key: version,
 				});
 			}
 		}
 
-		return [...distTagOptions, ...installedVersions, ...restOfOptions];
+		return [...distTagOptions, ...wantedVersions, ...restOfOptions];
 	}, [wizardState?.dependency, dependencies]);
 
 	return (
