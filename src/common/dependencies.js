@@ -1,10 +1,10 @@
 import pMap from 'p-map';
 import pacote from 'pacote';
 import semver from 'semver';
-import Arborist from '@npmcli/arborist';
 import dayjs from 'dayjs';
 // eslint-disable-next-line node/file-extension-in-import
 import relativeTime from 'dayjs/plugin/relativeTime.js';
+import packageManagers from './packageManagers';
 
 dayjs.extend(relativeTime);
 
@@ -311,13 +311,6 @@ const getDependencyInfo = async (
 	});
 };
 
-const getInstalledDeps = async (pkgPath) => {
-	const arb = new Arborist({ path: pkgPath });
-	const { children: installedDeps } = await arb.loadActual();
-
-	return installedDeps;
-};
-
 const processDependency = (updateFunc, total, packumentOptions, config) => {
 	return async (dependencyData, index) => {
 		const progressCurrent = index + 1;
@@ -343,9 +336,12 @@ const getDependencyList = async ({
 	packumentOptions = {},
 	allowDeprecated = false,
 	allowPrerelease = false,
+	packageManager,
 }) => {
+	const pm = packageManagers[packageManager];
+
 	const hoistedDeps = isHoisted
-		? await getInstalledDeps(rootPath)
+		? await pm.getInstalledDeps(rootPath)
 		: new Map();
 
 	let filteredPackages = packageList.values();
@@ -369,7 +365,7 @@ const getDependencyList = async ({
 		const isHoistedRoot = isHoisted && isMonorepoRoot;
 		const installedDeps = isHoistedRoot
 			? hoistedDeps
-			: await getInstalledDeps(pkgPath);
+			: await pm.getInstalledDeps(pkgPath);
 
 		for (const { name, target, type } of dependencies.values()) {
 			const isValidName =
@@ -383,11 +379,28 @@ const getDependencyList = async ({
 
 			if (isValidName && isValidType && isValidDep) {
 				let hoisted = false;
-				const installedDep = installedDeps?.get(name);
-				const hoistedDep = hoistedDeps?.get(name);
-				const installedVersion = (installedDep || hoistedDep)?.version;
 
-				if (!internal && !installedDep && hoistedDep) {
+				const localVersion = installedDeps[name];
+				const hoistedVersion = hoistedDeps[name];
+
+				// prefers local version over hoisted version
+				let installedVersion = localVersion || hoistedVersion;
+
+				// if multiple installed versions use the one that matches the target
+				// or the highest version
+				if (Array.isArray(installedVersion)) {
+					const matchedVersion = installedVersion.find((version) =>
+						semver.satisfies(version, target)
+					);
+					const highestInstalled =
+						semver.sort(installedVersion)[
+							installedVersion.length - 1
+						];
+
+					installedVersion = matchedVersion || highestInstalled;
+				}
+
+				if (!internal && !localVersion && hoistedVersion) {
 					hoisted = true;
 				}
 
@@ -541,7 +554,6 @@ export {
 	getDependencyInfo,
 	getDependencyList,
 	getDependenciesFromPackageJson,
-	getInstalledDeps,
 	mapDataToRows,
 	depTypesList,
 };

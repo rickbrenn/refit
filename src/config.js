@@ -97,6 +97,18 @@ const configOptions = [
 		inUserConfig: true,
 	},
 	{
+		name: 'packageManager',
+		options: {
+			describe: 'package manager to use',
+			type: 'string',
+			default: 'npm',
+			choices: ['npm', 'yarn'],
+		},
+		yargsType: 'global',
+		yargsCommmands: [],
+		inUserConfig: true,
+	},
+	{
 		name: 'prerelease',
 		options: {
 			describe: 'allow updating to prerelease versions',
