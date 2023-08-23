@@ -62,7 +62,7 @@ const Table = ({ data, columns, borderColor, maxColumnWidths }) => {
 			</Box>
 
 			{data.map((d) => (
-				<Box key={d.name + d.in}>
+				<Box key={d.key}>
 					{columnsConfig.map((c) => (
 						<Box
 							key={c.name}

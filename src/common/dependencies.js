@@ -520,9 +520,9 @@ const mapDataToRows = (pkgs) => {
 			: p.upgradable && p.versionRange.latest;
 
 		// if the dependency is not in node_modules display 'missing'
-		const installedText = p.missing ? 'MISSING' : p.version?.installed;
+		const installedText = p.missing ? 'MISSING' : p.version.installed;
 
-		const latestText = p.notOnRegistry ? 'NOT FOUND' : p.version?.latest;
+		const latestText = p.notOnRegistry ? 'NOT FOUND' : p.version.latest;
 
 		// how to display the list of dependencies
 		const manyApps = p.apps.length > 1;
@@ -534,9 +534,9 @@ const mapDataToRows = (pkgs) => {
 
 		return {
 			name: p.name || '',
-			target: p.versionRange?.target || '',
+			target: p.versionRange.target || '',
 			installed: installedText || '',
-			wanted: p.version?.wanted || '',
+			wanted: p.version.wanted || '',
 			latest: latestText || '',
 			upgrade: upgradeVersion || '',
 			type: p.type || '',
@@ -545,6 +545,7 @@ const mapDataToRows = (pkgs) => {
 			color: p.color,
 			upgradeParts: p.upgradeParts || {},
 			lastPublishedAt: lastPublishedAtText,
+			key: p.name + p.versionRange.target + p.version.installed,
 		};
 	});
 };
