@@ -17,7 +17,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		prerelease,
 		deprecated,
 		packageManager,
-		// TODO: add option to return issues or not
+		noIssues,
 	} = config;
 
 	const packageList = await getPackages({
@@ -51,13 +51,20 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 				const isValidType =
 					!updateTypes.length || updateTypes.includes(pkg.updateType);
 
-				return (
-					isValidType &&
-					(pkg.upgradable ||
+				if (isValidType) {
+					if (pkg.upgradable) {
+						return true;
+					}
+
+					const hasIssues =
 						pkg.installNeeded ||
 						pkg.notOnRegistry ||
-						pkg.deprecated)
-				);
+						pkg.deprecated;
+
+					return !noIssues && hasIssues;
+				}
+
+				return false;
 		  });
 };
 

@@ -85,6 +85,18 @@ const configOptions = [
 		inUserConfig: true,
 	},
 	{
+		name: 'noIssues',
+		options: {
+			alias: 'n',
+			describe: 'hide issues section from list output',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list'],
+		inUserConfig: false,
+	},
+	{
 		name: 'packageDirs',
 		options: {
 			alias: 'P',
