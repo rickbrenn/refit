@@ -8,6 +8,23 @@
 		"plugin:prettier/recommended",
 		"plugin:node/recommended"
 	],
+	"overrides": [
+		{
+			"files": ["tests/**"],
+			"env": {
+				"jest/globals": true
+			},
+			"plugins": ["jest"],
+			"extends": ["plugin:jest/recommended"],
+			"rules": {
+				"jest/no-disabled-tests": "warn",
+				"jest/no-focused-tests": "error",
+				"jest/no-identical-title": "error",
+				"jest/prefer-to-have-length": "warn",
+				"jest/valid-expect": "error"
+			}
+		}
+	],
 	"parserOptions": {
 		"ecmaVersion": "latest",
 		"sourceType": "module"
@@ -32,7 +49,11 @@
 			}
 		],
 		"import/extensions": "off",
-		"node/file-extension-in-import": ["error", "always", { ".js": "never" }],
+		"node/file-extension-in-import": [
+			"error",
+			"always",
+			{ ".js": "never" }
+		],
 		"no-restricted-syntax": "off",
 		"no-await-in-loop": "off",
 		"no-console": "off"
