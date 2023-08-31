@@ -55,6 +55,9 @@ const Interactive = ({ config }) => {
 			packageDirs,
 			packages: filterByPackages,
 			depTypes: filterByDepTypes,
+			packageManager,
+			prerelease,
+			deprecated,
 		} = config;
 
 		try {
@@ -74,6 +77,9 @@ const Interactive = ({ config }) => {
 				pMapOptions: {
 					concurrency,
 				},
+				allowPrerelease: prerelease,
+				allowDeprecated: deprecated,
+				packageManager,
 			});
 
 			const depOptions = dependencyList.reduce((acc, item) => {
@@ -254,6 +260,9 @@ Interactive.propTypes = {
 		packages: PropTypes.arrayOf(PropTypes.string),
 		packageDirs: PropTypes.arrayOf(PropTypes.string),
 		depTypes: PropTypes.arrayOf(PropTypes.string),
+		packageManager: PropTypes.string,
+		prerelease: PropTypes.bool,
+		deprecated: PropTypes.bool,
 	}).isRequired,
 };
 
