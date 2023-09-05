@@ -14,7 +14,9 @@ const PackagesStep = ({
 	const [hasValidationError, setHasValidationError] = useState(false);
 
 	const packageOptions = useMemo(() => {
-		const dep = dependencies.find((d) => d.name === wizardState.dependency);
+		const dep = dependencies.find(
+			(d) => d.name === wizardState.dependency.name
+		);
 		const { apps = {}, versionData = {} } = dep || {};
 
 		const packageList = Object.keys(packages).sort();
@@ -49,7 +51,7 @@ const PackagesStep = ({
 			options,
 			defaultSelected,
 		};
-	}, [wizardState?.dependency, dependencies, packages]);
+	}, [wizardState.dependency.name, dependencies, packages]);
 
 	return (
 		<>
@@ -63,17 +65,23 @@ const PackagesStep = ({
 					if (!value || value?.length === 0) {
 						setHasValidationError(true);
 					} else {
+						const newDep = value.some((v) => !v.hasPackage);
+						const nextStep = newDep ? 3 : 4;
+						const packageNames = value.map((v) => v.name);
 						setWizardState((prevState) => ({
 							...prevState,
-							step: prevState.step + 1,
-							updates: [
-								...prevState.updates,
-								{
-									dependency: prevState.dependency,
-									version: prevState.version,
-									packages: value.map((v) => v.name),
-								},
-							],
+							step: nextStep,
+							packages: packageNames,
+							...(nextStep === 4 && {
+								updates: [
+									...prevState.updates,
+									{
+										dependency: prevState.dependency.name,
+										version: prevState.version,
+										packages: packageNames,
+									},
+								],
+							}),
 						}));
 					}
 				}}
@@ -86,9 +94,9 @@ const PackagesStep = ({
 							</Box>
 							<Box>
 								<Text color="gray">(</Text>
-								<Text color="blue">{'<space>'}</Text>
+								<Text color="magenta">{'<space>'}</Text>
 								<Text color="gray">{' to select, '}</Text>
-								<Text color="blue">{'<a>'}</Text>
+								<Text color="magenta">{'<a>'}</Text>
 								<Text color="gray">{' to select all)'}</Text>
 							</Box>
 						</Box>
@@ -130,7 +138,10 @@ const PackagesStep = ({
 PackagesStep.propTypes = {
 	dependencies: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 	wizardState: PropTypes.shape({
-		dependency: PropTypes.string,
+		dependency: PropTypes.shape({
+			name: PropTypes.string,
+			new: PropTypes.bool,
+		}),
 	}).isRequired,
 	setWizardState: PropTypes.func.isRequired,
 	packages: PropTypes.shape({}).isRequired,

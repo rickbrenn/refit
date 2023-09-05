@@ -11,7 +11,7 @@ dayjs.extend(relativeTime);
 const depTypesList = {
 	dev: 'devDependencies',
 	prod: 'dependencies',
-	peer: 'peerDependencies',
+	// peer: 'peerDependencies', // shouldn't update peer dependencies
 	optional: 'optionalDependencies',
 };
 
@@ -96,7 +96,6 @@ const isMissing = (registryVersion) => {
 
 const createDependencyOject = ({
 	name = '',
-	type,
 	apps = [],
 	hoisted,
 	version = {
@@ -130,7 +129,6 @@ const createDependencyOject = ({
 	lastPublishedAt = '',
 }) => ({
 	name,
-	type,
 	apps,
 	hoisted,
 	version,
@@ -151,17 +149,16 @@ const createDependencyOject = ({
 	lastPublishedAt,
 });
 
-const getDependencyInfo = async (
+const getDependencyInfo = async ({
 	dependency,
 	packumentOptions = {},
-	config = {}
-) => {
+	config = {},
+}) => {
 	const {
-		targetRange,
+		targetRange = '',
 		installedVersion,
 		apps,
 		name,
-		type,
 		hoisted,
 		internal,
 	} = dependency;
@@ -170,7 +167,6 @@ const getDependencyInfo = async (
 	if (internal) {
 		return createDependencyOject({
 			name,
-			type,
 			apps,
 			hoisted,
 			versionRange: {
@@ -193,7 +189,6 @@ const getDependencyInfo = async (
 	if (isMissing(registryData)) {
 		return createDependencyOject({
 			name,
-			type,
 			apps,
 			hoisted,
 			version: {
@@ -276,7 +271,6 @@ const getDependencyInfo = async (
 
 	return createDependencyOject({
 		name,
-		type,
 		apps,
 		hoisted,
 		version: {
@@ -318,7 +312,11 @@ const processDependency = (updateFunc, total, packumentOptions, config) => {
 
 		updateFunc(progressCurrent, progressMax, dependencyData.name);
 
-		return getDependencyInfo(dependencyData, packumentOptions, config);
+		return getDependencyInfo({
+			dependency: dependencyData,
+			packumentOptions,
+			config,
+		});
 	};
 };
 
@@ -413,12 +411,14 @@ const getDependencyList = async ({
 				});
 
 				if (existingDepIndex > -1) {
-					dependencyList[existingDepIndex].apps.push(pkgName);
+					dependencyList[existingDepIndex].apps.push({
+						name: pkgName,
+						type,
+					});
 				} else {
 					dependencyList.push({
 						name,
-						apps: [pkgName],
-						type,
+						apps: [{ name: pkgName, type }],
 						targetRange: target,
 						installedVersion,
 						hoisted,
@@ -526,7 +526,15 @@ const mapDataToRows = (pkgs) => {
 
 		// how to display the list of dependencies
 		const manyApps = p.apps.length > 1;
-		const appsText = manyApps ? `${p.apps.length} Packages` : p.apps[0];
+		const appsText = manyApps
+			? `${p.apps.length} Packages`
+			: p.apps[0].name;
+
+		const depTypes = new Set(p.apps.map((app) => app.type));
+		const typeText =
+			depTypes.size > 1
+				? `${depTypes.size} Types`
+				: Array.from(depTypes)[0];
 
 		const lastPublishedAtText = p.lastPublishedAt
 			? dayjs().to(dayjs(p.lastPublishedAt))
@@ -539,7 +547,7 @@ const mapDataToRows = (pkgs) => {
 			wanted: p.version.wanted || '',
 			latest: latestText || '',
 			upgrade: upgradeVersion || '',
-			type: p.type || '',
+			type: typeText || '',
 			hoisted: p.hoisted.toString() || '',
 			in: appsText || '',
 			color: p.color,

@@ -19,7 +19,10 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 				onSelect={(value) => {
 					setWizardState((prevState) => ({
 						...prevState,
-						dependency: value.name,
+						dependency: {
+							name: value.name,
+							new: value.new,
+						},
 						step: prevState.step + 1,
 					}));
 				}}
@@ -40,7 +43,12 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 								midDot,
 								uncoloredText,
 								coloredText,
+								updateType,
 							} = curr;
+
+							if (!updateType) {
+								return acc;
+							}
 
 							const versionKey =
 								item.name + uncoloredText + coloredText;

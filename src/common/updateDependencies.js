@@ -13,6 +13,9 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		dependencies,
 		depTypes,
 		updateTypes,
+		packageManager,
+		prerelease,
+		deprecated,
 	} = config;
 
 	const packageList = await getPackages({
@@ -33,7 +36,12 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 			concurrency,
 		},
 		sortBy: 'name',
+		allowPrerelease: prerelease,
+		allowDeprecated: deprecated,
+		packageManager,
 	});
+
+	// TODO: error handling for packages that don't exist
 
 	const depsToUpdate = dependencyList.filter((dep) => {
 		const isValidType =
@@ -44,10 +52,10 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 
 	for (const dep of depsToUpdate) {
 		for (const app of dep.apps) {
-			const pkg = packageList.get(app);
+			const pkg = packageList.get(app.name);
 			const pkgDep = pkg.dependencies.get(dep.name);
 			const depType = depTypesList[pkgDep.type];
-			pkgsToUpdate.add(app);
+			pkgsToUpdate.add(app.name);
 			pkg.pkgJsonInstance.update({
 				[depType]: {
 					...pkg.pkgJsonInstance.content[depType],

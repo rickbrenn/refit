@@ -18,6 +18,7 @@ import {
 import DependencyStep from './DependencyStep';
 import VersionStep from './VersionStep';
 import PackagesStep from './PackagesStep';
+import DependencyTypeStep from './DependencyTypeStep';
 import SummaryStep from './SummaryStep';
 import EditStep from './EditStep';
 import CompleteStep from './CompleteStep';
@@ -43,6 +44,7 @@ const Interactive = ({ config }) => {
 		step: 0,
 		updates: [],
 		dependency: null,
+		packages: null,
 		version: null,
 	});
 
@@ -102,12 +104,13 @@ const Interactive = ({ config }) => {
 
 				const appVersions = Object.fromEntries(
 					item.apps.map((app) => [
-						app,
+						app.name,
 						{
 							installed: item.version.installed,
 							target: item.versionRange.target,
 							wanted: item.version.wanted,
 							wildcard,
+							type: app.type,
 						},
 					])
 				);
@@ -181,7 +184,8 @@ const Interactive = ({ config }) => {
 			for (const pkgName of update.packages) {
 				const pkg = packages[pkgName];
 				const pkgDep = pkg.dependencies.get(update.dependency);
-				const depType = depTypesList[pkgDep.type];
+				const depType =
+					depTypesList[!pkgDep ? update.dependencyType : pkgDep.type];
 				// TODO: add wildcard selection step?
 				const { wildcard } = dep.apps[pkgName] || {};
 				const depWildcard = wildcard === undefined ? '^' : wildcard;
@@ -225,11 +229,17 @@ const Interactive = ({ config }) => {
 							packages={packages}
 							setWizardState={setWizardState}
 							isMonorepo={config.monorepo}
+							allowPrerelease={config.prerelease}
+							allowDeprecated={config.deprecated}
 						/>
 						<PackagesStep
 							dependencies={dependencies}
 							wizardState={wizardState}
 							packages={packages}
+							setWizardState={setWizardState}
+						/>
+						<DependencyTypeStep
+							wizardState={wizardState}
 							setWizardState={setWizardState}
 						/>
 						<SummaryStep

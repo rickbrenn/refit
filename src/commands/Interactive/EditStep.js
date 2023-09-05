@@ -14,7 +14,7 @@ const EditStep = ({ wizardState, setWizardState, isMonorepo }) => {
 			return {
 				...prevState,
 				updates,
-				step: updates.length ? 3 : 0,
+				step: updates.length ? 4 : 0,
 			};
 		});
 	};
@@ -50,7 +50,7 @@ const EditStep = ({ wizardState, setWizardState, isMonorepo }) => {
 					setWizardState((prevState) => {
 						return {
 							...prevState,
-							step: 3,
+							step: 4,
 						};
 					});
 				}

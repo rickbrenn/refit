@@ -38,7 +38,7 @@ const SummaryStep = ({
 							...prevState,
 							version: null,
 							dependency: null,
-							step: 5,
+							step: 6,
 						}));
 					}
 
@@ -47,7 +47,7 @@ const SummaryStep = ({
 							...prevState,
 							version: null,
 							dependency: null,
-							step: 4,
+							step: 5,
 						}));
 					}
 
