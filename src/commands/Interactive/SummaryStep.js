@@ -4,12 +4,7 @@ import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
 
-const SummaryStep = ({
-	wizardState,
-	setWizardState,
-	updateDependencies,
-	isMonorepo,
-}) => {
+const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
 	return (
 		<Box flexDirection="column">
 			<Box marginBottom={1}>
@@ -22,9 +17,9 @@ const SummaryStep = ({
 							<Box marginRight={1} flexShrink={0}>
 								<Text>{`${update.dependency}@${update.version}`}</Text>
 							</Box>
-							{isMonorepo && (
-								<Text>{`(${update.packages.join(', ')})`}</Text>
-							)}
+							<Text>{`(${update.packages
+								.map(({ name, type }) => `${name}:${type}`)
+								.join(', ')})`}</Text>
 						</Box>
 					);
 				})}
@@ -71,7 +66,6 @@ SummaryStep.propTypes = {
 	}).isRequired,
 	setWizardState: PropTypes.func.isRequired,
 	updateDependencies: PropTypes.func.isRequired,
-	isMonorepo: PropTypes.bool.isRequired,
 };
 
 export default SummaryStep;

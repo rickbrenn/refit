@@ -181,11 +181,9 @@ const Interactive = ({ config }) => {
 
 		for (const update of wizardState.updates) {
 			const dep = dependencies.find((d) => d.name === update.dependency);
-			for (const pkgName of update.packages) {
+			for (const { name: pkgName, type: pkgType } of update.packages) {
 				const pkg = packages[pkgName];
-				const pkgDep = pkg.dependencies.get(update.dependency);
-				const depType =
-					depTypesList[!pkgDep ? update.dependencyType : pkgDep.type];
+				const depType = depTypesList[pkgType];
 				// TODO: add wildcard selection step?
 				const { wildcard } = dep.apps[pkgName] || {};
 				const depWildcard = wildcard === undefined ? '^' : wildcard;
@@ -246,12 +244,10 @@ const Interactive = ({ config }) => {
 							wizardState={wizardState}
 							setWizardState={setWizardState}
 							updateDependencies={updateDependencies}
-							isMonorepo={config.monorepo}
 						/>
 						<EditStep
 							wizardState={wizardState}
 							setWizardState={setWizardState}
-							isMonorepo={config.monorepo}
 						/>
 						<CompleteStep />
 					</Wizard>

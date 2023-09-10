@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
 
-const EditStep = ({ wizardState, setWizardState, isMonorepo }) => {
+const EditStep = ({ wizardState, setWizardState }) => {
 	const handleRemoveUpdate = (value) => {
 		const updates = wizardState.updates.filter(
 			(_, index) => index !== value.index
@@ -65,9 +65,9 @@ const EditStep = ({ wizardState, setWizardState, isMonorepo }) => {
 						<Box marginRight={1} flexShrink={0}>
 							<Text>{value}</Text>
 						</Box>
-						{isMonorepo && (
-							<Text>{`(${item.packages.join(', ')})`}</Text>
-						)}
+						<Text>{`(${item.packages
+							.map(({ name, type }) => `${name}:${type}`)
+							.join(', ')})`}</Text>
 					</Box>
 				);
 			}}
@@ -80,7 +80,6 @@ EditStep.propTypes = {
 		updates: PropTypes.arrayOf(PropTypes.shape({})),
 	}).isRequired,
 	setWizardState: PropTypes.func.isRequired,
-	isMonorepo: PropTypes.bool.isRequired,
 };
 
 export default EditStep;

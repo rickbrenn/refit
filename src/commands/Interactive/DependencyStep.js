@@ -21,7 +21,7 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 						...prevState,
 						dependency: {
 							name: value.name,
-							new: value.new,
+							new: !!value.create,
 						},
 						step: prevState.step + 1,
 					}));

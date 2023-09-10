@@ -118,17 +118,34 @@ const VersionStep = ({
 							nextStep = 3;
 						}
 
+						const defaultPackage = Object.keys(packages)[0];
+						const defaultDepType =
+							existingDependency?.apps?.[defaultPackage]?.type;
+
 						setWizardState((prevState) => ({
 							...prevState,
 							version: value.version,
 							step: nextStep,
+							...(nextStep === 3 && {
+								packages: [
+									{
+										name: defaultPackage,
+										type: defaultDepType,
+									},
+								],
+							}),
 							...(nextStep === 4 && {
 								updates: [
 									...prevState.updates,
 									{
 										dependency: prevState.dependency.name,
 										version: value.version,
-										packages: [Object.keys(packages)[0]],
+										packages: [
+											{
+												name: defaultPackage,
+												type: defaultDepType,
+											},
+										],
 									},
 								],
 							}),

@@ -15,7 +15,17 @@ const Header = ({ wizardState }) => {
 		},
 		{
 			title: 'Selected Packages:',
-			value: wizardState?.packages?.join(', '),
+			value: wizardState?.packages
+				?.reduce((acc, { name, type }) => {
+					if (type) {
+						acc.push(`${name}:${type}`);
+					} else {
+						acc.push(name);
+					}
+
+					return acc;
+				}, [])
+				?.join(', '),
 		},
 	];
 
@@ -42,7 +52,12 @@ Header.propTypes = {
 	wizardState: PropTypes.shape({
 		dependency: PropTypes.shape({ name: PropTypes.string }),
 		version: PropTypes.string,
-		packages: PropTypes.arrayOf(PropTypes.string),
+		packages: PropTypes.arrayOf(
+			PropTypes.shape({
+				name: PropTypes.string,
+				type: PropTypes.string,
+			})
+		),
 	}).isRequired,
 };
 

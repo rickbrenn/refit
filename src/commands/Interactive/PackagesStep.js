@@ -22,11 +22,12 @@ const PackagesStep = ({
 		const packageList = Object.keys(packages).sort();
 		const options = packageList
 			.map((name) => {
-				const { target } = apps[name] || {};
+				const { target, type } = apps[name] || {};
 				return {
 					name,
 					hasPackage: !!target,
 					versionData: versionData[target] || {},
+					type,
 				};
 			})
 			// sort packages by ones with the dep, then alphabetically
@@ -67,18 +68,21 @@ const PackagesStep = ({
 					} else {
 						const newDep = value.some((v) => !v.hasPackage);
 						const nextStep = newDep ? 3 : 4;
-						const packageNames = value.map((v) => v.name);
+						const packagesData = value.map((v) => ({
+							name: v.name,
+							type: v.type,
+						}));
 						setWizardState((prevState) => ({
 							...prevState,
 							step: nextStep,
-							packages: packageNames,
+							packages: packagesData,
 							...(nextStep === 4 && {
 								updates: [
 									...prevState.updates,
 									{
 										dependency: prevState.dependency.name,
 										version: prevState.version,
-										packages: packageNames,
+										packages: packagesData,
 									},
 								],
 							}),
