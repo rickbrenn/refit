@@ -199,7 +199,7 @@ const List = ({ config }) => {
 							{showInstallNeeded && (
 								<Box>
 									<Text>Run </Text>
-									<Text color="blue">npm install </Text>
+									<Text color="blue">{`${config.packageManager} install `}</Text>
 									<Text>to resolve dependency issues</Text>
 								</Box>
 							)}
@@ -212,7 +212,9 @@ const List = ({ config }) => {
 };
 
 List.propTypes = {
-	config: PropTypes.shape({}).isRequired,
+	config: PropTypes.shape({
+		packageManager: PropTypes.string,
+	}).isRequired,
 };
 
 export default List;

@@ -113,7 +113,24 @@ const configOptions = [
 		options: {
 			describe: 'package manager to use',
 			type: 'string',
-			default: 'npm',
+			default: () => {
+				const packageManagers = [
+					{
+						name: 'npm',
+						lockFile: 'package-lock.json',
+					},
+					{
+						name: 'yarn',
+						lockFile: 'yarn.lock',
+					},
+				];
+
+				const packageManager = packageManagers.find(({ lockFile }) => {
+					return fs.existsSync(path.resolve(lockFile));
+				});
+
+				return packageManager.name || 'npm';
+			},
 			choices: ['npm', 'yarn'],
 		},
 		yargsType: 'global',
@@ -235,10 +252,14 @@ const loadConfig = ({ config, ...overrides } = {}) => {
 	};
 
 	return configOptions.reduce((acc, cur) => {
-		const { name, options, inUserConfig } = cur;
+		const {
+			name,
+			options: { default: defaultVal },
+			inUserConfig,
+		} = cur;
 
 		// set initial value to the default
-		let val = options.default;
+		let val = typeof defaultVal === 'function' ? defaultVal() : defaultVal;
 
 		// user value or default if nullish
 		if (inUserConfig) {
@@ -249,7 +270,7 @@ const loadConfig = ({ config, ...overrides } = {}) => {
 		val = overrides[name] ?? val;
 
 		// convert single entry values to arrays
-		if (Array.isArray(options.default) && !Array.isArray(val)) {
+		if (Array.isArray(defaultVal) && !Array.isArray(val)) {
 			val = [val];
 		}
 
