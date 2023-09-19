@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
+import steps from './wizardSteps';
 
 const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
 	return (
@@ -33,7 +34,7 @@ const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
 							...prevState,
 							version: null,
 							dependency: null,
-							step: 6,
+							step: steps.done,
 						}));
 					}
 
@@ -42,7 +43,7 @@ const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
 							...prevState,
 							version: null,
 							dependency: null,
-							step: 5,
+							step: steps.edit,
 						}));
 					}
 
@@ -51,7 +52,7 @@ const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
 							...prevState,
 							version: null,
 							dependency: null,
-							step: 0,
+							step: steps.dependency,
 						}));
 					}
 				}}

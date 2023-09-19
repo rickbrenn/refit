@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { CheckSelector } from '../../ui/Selector';
 import Header from './Header';
+import steps from './wizardSteps';
 
 const PackagesStep = ({
 	dependencies,
@@ -67,7 +68,9 @@ const PackagesStep = ({
 						setHasValidationError(true);
 					} else {
 						const newDep = value.some((v) => !v.hasPackage);
-						const nextStep = newDep ? 3 : 4;
+						const nextStep = newDep
+							? steps.depTypes
+							: steps.summary;
 						const packagesData = value.map((v) => ({
 							name: v.name,
 							type: v.type,
@@ -76,7 +79,7 @@ const PackagesStep = ({
 							...prevState,
 							step: nextStep,
 							packages: packagesData,
-							...(nextStep === 4 && {
+							...(nextStep === steps.summary && {
 								updates: [
 									...prevState.updates,
 									{

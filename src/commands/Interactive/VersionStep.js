@@ -6,6 +6,7 @@ import { Selector } from '../../ui/Selector';
 import LoaderBoundary from '../../ui/LoaderBoundary';
 import { getDependencyInfo } from '../../common/dependencies';
 import Header from './Header';
+import steps from './wizardSteps';
 
 const VersionStep = ({
 	dependencies,
@@ -111,11 +112,11 @@ const VersionStep = ({
 				<Selector
 					items={versionOptions}
 					onSelect={(value) => {
-						let nextStep = 4;
+						let nextStep = steps.summary;
 						if (isMonorepo) {
-							nextStep = 2;
+							nextStep = steps.packages;
 						} else if (wizardState.dependency.new) {
-							nextStep = 3;
+							nextStep = steps.depTypes;
 						}
 
 						const defaultPackage = Object.keys(packages)[0];
@@ -126,7 +127,7 @@ const VersionStep = ({
 							...prevState,
 							version: value.version,
 							step: nextStep,
-							...(nextStep === 3 && {
+							...(nextStep === steps.depTypes && {
 								packages: [
 									{
 										name: defaultPackage,
@@ -134,7 +135,7 @@ const VersionStep = ({
 									},
 								],
 							}),
-							...(nextStep === 4 && {
+							...(nextStep === steps.summary && {
 								updates: [
 									...prevState.updates,
 									{

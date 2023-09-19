@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
+import steps from './wizardSteps';
 
 const EditStep = ({ wizardState, setWizardState }) => {
 	const handleRemoveUpdate = (value) => {
@@ -14,7 +15,7 @@ const EditStep = ({ wizardState, setWizardState }) => {
 			return {
 				...prevState,
 				updates,
-				step: updates.length ? 4 : 0,
+				step: updates.length ? steps.summary : 0,
 			};
 		});
 	};
@@ -50,7 +51,7 @@ const EditStep = ({ wizardState, setWizardState }) => {
 					setWizardState((prevState) => {
 						return {
 							...prevState,
-							step: 4,
+							step: steps.summary,
 						};
 					});
 				}
