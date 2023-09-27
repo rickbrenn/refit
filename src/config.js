@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { determinePackageManager } from './common/packageManagers';
 
 const configOptions = [
 	{
@@ -12,7 +13,6 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list'],
-		inUserConfig: false,
 	},
 	{
 		name: 'concurrency',
@@ -24,7 +24,6 @@ const configOptions = [
 		},
 		yargsType: 'global',
 		yargsCommmands: [],
-		inUserConfig: true,
 	},
 	{
 		name: 'dependencies',
@@ -35,7 +34,6 @@ const configOptions = [
 		},
 		yargsType: 'positional',
 		yargsCommmands: ['update'],
-		inUserConfig: false,
 	},
 	{
 		name: 'deprecated',
@@ -46,7 +44,6 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list', 'update'],
-		inUserConfig: false,
 	},
 	{
 		name: 'depTypes',
@@ -58,7 +55,6 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list', 'update', 'interactive'],
-		inUserConfig: false,
 	},
 	{
 		name: 'hoisted',
@@ -70,7 +66,6 @@ const configOptions = [
 		},
 		yargsType: 'global',
 		yargsCommmands: [],
-		inUserConfig: true,
 	},
 	{
 		name: 'monorepo',
@@ -80,9 +75,9 @@ const configOptions = [
 			type: 'boolean',
 			default: false,
 		},
+		getDefault: (pkgJson) => !!pkgJson.workspaces,
 		yargsType: 'global',
 		yargsCommmands: [],
-		inUserConfig: true,
 	},
 	{
 		name: 'noIssues',
@@ -94,7 +89,6 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list'],
-		inUserConfig: false,
 	},
 	{
 		name: 'packageDirs',
@@ -102,40 +96,23 @@ const configOptions = [
 			alias: 'P',
 			describe: 'directories of the monorepo packages',
 			type: 'array',
-			default: ['packages/*', 'modules/*'],
+			default: [],
 		},
+		getDefault: (pkgJson) => pkgJson.workspaces,
 		yargsType: 'global',
 		yargsCommmands: [],
-		inUserConfig: true,
 	},
 	{
 		name: 'packageManager',
 		options: {
 			describe: 'package manager to use',
 			type: 'string',
-			default: () => {
-				const packageManagers = [
-					{
-						name: 'npm',
-						lockFile: 'package-lock.json',
-					},
-					{
-						name: 'yarn',
-						lockFile: 'yarn.lock',
-					},
-				];
-
-				const packageManager = packageManagers.find(({ lockFile }) => {
-					return fs.existsSync(path.resolve(lockFile));
-				});
-
-				return packageManager.name || 'npm';
-			},
+			default: 'npm',
 			choices: ['npm', 'yarn'],
 		},
+		getDefault: determinePackageManager,
 		yargsType: 'global',
 		yargsCommmands: [],
-		inUserConfig: true,
 	},
 	{
 		name: 'prerelease',
@@ -146,7 +123,6 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list', 'update'],
-		inUserConfig: false,
 	},
 	{
 		name: 'packages',
@@ -158,7 +134,6 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list', 'update', 'interactive'],
-		inUserConfig: false,
 	},
 	{
 		name: 'sort',
@@ -171,7 +146,6 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list'],
-		inUserConfig: false,
 	},
 	{
 		name: 'updateTo',
@@ -184,7 +158,6 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['update'],
-		inUserConfig: false,
 	},
 	{
 		name: 'updateTypes',
@@ -197,7 +170,6 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list', 'update'],
-		inUserConfig: false,
 	},
 	{
 		name: 'verbose',
@@ -209,7 +181,6 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list'],
-		inUserConfig: false,
 	},
 ];
 
@@ -241,41 +212,38 @@ const getCommandOptions = (commandId) => {
 	);
 };
 
-const loadConfig = ({ config, ...overrides } = {}) => {
-	const configPath = path.resolve(config || '.refitrc.json');
+const withConfig = (argv, yargsInstance) => {
+	// an array of option keys that were not user defined by argv or config file
+	const defaultedOptions = Object.keys(yargsInstance.parsed.defaulted);
+
+	const configPath = path.resolve('.refitrc.json');
 	const configExists = fs.existsSync(configPath);
+	const config = configExists
+		? JSON.parse(fs.readFileSync(configPath, 'utf8'))
+		: {};
 
-	const userConfig = configExists ? fs.readFileSync(configPath) : {};
+	const pkgJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 
-	const baseConfig = {
+	const appConfig = {
 		rootPath: process.cwd(),
 	};
 
-	return configOptions.reduce((acc, cur) => {
-		const {
-			name,
-			options: { default: defaultVal },
-			inUserConfig,
-		} = cur;
+	for (const { name, getDefault } of configOptions) {
+		let val = argv[name];
 
-		// set initial value to the default
-		let val = typeof defaultVal === 'function' ? defaultVal() : defaultVal;
-
-		// user value or default if nullish
-		if (inUserConfig) {
-			val = userConfig[name] ?? val;
+		if (defaultedOptions.includes(name)) {
+			if (config[name] !== undefined) {
+				val = config[name];
+			} else if (getDefault) {
+				val = getDefault(pkgJson);
+			}
 		}
 
-		// override value or user/default if nullish
-		val = overrides[name] ?? val;
+		appConfig[name] = val;
+	}
 
-		// convert single entry values to arrays
-		if (Array.isArray(defaultVal) && !Array.isArray(val)) {
-			val = [val];
-		}
-
-		acc[name] = val;
-		return acc;
-	}, baseConfig);
+	// eslint-disable-next-line no-param-reassign
+	argv.appConfig = appConfig;
 };
-export { configOptions, loadConfig, getGlobalOptions, getCommandOptions };
+
+export { configOptions, withConfig, getGlobalOptions, getCommandOptions };

@@ -6,7 +6,12 @@ import { render } from 'ink';
 import List from './commands/List';
 import Update from './commands/Update';
 import Interactive from './commands/Interactive';
-import { loadConfig, getGlobalOptions, getCommandOptions } from './config';
+import {
+	withConfig,
+	// getConfigFile,
+	getGlobalOptions,
+	getCommandOptions,
+} from './config';
 import log from './logger';
 
 const listCommand = ({ appConfig }) => {
@@ -50,14 +55,6 @@ const cliCommands = [
 		},
 	},
 ];
-
-const withConfig = (argv) => {
-	// load the app config object
-	const appConfig = loadConfig(argv);
-
-	// eslint-disable-next-line no-param-reassign
-	argv.appConfig = appConfig;
-};
 
 const createCli = async (argv) => {
 	const cli = yargs(argv)
