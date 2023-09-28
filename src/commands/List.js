@@ -96,7 +96,9 @@ const List = ({ config }) => {
 			);
 
 			// format the data for the tab rows
-			const formattedData = mapDataToRows(dependenciesData);
+			const formattedData = mapDataToRows(
+				dependenciesData.filter((d) => d.upgradable)
+			);
 
 			setDependencies(formattedData);
 			setDependencyProblems({
