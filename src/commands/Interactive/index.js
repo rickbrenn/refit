@@ -51,7 +51,6 @@ const Interactive = ({ config }) => {
 	const fetchPackagesAndDependencies = useCallback(async () => {
 		const {
 			rootPath,
-			monorepo: isMonorepo,
 			hoisted: isHoisted,
 			concurrency,
 			packageDirs,
@@ -65,7 +64,7 @@ const Interactive = ({ config }) => {
 		try {
 			const packageList = await getPackages({
 				rootPath,
-				isMonorepo,
+				isMonorepo: !!packageDirs?.length,
 				packageDirs,
 			});
 
@@ -226,7 +225,7 @@ const Interactive = ({ config }) => {
 							wizardState={wizardState}
 							packages={packages}
 							setWizardState={setWizardState}
-							isMonorepo={config.monorepo}
+							isMonorepo={!!config.packageDirs?.length}
 							allowPrerelease={config.prerelease}
 							allowDeprecated={config.deprecated}
 						/>
@@ -260,7 +259,6 @@ const Interactive = ({ config }) => {
 Interactive.propTypes = {
 	config: PropTypes.shape({
 		rootPath: PropTypes.string,
-		monorepo: PropTypes.bool,
 		hoisted: PropTypes.bool,
 		concurrency: PropTypes.number,
 		packages: PropTypes.arrayOf(PropTypes.string),

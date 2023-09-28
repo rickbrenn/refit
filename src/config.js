@@ -68,18 +68,6 @@ const configOptions = [
 		yargsCommmands: [],
 	},
 	{
-		name: 'monorepo',
-		options: {
-			alias: 'm',
-			describe: 'specify if the package is a monorepo',
-			type: 'boolean',
-			default: false,
-		},
-		getDefault: (pkgJson) => !!pkgJson.workspaces,
-		yargsType: 'global',
-		yargsCommmands: [],
-	},
-	{
 		name: 'noIssues',
 		options: {
 			alias: 'n',

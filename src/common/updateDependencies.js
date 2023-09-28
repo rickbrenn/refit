@@ -4,7 +4,6 @@ import { getDependencyList, depTypesList } from './dependencies';
 const updateDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootPath,
-		monorepo,
 		hoisted,
 		packages,
 		concurrency,
@@ -20,7 +19,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 
 	const packageList = await getPackages({
 		rootPath,
-		isMonorepo: monorepo,
+		isMonorepo: !!packageDirs?.length,
 		packageDirs,
 	});
 

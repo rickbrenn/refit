@@ -13,7 +13,7 @@ import { mapDataToRows } from '../common/dependencies';
 import getDependencies from '../common/getDependencies';
 
 // get table columns based on the config
-const getListColumns = ({ verbose, monorepo }) => [
+const getListColumns = ({ verbose, packageDirs, hoisted }) => [
 	{
 		name: 'Name',
 		accessor: 'name',
@@ -65,13 +65,13 @@ const getListColumns = ({ verbose, monorepo }) => [
 	{
 		name: 'Hoisted',
 		accessor: 'hoisted',
-		show: verbose && monorepo,
+		show: verbose && packageDirs?.length && hoisted,
 		wrap: 'truncate',
 	},
 	{
 		name: 'In',
 		accessor: 'in',
-		show: verbose && monorepo,
+		show: verbose && packageDirs?.length,
 		wrap: 'truncate',
 	},
 ];
