@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { determinePackageManager } from './common/packageManagers';
+import packageManagers, {
+	determinePackageManager,
+} from './common/packageManagers';
 
 const configOptions = [
 	{
@@ -96,7 +98,7 @@ const configOptions = [
 			describe: 'package manager to use',
 			type: 'string',
 			default: 'npm',
-			choices: ['npm', 'yarn'],
+			choices: packageManagers.map(({ name }) => name),
 		},
 		getDefault: determinePackageManager,
 		yargsType: 'global',

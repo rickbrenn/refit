@@ -4,7 +4,7 @@ import semver from 'semver';
 import dayjs from 'dayjs';
 // eslint-disable-next-line node/file-extension-in-import
 import relativeTime from 'dayjs/plugin/relativeTime.js';
-import packageManagers from './packageManagers';
+import { getPackageManagerConfig } from './packageManagers';
 
 dayjs.extend(relativeTime);
 
@@ -94,7 +94,7 @@ const isMissing = (registryVersion) => {
 	return !registryVersion?.versions;
 };
 
-const createDependencyOject = ({
+const createDependencyObject = ({
 	name = '',
 	apps = [],
 	hoisted,
@@ -165,7 +165,7 @@ const getDependencyInfo = async ({
 	const { allowPrerelease, allowDeprecated } = config;
 
 	if (internal) {
-		return createDependencyOject({
+		return createDependencyObject({
 			name,
 			apps,
 			hoisted,
@@ -187,7 +187,7 @@ const getDependencyInfo = async ({
 
 	// missing from the npm registry
 	if (isMissing(registryData)) {
-		return createDependencyOject({
+		return createDependencyObject({
 			name,
 			apps,
 			hoisted,
@@ -269,7 +269,7 @@ const getDependencyInfo = async ({
 	// ).json();
 	// const npmLink = npmsInfo?.collected?.metadata?.links?.npm;
 
-	return createDependencyOject({
+	return createDependencyObject({
 		name,
 		apps,
 		hoisted,
@@ -336,13 +336,14 @@ const getDependencyList = async ({
 	allowPrerelease = false,
 	packageManager,
 }) => {
-	const pm = packageManagers[packageManager];
+	const pm = getPackageManagerConfig(packageManager);
 
 	const hoistedDeps = isHoisted
-		? await pm.getInstalledDeps(rootPath)
+		? await pm.packageManager.getInstalledDeps(rootPath)
 		: new Map();
 
 	let filteredPackages = packageList.values();
+
 	if (filterByPackages.length) {
 		filteredPackages = filterByPackages.reduce((acc, pkgName) => {
 			if (packageList.has(pkgName)) {
@@ -354,6 +355,7 @@ const getDependencyList = async ({
 	}
 
 	let dependencyList = [];
+
 	for (const {
 		name: pkgName,
 		path: pkgPath,
@@ -363,7 +365,7 @@ const getDependencyList = async ({
 		const isHoistedRoot = isHoisted && isMonorepoRoot;
 		const installedDeps = isHoistedRoot
 			? hoistedDeps
-			: await pm.getInstalledDeps(pkgPath);
+			: await pm.packageManager.getInstalledDeps(pkgPath);
 
 		for (const { name, target, type } of dependencies.values()) {
 			const isValidName =
