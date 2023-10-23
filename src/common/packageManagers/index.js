@@ -28,7 +28,7 @@ const determinePackageManager = () => {
 		return existsSync(path.resolve(lockFile));
 	});
 
-	return packageManager.name || 'npm';
+	return packageManager?.name || 'npm';
 };
 
 const getPackageManagerConfig = (packageManager) => {
