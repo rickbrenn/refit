@@ -111,7 +111,6 @@ const createDependencyObject = ({
 	internal = false,
 	deprecated = false,
 	notOnRegistry = false,
-	missing = false,
 	installNeeded = false,
 	upgradable = false,
 	upgradableToWanted = false,
@@ -136,7 +135,6 @@ const createDependencyObject = ({
 	internal,
 	deprecated,
 	notOnRegistry,
-	missing,
 	installNeeded,
 	upgradable,
 	upgradableToWanted,
@@ -203,7 +201,6 @@ const getDependencyInfo = async ({
 			},
 			internal: false,
 			notOnRegistry: true,
-			missing: !installedVersion,
 			installNeeded: false,
 			upgradable: true,
 			upgradableToWanted: true,
@@ -250,9 +247,8 @@ const getDependencyInfo = async ({
 		targetRange && latestRange && targetRange !== latestRange;
 	const upgradable = upgradableToWanted || upgradableToLatest;
 
-	const missing = !installedVersion;
 	const installedIsOff = !semver.satisfies(installedVersion, targetRange);
-	const installNeeded = missing || installedIsOff;
+	const installNeeded = !installedVersion || installedIsOff;
 	const deprecated = isDeprecated(registryData.versions[installedVersion]);
 
 	// get coloring and version parts for the upgrade text
@@ -286,7 +282,6 @@ const getDependencyInfo = async ({
 		internal,
 		deprecated,
 		notOnRegistry: false,
-		missing,
 		installNeeded,
 		upgradable,
 		upgradableToWanted,
@@ -522,7 +517,7 @@ const mapDataToRows = (pkgs) => {
 			: p.upgradable && p.versionRange.latest;
 
 		// if the dependency is not in node_modules display 'missing'
-		const installedText = p.missing ? 'MISSING' : p.version.installed;
+		const installedText = p.version.installed || 'MISSING';
 
 		const latestText = p.notOnRegistry ? 'NOT FOUND' : p.version.latest;
 

@@ -44,6 +44,8 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		packageManager,
 	});
 
+	console.log('dependencyList :>> ', dependencyList);
+
 	return all
 		? dependencyList
 		: dependencyList.filter((pkg) => {
