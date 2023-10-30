@@ -181,7 +181,16 @@ const getDependencyInfo = async ({
 	const currentWildcard =
 		wildcards.find((wildcard) => targetRange.includes(wildcard)) || '';
 
-	const registryData = await pacote.packument(name, packumentOptions);
+	let registryData = {};
+
+	try {
+		registryData = await pacote.packument(name, packumentOptions);
+	} catch (error) {
+		// ignore 404 errors is they get caught by isMissing
+		if (error.statusCode !== 404) {
+			throw error;
+		}
+	}
 
 	// missing from the npm registry
 	if (isMissing(registryData)) {
