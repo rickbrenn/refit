@@ -97,7 +97,6 @@ const isMissing = (registryVersion) => {
 const createDependencyObject = ({
 	name = '',
 	apps = [],
-	hoisted,
 	version = {
 		installed: '',
 		wanted: '',
@@ -108,11 +107,11 @@ const createDependencyObject = ({
 		wanted: '',
 		latest: '',
 	},
+	hoisted,
 	internal = false,
 	deprecated = false,
 	notOnRegistry = false,
 	installNeeded = false,
-	upgradable = false,
 	upgradableToWanted = false,
 	upgradableToLatest = false,
 	color,
@@ -129,14 +128,15 @@ const createDependencyObject = ({
 }) => ({
 	name,
 	apps,
-	hoisted,
 	version,
 	versionRange,
+	hoisted,
 	internal,
+	hasError: deprecated || notOnRegistry || installNeeded,
 	deprecated,
 	notOnRegistry,
 	installNeeded,
-	upgradable,
+	upgradable: upgradableToWanted || upgradableToLatest,
 	upgradableToWanted,
 	upgradableToLatest,
 	color,
@@ -202,7 +202,6 @@ const getDependencyInfo = async ({
 			internal: false,
 			notOnRegistry: true,
 			installNeeded: false,
-			upgradable: true,
 			upgradableToWanted: true,
 			upgradableToLatest: true,
 		});
@@ -245,7 +244,6 @@ const getDependencyInfo = async ({
 		targetRange && wantedRange && targetRange !== wantedRange;
 	const upgradableToLatest =
 		targetRange && latestRange && targetRange !== latestRange;
-	const upgradable = upgradableToWanted || upgradableToLatest;
 
 	const installedIsOff = !semver.satisfies(installedVersion, targetRange);
 	const installNeeded = !installedVersion || installedIsOff;
@@ -283,7 +281,6 @@ const getDependencyInfo = async ({
 		deprecated,
 		notOnRegistry: false,
 		installNeeded,
-		upgradable,
 		upgradableToWanted,
 		upgradableToLatest,
 		color,

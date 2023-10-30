@@ -44,8 +44,6 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		packageManager,
 	});
 
-	console.log('dependencyList :>> ', dependencyList);
-
 	return all
 		? dependencyList
 		: dependencyList.filter((pkg) => {
@@ -57,12 +55,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 						return true;
 					}
 
-					const hasIssues =
-						pkg.installNeeded ||
-						pkg.notOnRegistry ||
-						pkg.deprecated;
-
-					return !noIssues && hasIssues;
+					return !noIssues && pkg.hasError;
 				}
 
 				return false;
