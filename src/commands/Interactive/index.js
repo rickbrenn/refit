@@ -13,6 +13,7 @@ import {
 	getDependencyList,
 	getDiffVersionParts,
 	depTypesList,
+	sortDependencies,
 } from '../../common/dependencies';
 
 import DependencyStep from './DependencyStep';
@@ -83,7 +84,7 @@ const Interactive = ({ config }) => {
 				packageManager,
 			});
 
-			const depOptions = dependencyList.reduce((acc, item) => {
+			let depOptions = dependencyList.reduce((acc, item) => {
 				const existingDepIndex = acc.findIndex(
 					({ name }) => name === item.name
 				);
@@ -151,14 +152,9 @@ const Interactive = ({ config }) => {
 			}, []);
 
 			// sort alphabetically
-			depOptions.sort((a, b) => {
-				if (a.name < b.name) {
-					return -1;
-				}
-				if (a.name > b.name) {
-					return 1;
-				}
-				return 0;
+			depOptions = sortDependencies({
+				dependencies: depOptions,
+				sort: 'name',
 			});
 
 			const packageOptions = Object.fromEntries(packageList);

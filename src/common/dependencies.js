@@ -112,6 +112,7 @@ const createDependencyObject = ({
 	deprecated = false,
 	notOnRegistry = false,
 	installNeeded = false,
+	multipleTargets = false,
 	upgradableToWanted = false,
 	upgradableToLatest = false,
 	color,
@@ -132,10 +133,11 @@ const createDependencyObject = ({
 	versionRange,
 	hoisted,
 	internal,
-	hasError: deprecated || notOnRegistry || installNeeded,
+	hasError: deprecated || notOnRegistry || installNeeded || multipleTargets,
 	deprecated,
 	notOnRegistry,
 	installNeeded,
+	multipleTargets,
 	upgradable: upgradableToWanted || upgradableToLatest,
 	upgradableToWanted,
 	upgradableToLatest,
@@ -147,11 +149,7 @@ const createDependencyObject = ({
 	lastPublishedAt,
 });
 
-const getDependencyInfo = async ({
-	dependency,
-	packumentOptions = {},
-	config = {},
-}) => {
+const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 	const {
 		targetRange = '',
 		installedVersion,
@@ -159,6 +157,7 @@ const getDependencyInfo = async ({
 		name,
 		hoisted,
 		internal,
+		multipleTargets,
 	} = dependency;
 	const { allowPrerelease, allowDeprecated } = config;
 
@@ -173,6 +172,7 @@ const getDependencyInfo = async ({
 				latest: targetRange,
 			},
 			internal,
+			multipleTargets,
 		});
 	}
 
@@ -180,17 +180,6 @@ const getDependencyInfo = async ({
 	const wildcards = ['^', '~'];
 	const currentWildcard =
 		wildcards.find((wildcard) => targetRange.includes(wildcard)) || '';
-
-	let registryData = {};
-
-	try {
-		registryData = await pacote.packument(name, packumentOptions);
-	} catch (error) {
-		// ignore 404 errors is they get caught by isMissing
-		if (error.statusCode !== 404) {
-			throw error;
-		}
-	}
 
 	// missing from the npm registry
 	if (isMissing(registryData)) {
@@ -211,8 +200,9 @@ const getDependencyInfo = async ({
 			internal: false,
 			notOnRegistry: true,
 			installNeeded: false,
-			upgradableToWanted: true,
-			upgradableToLatest: true,
+			multipleTargets,
+			upgradableToWanted: false,
+			upgradableToLatest: false,
 		});
 	}
 
@@ -264,14 +254,6 @@ const getDependencyInfo = async ({
 
 	const lastPublishedAt = registryData?.time?.[latestVersion] || '';
 
-	// get the package link
-	// TODO: npms has a bulk API, maybe run a bunch of these using the bulk API instead
-	// TODO: will have to change this for yarn support
-	// const npmsInfo = await (
-	// 	await fetch(`https://api.npms.io/v2/package/${name}`)
-	// ).json();
-	// const npmLink = npmsInfo?.collected?.metadata?.links?.npm;
-
 	return createDependencyObject({
 		name,
 		apps,
@@ -290,6 +272,7 @@ const getDependencyInfo = async ({
 		deprecated,
 		notOnRegistry: false,
 		installNeeded,
+		multipleTargets,
 		upgradableToWanted,
 		upgradableToLatest,
 		color,
@@ -306,19 +289,83 @@ const getDependencyInfo = async ({
 	});
 };
 
-const processDependency = (updateFunc, total, packumentOptions, config) => {
-	return async (dependencyData, index) => {
-		const progressCurrent = index + 1;
-		const progressMax = total;
+const getRegistryData = async (name, packumentOptions) => {
+	let registryData = {};
 
-		updateFunc(progressCurrent, progressMax, dependencyData.name);
+	try {
+		registryData = await pacote.packument(name, packumentOptions);
+	} catch (error) {
+		// ignore 404 errors is they get caught by isMissing
+		if (error.statusCode !== 404) {
+			throw error;
+		}
+	}
 
-		return getDependencyInfo({
-			dependency: dependencyData,
-			packumentOptions,
-			config,
+	// get the package link
+	// TODO: npms has a bulk API, maybe run a bunch of these using the bulk API instead
+	// TODO: will have to change this for yarn support
+	// const npmsInfo = await (
+	// 	await fetch(`https://api.npms.io/v2/package/${name}`)
+	// ).json();
+	// const npmLink = npmsInfo?.collected?.metadata?.links?.npm;
+
+	return registryData;
+};
+
+const sortDependencies = ({ dependencies, sortBy }) => {
+	// can use toSorted array method with Node 20
+	const sortedList = [...dependencies];
+
+	// sort alphabetically by name
+	if (sortBy === 'name') {
+		sortedList.sort((a, b) => a.name.localeCompare(b.name));
+	} else if (sortBy === 'date') {
+		sortedList.sort((a, b) => {
+			const aDate = dayjs(a.lastPublishedAt);
+			const bDate = dayjs(b.lastPublishedAt);
+
+			if (aDate.isSame(bDate)) {
+				return a.name.localeCompare(b.name);
+			}
+
+			return aDate.isBefore(bDate) ? 1 : -1;
 		});
-	};
+	} else {
+		// sort by semver update type
+		sortedList.sort((a, b) => {
+			if (
+				b.updateType === a.updateType ||
+				(!b.updateType && !a.updateType)
+			) {
+				return a.name.localeCompare(b.name);
+			}
+
+			if (b.updateType === 'major' && a.updateType !== 'major') {
+				return 1;
+			}
+
+			if (
+				b.updateType === 'minor' &&
+				a.updateType !== 'major' &&
+				a.updateType !== 'minor'
+			) {
+				return 1;
+			}
+
+			if (
+				b.updateType === 'patch' &&
+				a.updateType !== 'major' &&
+				a.updateType !== 'minor' &&
+				a.updateType !== 'patch'
+			) {
+				return 1;
+			}
+
+			return -1;
+		});
+	}
+
+	return sortedList;
 };
 
 const getDependencyList = async ({
@@ -356,6 +403,7 @@ const getDependencyList = async ({
 	}
 
 	let dependencyList = [];
+	const multipleTargetVersions = [];
 
 	for (const {
 		name: pkgName,
@@ -405,12 +453,20 @@ const getDependencyList = async ({
 					hoisted = true;
 				}
 
-				const existingDepIndex = dependencyList.findIndex((dep) => {
-					return (
-						dep?.name === name &&
-						dep?.targetRange === target &&
-						dep?.installedVersion === installedVersion
-					);
+				let existingDepIndex;
+				dependencyList.forEach((dep, index) => {
+					if (dep?.name === name) {
+						if (dep?.targetRange !== target) {
+							multipleTargetVersions.push(name);
+						}
+
+						if (
+							dep?.targetRange === target &&
+							dep?.installedVersion === installedVersion
+						) {
+							existingDepIndex = index;
+						}
+					}
 				});
 
 				if (existingDepIndex > -1) {
@@ -432,66 +488,48 @@ const getDependencyList = async ({
 		}
 	}
 
-	const func = processDependency(
-		updateProgress,
-		dependencyList.length,
-		packumentOptions,
-		{ allowDeprecated, allowPrerelease }
+	// create a list of package names to fetch from the registry
+	// excluding internal packages and duplicate package names
+	const depsToFetch = dependencyList.reduce((acc, curr) => {
+		if (!curr.internal && !acc.includes(curr.name)) {
+			acc.push(curr.name);
+		}
+
+		return acc;
+	}, []);
+
+	const processDependency = async (name, index) => {
+		updateProgress({
+			progressCurrent: index + 1,
+			progressMax: depsToFetch.length,
+			name,
+		});
+
+		return getRegistryData(name, packumentOptions);
+	};
+
+	const packumentData = await pMap(
+		depsToFetch,
+		processDependency,
+		pMapOptions
 	);
 
-	dependencyList = await pMap(dependencyList, func, pMapOptions);
+	const packumentMap = new Map(
+		packumentData.map((data) => [data.name, data])
+	);
 
-	if (sortBy === 'name') {
-		// sort alphabetically by name
-		dependencyList.sort((a, b) => a.name.localeCompare(b.name));
-	} else if (sortBy === 'date') {
-		// sort by date
-		dependencyList.sort((a, b) => {
-			const aDate = dayjs(a.lastPublishedAt);
-			const bDate = dayjs(b.lastPublishedAt);
+	dependencyList = dependencyList.map((d) =>
+		createDependency({
+			dependency: {
+				...d,
+				multipleTargets: multipleTargetVersions.includes(d.name),
+			},
+			registryData: packumentMap.get(d.name),
+			config: { allowDeprecated, allowPrerelease },
+		})
+	);
 
-			if (aDate.isSame(bDate)) {
-				return a.name.localeCompare(b.name);
-			}
-
-			return aDate.isBefore(bDate) ? 1 : -1;
-		});
-	} else {
-		// sort by semver update type
-		dependencyList.sort((a, b) => {
-			if (
-				b.updateType === a.updateType ||
-				(!b.updateType && !a.updateType)
-			) {
-				return a.name.localeCompare(b.name);
-			}
-
-			if (b.updateType === 'major' && a.updateType !== 'major') {
-				return 1;
-			}
-
-			if (
-				b.updateType === 'minor' &&
-				a.updateType !== 'major' &&
-				a.updateType !== 'minor'
-			) {
-				return 1;
-			}
-
-			if (
-				b.updateType === 'patch' &&
-				a.updateType !== 'major' &&
-				a.updateType !== 'minor' &&
-				a.updateType !== 'patch'
-			) {
-				return 1;
-			}
-
-			return -1;
-		});
-	}
-
-	return dependencyList;
+	return sortDependencies({ dependencies: dependencyList, sortBy });
 };
 
 const getDependenciesFromPackageJson = ({ pkgJsonData }) => {
@@ -563,9 +601,11 @@ const mapDataToRows = (pkgs) => {
 
 export {
 	getDiffVersionParts,
-	getDependencyInfo,
+	createDependency,
+	getRegistryData,
 	getDependencyList,
 	getDependenciesFromPackageJson,
 	mapDataToRows,
+	sortDependencies,
 	depTypesList,
 };

@@ -76,9 +76,31 @@ const getListColumns = ({ verbose, packageDirs, hoisted }) => [
 	},
 ];
 
+const errors = [
+	{
+		key: 'multipleTargets',
+		color: 'yellow',
+		message: 'dependencies with multiple target versions',
+	},
+	{
+		key: 'installNeeded',
+		color: 'red',
+		message: 'dependencies requiring install',
+	},
+	{
+		key: 'notOnRegistry',
+		color: 'red',
+		message: 'dependencies missing from the registry',
+	},
+	{
+		key: 'deprecated',
+		color: 'red',
+		message: 'dependencies that are deprecated',
+	},
+];
+
 const List = ({ config }) => {
 	const [dependencies, setDependencies] = useState([]);
-	const [dependencyProblems, setDependencyProblems] = useState(null);
 	const {
 		loading,
 		updateLoading,
@@ -95,23 +117,7 @@ const List = ({ config }) => {
 				updateProgress
 			);
 
-			// format the data for the tab rows
-			const formattedData = mapDataToRows(
-				dependenciesData.filter((d) => !d.hasError)
-			);
-
-			setDependencies(formattedData);
-			setDependencyProblems({
-				installNeeded: mapDataToRows(
-					dependenciesData.filter((d) => d.installNeeded)
-				),
-				notOnRegistry: mapDataToRows(
-					dependenciesData.filter((d) => d.notOnRegistry)
-				),
-				deprecated: mapDataToRows(
-					dependenciesData.filter((d) => d.deprecated)
-				),
-			});
+			setDependencies(dependenciesData);
 			updateLoading(false);
 		} catch (error) {
 			showLoaderError();
@@ -133,76 +139,67 @@ const List = ({ config }) => {
 		[columns, dependencies]
 	);
 
-	const showInstallNeeded = dependencyProblems?.installNeeded?.length > 0;
-	const showNotOnRegistry = dependencyProblems?.notOnRegistry?.length > 0;
-	const showDeprecated = dependencyProblems?.deprecated?.length > 0;
-	const hasProblems =
-		showInstallNeeded || showNotOnRegistry || showDeprecated;
+	const dependencyTableData = useMemo(
+		() =>
+			mapDataToRows(
+				// filter out deps with errors
+				dependencies.filter((d) => (config.all ? true : d.upgradable))
+			),
+		[dependencies, config]
+	);
+
+	const errorTables = useMemo(() => {
+		const errorData = errors.reduce((acc, curr) => {
+			const data = dependencies.filter((d) => d[curr.key]);
+			if (data.length) {
+				acc.push({
+					...curr,
+					data: mapDataToRows(data),
+				});
+			}
+			return acc;
+		}, []);
+
+		return errorData.map((error) => {
+			return (
+				<Box key={error.key} flexDirection="column">
+					<Text color={error.color}>{error.message}</Text>
+					<Table
+						data={error.data}
+						columns={columns}
+						borderColor={error.color}
+						maxColumnWidths={columnWidths.max}
+					/>
+				</Box>
+			);
+		});
+	}, [dependencies, columns, columnWidths]);
 
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>
 			<UpToDateBoundary enabled={!dependencies.length}>
 				<Static>
 					<Table
-						data={dependencies}
+						data={dependencyTableData}
 						columns={columns}
 						maxColumnWidths={columnWidths.max}
 					/>
 
-					{hasProblems && (
+					{errorTables.length > 0 && (
 						<Box flexDirection="column" marginTop={1}>
 							<Box>
-								<Text color="red" bold>
-									Issues Detected:
-								</Text>
+								<Text bold>Issues Detected:</Text>
 							</Box>
-							{showInstallNeeded && (
-								<>
-									<Text color="red">
-										dependencies requiring install
-									</Text>
-									<Table
-										data={dependencyProblems.installNeeded}
-										columns={columns}
-										borderColor="red"
-										maxColumnWidths={columnWidths.max}
-									/>
-								</>
-							)}
 
-							{showNotOnRegistry && (
-								<>
-									<Text color="red">
-										dependencies missing from the registry
-									</Text>
-									<Table
-										data={dependencyProblems.notOnRegistry}
-										columns={columns}
-										borderColor="red"
-										maxColumnWidths={columnWidths.max}
-									/>
-								</>
-							)}
+							{errorTables}
 
-							{showDeprecated && (
-								<>
-									<Text color="red">
-										dependencies that are deprecated
-									</Text>
-									<Table
-										data={dependencyProblems.deprecated}
-										columns={columns}
-										borderColor="red"
-										maxColumnWidths={columnWidths.max}
-									/>
-								</>
-							)}
-
-							{showInstallNeeded && (
+							{dependencies.some((d) => d.installNeeded) && (
 								<Box>
 									<Text>Run </Text>
 									<Text color="blue">{`${config.packageManager} install `}</Text>
-									<Text>to resolve dependency issues</Text>
+									<Text>
+										to resolve some dependency issues
+									</Text>
 								</Box>
 							)}
 						</Box>
@@ -216,6 +213,7 @@ const List = ({ config }) => {
 List.propTypes = {
 	config: PropTypes.shape({
 		packageManager: PropTypes.string,
+		all: PropTypes.bool,
 	}).isRequired,
 };
 

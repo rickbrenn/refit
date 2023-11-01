@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
 import LoaderBoundary from '../../ui/LoaderBoundary';
-import { getDependencyInfo } from '../../common/dependencies';
+import { createDependency, getRegistryData } from '../../common/dependencies';
 import Header from './Header';
 import steps from './wizardSteps';
 
@@ -33,10 +33,13 @@ const VersionStep = ({
 			}));
 
 			// TODO: error handling
-			const dep = await getDependencyInfo({
+			const registryData = await getRegistryData(name);
+
+			const dep = createDependency({
 				dependency: {
 					name,
 				},
+				registryData,
 				config: {
 					allowPrerelease,
 					allowDeprecated,

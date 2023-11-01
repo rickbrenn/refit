@@ -5,12 +5,10 @@ const useDependencyLoader = () => {
 	const [loaderText, setLoaderText] = useState('Loading the truck..');
 
 	const updateProgress = useCallback(
-		(progressCurrent, progressMax, packageName) => {
+		({ progressCurrent, progressMax, name }) => {
 			const percentComplete = (progressCurrent * 100) / progressMax;
 			const fixedPercent = percentComplete.toFixed();
-			setLoaderText(
-				`Delivering packages | ${fixedPercent}% | ${packageName}`
-			);
+			setLoaderText(`Delivering packages | ${fixedPercent}% | ${name}`);
 		},
 		[]
 	);
