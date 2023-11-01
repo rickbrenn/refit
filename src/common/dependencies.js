@@ -312,7 +312,7 @@ const getRegistryData = async (name, packumentOptions) => {
 	return registryData;
 };
 
-const sortDependencies = ({ dependencies, sortBy }) => {
+const sortDependencies = (dependencies, sortBy) => {
 	// can use toSorted array method with Node 20
 	const sortedList = [...dependencies];
 
@@ -529,7 +529,7 @@ const getDependencyList = async ({
 		})
 	);
 
-	return sortDependencies({ dependencies: dependencyList, sortBy });
+	return sortDependencies(dependencyList, sortBy);
 };
 
 const getDependenciesFromPackageJson = ({ pkgJsonData }) => {

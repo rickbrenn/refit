@@ -152,10 +152,7 @@ const Interactive = ({ config }) => {
 			}, []);
 
 			// sort alphabetically
-			depOptions = sortDependencies({
-				dependencies: depOptions,
-				sort: 'name',
-			});
+			depOptions = sortDependencies(depOptions, 'name');
 
 			const packageOptions = Object.fromEntries(packageList);
 

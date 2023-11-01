@@ -9,7 +9,7 @@ import Static from '../ui/Static';
 import useDependencyLoader from '../ui/useDependencyLoader';
 import UpToDateBoundary from '../ui/UpToDateBoundary';
 import LoaderBoundary from '../ui/LoaderBoundary';
-import { mapDataToRows } from '../common/dependencies';
+import { mapDataToRows, sortDependencies } from '../common/dependencies';
 import getDependencies from '../common/getDependencies';
 
 // get table columns based on the config
@@ -149,8 +149,12 @@ const List = ({ config }) => {
 	);
 
 	const errorTables = useMemo(() => {
+		const sortedDependencies = sortDependencies(dependencies, 'name');
+
+		console.log('sortedDependencies :>> ', sortedDependencies);
+
 		const errorData = errors.reduce((acc, curr) => {
-			const data = dependencies.filter((d) => d[curr.key]);
+			const data = sortedDependencies.filter((d) => d[curr.key]);
 			if (data.length) {
 				acc.push({
 					...curr,
