@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text } from 'ink';
 
-const UpgradeColumn = ({ row }) => {
+const UpgradeColumn = ({ row, column }) => {
 	const { color, upgradeParts, upgrade } = row;
+	const { showColor } = column;
 	const { wildcard, midDot, uncoloredText, coloredText } = upgradeParts;
 
 	if (!upgrade) {
@@ -18,7 +19,7 @@ const UpgradeColumn = ({ row }) => {
 	return (
 		<Text>
 			{wildcard + uncoloredText + midDot}
-			<Text color={color}>{coloredText}</Text>
+			<Text color={showColor !== false && color}>{coloredText}</Text>
 		</Text>
 	);
 };
@@ -34,6 +35,9 @@ UpgradeColumn.propTypes = {
 			uncoloredText: PropTypes.string,
 			coloredText: PropTypes.string,
 		}),
+	}).isRequired,
+	column: PropTypes.shape({
+		showColor: PropTypes.bool,
 	}).isRequired,
 };
 

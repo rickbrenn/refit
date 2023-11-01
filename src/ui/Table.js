@@ -70,7 +70,7 @@ const Table = ({ data, columns, borderColor, maxColumnWidths }) => {
 							minWidth={c.noWrap && c.baseWidth}
 						>
 							{c.Component ? (
-								<c.Component row={d} />
+								<c.Component row={d} column={c} />
 							) : (
 								<Text wrap={c.wrap}>{d[c.accessor]}</Text>
 							)}

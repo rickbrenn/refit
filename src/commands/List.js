@@ -13,68 +13,77 @@ import { mapDataToRows, sortDependencies } from '../common/dependencies';
 import getDependencies from '../common/getDependencies';
 
 // get table columns based on the config
-const getListColumns = ({ verbose, packageDirs, hoisted }) => [
-	{
-		name: 'Name',
-		accessor: 'name',
-		Component: NameColumn,
-		show: true,
-	},
-	{
-		name: 'Target',
-		accessor: 'target',
-		show: true,
-		noWrap: true,
-	},
-	{
-		name: 'Installed',
-		accessor: 'installed',
-		show: true,
-		noWrap: true,
-	},
-	{
-		name: 'Wanted',
-		accessor: 'wanted',
-		show: verbose,
-		noWrap: true,
-	},
-	{
-		name: 'Latest',
-		accessor: 'latest',
-		show: verbose,
-		noWrap: true,
-	},
-	{
-		name: 'Upgrade',
-		accessor: 'upgrade',
-		Component: UpgradeColumn,
-		show: true,
-		noWrap: true,
-	},
-	{
-		name: 'Last Updated',
-		accessor: 'lastPublishedAt',
-		show: verbose,
-	},
-	{
-		name: 'Type',
-		accessor: 'type',
-		show: verbose,
-		wrap: 'truncate',
-	},
-	{
-		name: 'Hoisted',
-		accessor: 'hoisted',
-		show: verbose && packageDirs?.length && hoisted,
-		wrap: 'truncate',
-	},
-	{
-		name: 'In',
-		accessor: 'in',
-		show: verbose && packageDirs?.length,
-		wrap: 'truncate',
-	},
-];
+const getListColumns = (
+	{ verbose, packageDirs, hoisted },
+	showColor = true
+) => {
+	const columns = [
+		{
+			name: 'Name',
+			accessor: 'name',
+			Component: NameColumn,
+			show: true,
+			showColor,
+		},
+		{
+			name: 'Target',
+			accessor: 'target',
+			show: true,
+			noWrap: true,
+		},
+		{
+			name: 'Installed',
+			accessor: 'installed',
+			show: true,
+			noWrap: true,
+		},
+		{
+			name: 'Wanted',
+			accessor: 'wanted',
+			show: verbose,
+			noWrap: true,
+		},
+		{
+			name: 'Latest',
+			accessor: 'latest',
+			show: verbose,
+			noWrap: true,
+		},
+		{
+			name: 'Upgrade',
+			accessor: 'upgrade',
+			Component: UpgradeColumn,
+			show: true,
+			noWrap: true,
+			showColor,
+		},
+		{
+			name: 'Last Updated',
+			accessor: 'lastPublishedAt',
+			show: verbose,
+		},
+		{
+			name: 'Type',
+			accessor: 'type',
+			show: verbose,
+			wrap: 'truncate',
+		},
+		{
+			name: 'Hoisted',
+			accessor: 'hoisted',
+			show: verbose && packageDirs?.length && hoisted,
+			wrap: 'truncate',
+		},
+		{
+			name: 'In',
+			accessor: 'in',
+			show: packageDirs?.length,
+			wrap: 'truncate',
+		},
+	];
+
+	return columns.filter((c) => c.show);
+};
 
 const errors = [
 	{
@@ -117,7 +126,7 @@ const List = ({ config }) => {
 				updateProgress
 			);
 
-			setDependencies(dependenciesData);
+			setDependencies(mapDataToRows(dependenciesData));
 			updateLoading(false);
 		} catch (error) {
 			showLoaderError();
@@ -130,35 +139,32 @@ const List = ({ config }) => {
 	}, [startLoader]);
 
 	const columns = useMemo(() => {
-		const baseColumns = getListColumns(config);
-		return baseColumns.filter((c) => c.show);
+		return getListColumns(config);
 	}, [config]);
 
 	const columnWidths = useMemo(
-		() => calculateColumnWidths({ data: dependencies, columns }),
+		() =>
+			calculateColumnWidths({
+				data: dependencies,
+				columns,
+			}),
 		[columns, dependencies]
 	);
 
-	const dependencyTableData = useMemo(
-		() =>
-			mapDataToRows(
-				// filter out deps with errors
-				dependencies.filter((d) => (config.all ? true : d.upgradable))
-			),
-		[dependencies, config]
-	);
+	const dependencyTableData = useMemo(() => {
+		// filter out deps with errors
+		return dependencies.filter((d) => (config.all ? true : d.upgradable));
+	}, [dependencies, config]);
 
 	const errorTables = useMemo(() => {
+		const errorColumns = getListColumns(config, false);
 		const sortedDependencies = sortDependencies(dependencies, 'name');
-
-		console.log('sortedDependencies :>> ', sortedDependencies);
-
 		const errorData = errors.reduce((acc, curr) => {
-			const data = sortedDependencies.filter((d) => d[curr.key]);
+			const data = sortedDependencies.filter((d) => d.errors[curr.key]);
 			if (data.length) {
 				acc.push({
 					...curr,
-					data: mapDataToRows(data),
+					data,
 				});
 			}
 			return acc;
@@ -170,14 +176,14 @@ const List = ({ config }) => {
 					<Text color={error.color}>{error.message}</Text>
 					<Table
 						data={error.data}
-						columns={columns}
+						columns={errorColumns}
 						borderColor={error.color}
 						maxColumnWidths={columnWidths.max}
 					/>
 				</Box>
 			);
 		});
-	}, [dependencies, columns, columnWidths]);
+	}, [config, dependencies, columnWidths]);
 
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>

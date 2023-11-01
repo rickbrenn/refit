@@ -592,8 +592,15 @@ const mapDataToRows = (pkgs) => {
 			hoisted: p.hoisted.toString() || '',
 			in: appsText || '',
 			color: p.color,
-			upgradeParts: p.upgradeParts || {},
 			lastPublishedAt: lastPublishedAtText,
+			upgradable: p.upgradable,
+			errors: {
+				multipleTargets: p.multipleTargets,
+				deprecated: p.deprecated,
+				notOnRegistry: p.notOnRegistry,
+				installNeeded: p.installNeeded,
+			},
+			upgradeParts: p.upgradeParts || {},
 			key: p.name + p.versionRange.target + p.version.installed,
 		};
 	});
