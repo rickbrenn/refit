@@ -45,7 +45,7 @@ const configOptions = [
 			default: false,
 		},
 		yargsType: 'command',
-		yargsCommmands: ['list', 'update'],
+		yargsCommmands: ['list', 'update', 'interactive'],
 	},
 	{
 		name: 'depTypes',
@@ -112,7 +112,7 @@ const configOptions = [
 			default: false,
 		},
 		yargsType: 'command',
-		yargsCommmands: ['list', 'update'],
+		yargsCommmands: ['list', 'update', 'interactive'],
 	},
 	{
 		name: 'packages',
@@ -203,7 +203,7 @@ const getCommandOptions = (commandId) => {
 };
 
 const withConfig = (argv, yargsInstance) => {
-	// an array of option keys that were not user defined by argv or config file
+	// an array of option keys that were not user defined by argv
 	const defaultedOptions = Object.keys(yargsInstance.parsed.defaulted);
 
 	const configPath = path.resolve('.refitrc.json');
@@ -219,11 +219,15 @@ const withConfig = (argv, yargsInstance) => {
 	};
 
 	for (const { name, getDefault } of configOptions) {
+		// use the value from argv if it exists
 		let val = argv[name];
 
+		// if values were not defined by argv
 		if (defaultedOptions.includes(name)) {
+			// check config file
 			if (config[name] !== undefined) {
 				val = config[name];
+				// custom method to determine default value
 			} else if (getDefault) {
 				val = getDefault(pkgJson);
 			}
