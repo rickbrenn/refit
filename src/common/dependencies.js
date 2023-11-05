@@ -94,6 +94,28 @@ const isMissing = (registryVersion) => {
 	return !registryVersion?.versions;
 };
 
+const parseGitHubUrl = (versionString) => {
+	const gitHubRegex = /^(github:)?(?<user>.+)\/(?<project>.+)#(?<ref>.+)$/;
+	const match = gitHubRegex.exec(versionString);
+
+	if (!match) {
+		return null;
+	}
+
+	const { user, project, ref } = match.groups;
+
+	const semverRegex = /^semver:(?<version>.+)$/;
+	const semverMatch = semverRegex.exec(ref);
+	const { version } = semverMatch?.groups || {};
+
+	return {
+		user,
+		project,
+		ref,
+		version,
+	};
+};
+
 const createDependencyObject = ({
 	name = '',
 	apps = [],
@@ -176,10 +198,17 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 		});
 	}
 
+	// check if the target range is a github url
+	const gitHubInfo = parseGitHubUrl(targetRange);
+
+	// use the version from the github url if it exists
+	const parsedTargetRange = gitHubInfo?.version || targetRange;
+
 	// TODO: support more semver types
 	const wildcards = ['^', '~'];
 	const currentWildcard =
-		wildcards.find((wildcard) => targetRange.includes(wildcard)) || '';
+		wildcards.find((wildcard) => parsedTargetRange.includes(wildcard)) ||
+		'';
 
 	// missing from the npm registry
 	if (isMissing(registryData)) {
@@ -209,7 +238,8 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 	const distTags = registryData['dist-tags'];
 
 	// allow prerelease versions if option is set or the target range is a prerelease
-	const includePrerelease = allowPrerelease || isPrerelease(targetRange);
+	const includePrerelease =
+		allowPrerelease || isPrerelease(parsedTargetRange);
 
 	const versions = Object.keys(registryData.versions);
 	const validVersions = versions.filter((version) => {
@@ -224,9 +254,10 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 		return prePassed && depPassed;
 	});
 
-	const wantedVersion = semver.maxSatisfying(versions, targetRange, {
-		includePrerelease,
-	});
+	const wantedVersion =
+		semver.maxSatisfying(versions, parsedTargetRange, {
+			includePrerelease,
+		}) || '';
 
 	// will use the latest distTag if there are no valid versions. This is in the case
 	// that a package only has prerelease versions but they are filtered out
@@ -239,18 +270,24 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 	const wantedRange = wantedVersion ? currentWildcard + wantedVersion : '';
 	const latestRange = latestVersion ? currentWildcard + latestVersion : '';
 
-	const upgradableToWanted =
-		targetRange && wantedRange && targetRange !== wantedRange;
-	const upgradableToLatest =
-		targetRange && latestRange && targetRange !== latestRange;
+	const upgradableToWanted = Boolean(
+		parsedTargetRange && wantedRange && parsedTargetRange !== wantedRange
+	);
+	const upgradableToLatest = Boolean(
+		parsedTargetRange && latestRange && parsedTargetRange !== latestRange
+	);
 
-	const installedIsOff = !semver.satisfies(installedVersion, targetRange);
+	// set installed needed to false if it's a non semver github url
+	const installedIsOff =
+		gitHubInfo && !gitHubInfo?.version
+			? false
+			: !semver.satisfies(installedVersion, parsedTargetRange);
 	const installNeeded = !installedVersion || installedIsOff;
 	const deprecated = isDeprecated(registryData.versions[installedVersion]);
 
 	// get coloring and version parts for the upgrade text
 	const { color, updateType, wildcard, midDot, uncoloredText, coloredText } =
-		getDiffVersionParts(targetRange, latestRange);
+		getDiffVersionParts(parsedTargetRange, latestRange);
 
 	const lastPublishedAt = registryData?.time?.[latestVersion] || '';
 
