@@ -34,6 +34,7 @@ const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
 							...prevState,
 							version: null,
 							dependency: null,
+							packages: null,
 							step: steps.done,
 						}));
 					}
@@ -43,6 +44,7 @@ const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
 							...prevState,
 							version: null,
 							dependency: null,
+							packages: null,
 							step: steps.edit,
 						}));
 					}
@@ -52,6 +54,7 @@ const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
 							...prevState,
 							version: null,
 							dependency: null,
+							packages: null,
 							step: steps.dependency,
 						}));
 					}
