@@ -14,7 +14,7 @@ import getDependencies from '../common/getDependencies';
 
 // get table columns based on the config
 const getListColumns = (
-	{ verbose, packageDirs, hoisted },
+	{ verbose, packageDirs, hoisted, global },
 	showColor = true
 ) => {
 	const columns = [
@@ -28,7 +28,7 @@ const getListColumns = (
 		{
 			name: 'Target',
 			accessor: 'target',
-			show: true,
+			show: !global,
 			noWrap: true,
 		},
 		{
@@ -77,7 +77,7 @@ const getListColumns = (
 		{
 			name: 'In',
 			accessor: 'in',
-			show: packageDirs?.length,
+			show: packageDirs?.length && !global,
 			wrap: 'truncate',
 		},
 	];
@@ -110,6 +110,7 @@ const errors = [
 
 const List = ({ config }) => {
 	const [dependencies, setDependencies] = useState([]);
+	const [errorMessage, setErrorMessage] = useState('');
 	const {
 		loading,
 		updateLoading,
@@ -129,8 +130,13 @@ const List = ({ config }) => {
 			setDependencies(mapDataToRows(dependenciesData));
 			updateLoading(false);
 		} catch (error) {
-			showLoaderError();
-			throw error;
+			if (!error.catch) {
+				showLoaderError();
+				throw error;
+			}
+
+			setErrorMessage(error.message);
+			updateLoading(false);
 		}
 	}, [config, updateProgress, updateLoading, showLoaderError]);
 
@@ -185,10 +191,26 @@ const List = ({ config }) => {
 		});
 	}, [config, dependencies, columnWidths]);
 
+	if (errorMessage) {
+		return (
+			<Box flexDirection="column">
+				<Text bold color="red">
+					{errorMessage}
+				</Text>
+			</Box>
+		);
+	}
+
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>
 			<UpToDateBoundary enabled={!dependencies.length}>
 				<Static>
+					{config.global && (
+						<Box marginTop={1}>
+							<Text>globally installed with </Text>
+							<Text color="blue">{config.packageManager}</Text>
+						</Box>
+					)}
 					<Table
 						data={dependencyTableData}
 						columns={columns}
@@ -224,6 +246,7 @@ List.propTypes = {
 	config: PropTypes.shape({
 		packageManager: PropTypes.string,
 		all: PropTypes.bool,
+		global: PropTypes.bool,
 	}).isRequired,
 };
 

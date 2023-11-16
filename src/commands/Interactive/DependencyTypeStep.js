@@ -7,7 +7,6 @@ import { depTypesList } from '../../common/dependencies';
 import Header from './Header';
 
 const DependencyTypeStep = ({ wizardState, setWizardState }) => {
-	console.log('wizardState :>> ', wizardState);
 	const [data, setData] = useState({
 		currPackageIndex: 0,
 	});

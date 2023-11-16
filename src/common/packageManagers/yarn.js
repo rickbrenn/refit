@@ -8,5 +8,10 @@ const getInstalledDeps = async (pkgPath) => {
 	);
 };
 
-// eslint-disable-next-line import/prefer-default-export
-export { getInstalledDeps };
+const getGlobalDeps = async () => {
+	const error = new Error('Yarn global dependencies are not supported');
+	error.catch = true;
+	throw error;
+};
+
+export { getInstalledDeps, getGlobalDeps };

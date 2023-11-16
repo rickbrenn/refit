@@ -17,13 +17,16 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		deprecated,
 		packageManager,
 		noIssues,
+		global,
 	} = config;
 
-	const packageList = await getPackages({
-		rootPath,
-		isMonorepo: !!packageDirs?.length,
-		packageDirs,
-	});
+	const packageList = global
+		? new Map()
+		: await getPackages({
+				rootPath,
+				isMonorepo: !!packageDirs?.length,
+				packageDirs,
+		  });
 
 	const dependencyList = await getDependencyList({
 		packageList,
@@ -42,6 +45,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		allowPrerelease: prerelease,
 		allowDeprecated: deprecated,
 		packageManager,
+		global,
 	});
 
 	return all

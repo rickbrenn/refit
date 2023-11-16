@@ -420,106 +420,122 @@ const getDependencyList = async ({
 	allowDeprecated = false,
 	allowPrerelease = false,
 	packageManager,
+	global = false,
 }) => {
 	const pm = getPackageManagerConfig(packageManager);
-
-	const hoistedDeps = isHoisted
-		? await pm.packageManager.getInstalledDeps(rootPath)
-		: new Map();
-
-	let filteredPackages = packageList.values();
-
-	if (filterByPackages.length) {
-		filteredPackages = filterByPackages.reduce((acc, pkgName) => {
-			if (packageList.has(pkgName)) {
-				return [...acc, packageList.get(pkgName)];
-			}
-
-			return acc;
-		}, []);
-	}
 
 	let dependencyList = [];
 	const multipleTargetVersions = [];
 
-	for (const {
-		name: pkgName,
-		path: pkgPath,
-		isMonorepoRoot,
-		dependencies,
-	} of filteredPackages) {
-		const isHoistedRoot = isHoisted && isMonorepoRoot;
-		const installedDeps = isHoistedRoot
-			? hoistedDeps
-			: await pm.packageManager.getInstalledDeps(pkgPath);
+	if (global) {
+		const globalDeps = await pm.packageManager.getGlobalDeps();
 
-		for (const { name, target, type } of dependencies.values()) {
-			const isValidName =
-				!filterByDeps.length || filterByDeps.includes(name);
-			const isValidType =
-				!filterByDepTypes.length || filterByDepTypes.includes(type);
-			const internal = packageList.has(name);
+		for (const [name, version] of Object.entries(globalDeps)) {
+			dependencyList.push({
+				name,
+				apps: [{ name: 'global', type: 'prod' }],
+				targetRange: version,
+				installedVersion: version,
+				hoisted: false,
+				internal: false,
+			});
+		}
+	} else {
+		const hoistedDeps = isHoisted
+			? await pm.packageManager.getInstalledDeps(rootPath)
+			: new Map();
 
-			const isValidDep =
-				(ignoreInternalDeps && !internal) || !ignoreInternalDeps;
+		let filteredPackages = packageList.values();
 
-			if (isValidName && isValidType && isValidDep) {
-				let hoisted = false;
-
-				const localVersion = installedDeps[name];
-				const hoistedVersion = hoistedDeps[name];
-
-				// prefers local version over hoisted version
-				let installedVersion = localVersion || hoistedVersion;
-
-				// if multiple installed versions use the one that matches the target
-				// or the highest version
-				if (Array.isArray(installedVersion)) {
-					const matchedVersion = installedVersion.find((version) =>
-						semver.satisfies(version, target)
-					);
-					const highestInstalled =
-						semver.sort(installedVersion)[
-							installedVersion.length - 1
-						];
-
-					installedVersion = matchedVersion || highestInstalled;
+		if (filterByPackages.length) {
+			filteredPackages = filterByPackages.reduce((acc, pkgName) => {
+				if (packageList.has(pkgName)) {
+					return [...acc, packageList.get(pkgName)];
 				}
 
-				if (!internal && !localVersion && hoistedVersion) {
-					hoisted = true;
-				}
+				return acc;
+			}, []);
+		}
 
-				let existingDepIndex;
-				dependencyList.forEach((dep, index) => {
-					if (dep?.name === name) {
-						if (dep?.targetRange !== target) {
-							multipleTargetVersions.push(name);
-						}
+		for (const {
+			name: pkgName,
+			path: pkgPath,
+			isMonorepoRoot,
+			dependencies,
+		} of filteredPackages) {
+			const isHoistedRoot = isHoisted && isMonorepoRoot;
+			const installedDeps = isHoistedRoot
+				? hoistedDeps
+				: await pm.packageManager.getInstalledDeps(pkgPath);
 
-						if (
-							dep?.targetRange === target &&
-							dep?.installedVersion === installedVersion
-						) {
-							existingDepIndex = index;
-						}
+			for (const { name, target, type } of dependencies.values()) {
+				const isValidName =
+					!filterByDeps.length || filterByDeps.includes(name);
+				const isValidType =
+					!filterByDepTypes.length || filterByDepTypes.includes(type);
+				const internal = packageList.has(name);
+
+				const isValidDep =
+					(ignoreInternalDeps && !internal) || !ignoreInternalDeps;
+
+				if (isValidName && isValidType && isValidDep) {
+					let hoisted = false;
+
+					const localVersion = installedDeps[name];
+					const hoistedVersion = hoistedDeps[name];
+
+					// prefers local version over hoisted version
+					let installedVersion = localVersion || hoistedVersion;
+
+					// if multiple installed versions use the one that matches the target
+					// or the highest version
+					if (Array.isArray(installedVersion)) {
+						const matchedVersion = installedVersion.find(
+							(version) => semver.satisfies(version, target)
+						);
+						const highestInstalled =
+							semver.sort(installedVersion)[
+								installedVersion.length - 1
+							];
+
+						installedVersion = matchedVersion || highestInstalled;
 					}
-				});
 
-				if (existingDepIndex > -1) {
-					dependencyList[existingDepIndex].apps.push({
-						name: pkgName,
-						type,
+					if (!internal && !localVersion && hoistedVersion) {
+						hoisted = true;
+					}
+
+					let existingDepIndex;
+					dependencyList.forEach((dep, index) => {
+						if (dep?.name === name) {
+							if (dep?.targetRange !== target) {
+								multipleTargetVersions.push(name);
+							}
+
+							if (
+								dep?.targetRange === target &&
+								dep?.installedVersion === installedVersion
+							) {
+								existingDepIndex = index;
+							}
+						}
 					});
-				} else {
-					dependencyList.push({
-						name,
-						apps: [{ name: pkgName, type }],
-						targetRange: target,
-						installedVersion,
-						hoisted,
-						internal,
-					});
+
+					if (existingDepIndex > -1) {
+						dependencyList[existingDepIndex].apps.push({
+							name: pkgName,
+							type,
+						});
+					} else {
+						dependencyList.push({
+							name,
+							apps: [{ name: pkgName, type }],
+							targetRange: target,
+							installedVersion,
+							hoisted,
+							internal,
+						});
+					}
 				}
 			}
 		}

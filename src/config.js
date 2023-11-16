@@ -59,6 +59,17 @@ const configOptions = [
 		yargsCommmands: ['list', 'update', 'interactive'],
 	},
 	{
+		name: 'global',
+		options: {
+			alias: 'g',
+			describe: 'check global node modules instead of local ones',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list'],
+	},
+	{
 		name: 'hoisted',
 		options: {
 			alias: 'h',
