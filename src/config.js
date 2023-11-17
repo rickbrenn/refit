@@ -70,6 +70,17 @@ const configOptions = [
 		yargsCommmands: ['list'],
 	},
 	{
+		name: 'groupByPackage',
+		options: {
+			alias: 'G',
+			describe: 'list dependencies grouped by package',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list'],
+	},
+	{
 		name: 'hoisted',
 		options: {
 			alias: 'h',

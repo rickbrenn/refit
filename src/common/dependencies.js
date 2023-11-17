@@ -647,6 +647,7 @@ const mapDataToRows = (pkgs) => {
 			color: p.color,
 			lastPublishedAt: lastPublishedAtText,
 			upgradable: p.upgradable,
+			apps: p.apps,
 			errors: {
 				multipleTargets: p.multipleTargets,
 				deprecated: p.deprecated,

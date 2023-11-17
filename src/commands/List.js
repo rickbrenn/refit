@@ -191,6 +191,23 @@ const List = ({ config }) => {
 		});
 	}, [config, dependencies, columnWidths]);
 
+	const groupDependenciesByPackage = (deps) => {
+		const groupedDependencies = deps.reduce((acc, curr) => {
+			const { apps } = curr;
+
+			apps.forEach((app) => {
+				if (!acc[app.name]) {
+					acc[app.name] = [];
+				}
+				acc[app.name].push(curr);
+			});
+
+			return acc;
+		}, {});
+
+		return Object.entries(groupedDependencies);
+	};
+
 	if (errorMessage) {
 		return (
 			<Box flexDirection="column">
@@ -211,11 +228,34 @@ const List = ({ config }) => {
 							<Text color="blue">{config.packageManager}</Text>
 						</Box>
 					)}
-					<Table
-						data={dependencyTableData}
-						columns={columns}
-						maxColumnWidths={columnWidths.max}
-					/>
+
+					{config.groupByPackage ? (
+						groupDependenciesByPackage(dependencyTableData).map(
+							([pkgName, pkgDeps]) => {
+								return (
+									<Box
+										marginTop={1}
+										display="flex"
+										flexDirection="column"
+										key={pkgDeps.key + pkgName}
+									>
+										<Text color="blue">{pkgName}</Text>
+										<Table
+											data={pkgDeps}
+											columns={columns}
+											maxColumnWidths={columnWidths.max}
+										/>
+									</Box>
+								);
+							}
+						)
+					) : (
+						<Table
+							data={dependencyTableData}
+							columns={columns}
+							maxColumnWidths={columnWidths.max}
+						/>
+					)}
 
 					{errorTables.length > 0 && (
 						<Box flexDirection="column" marginTop={1}>
@@ -247,6 +287,7 @@ List.propTypes = {
 		packageManager: PropTypes.string,
 		all: PropTypes.bool,
 		global: PropTypes.bool,
+		groupByPackage: PropTypes.bool,
 	}).isRequired,
 };
 
