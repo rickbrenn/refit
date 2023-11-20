@@ -52,7 +52,6 @@ const Interactive = ({ config }) => {
 	const fetchPackagesAndDependencies = useCallback(async () => {
 		const {
 			rootPath,
-			hoisted: isHoisted,
 			concurrency,
 			packageDirs,
 			packages: filterByPackages,
@@ -72,7 +71,6 @@ const Interactive = ({ config }) => {
 			const dependencyList = await getDependencyList({
 				packageList,
 				filterByPackages,
-				isHoisted,
 				rootPath,
 				filterByDepTypes,
 				updateProgress,
@@ -252,7 +250,6 @@ const Interactive = ({ config }) => {
 Interactive.propTypes = {
 	config: PropTypes.shape({
 		rootPath: PropTypes.string,
-		hoisted: PropTypes.bool,
 		concurrency: PropTypes.number,
 		packages: PropTypes.arrayOf(PropTypes.string),
 		packageDirs: PropTypes.arrayOf(PropTypes.string),

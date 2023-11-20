@@ -4,7 +4,6 @@ import { getDependencyList } from './dependencies';
 const getDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootPath,
-		hoisted,
 		concurrency,
 		packageDirs,
 		packages,
@@ -31,7 +30,6 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 	const dependencyList = await getDependencyList({
 		packageList,
 		filterByPackages: packages,
-		isHoisted: hoisted,
 		rootPath,
 		filterByDepTypes: depTypes,
 		updateProgress: onDepenencyProcessed,

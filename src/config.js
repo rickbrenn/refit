@@ -81,17 +81,6 @@ const configOptions = [
 		yargsCommmands: ['list'],
 	},
 	{
-		name: 'hoisted',
-		options: {
-			alias: 'h',
-			describe: 'check for hoisted node modules',
-			type: 'boolean',
-			default: false,
-		},
-		yargsType: 'global',
-		yargsCommmands: [],
-	},
-	{
 		name: 'noIssues',
 		options: {
 			alias: 'n',

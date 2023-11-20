@@ -408,7 +408,6 @@ const sortDependencies = (dependencies, sortBy) => {
 const getDependencyList = async ({
 	packageList,
 	filterByPackages,
-	isHoisted,
 	rootPath,
 	filterByDeps = [],
 	filterByDepTypes = [],
@@ -441,9 +440,7 @@ const getDependencyList = async ({
 			});
 		}
 	} else {
-		const hoistedDeps = isHoisted
-			? await pm.packageManager.getInstalledDeps(rootPath)
-			: new Map();
+		const hoistedDeps = await pm.packageManager.getInstalledDeps(rootPath);
 
 		let filteredPackages = packageList.values();
 
@@ -463,8 +460,7 @@ const getDependencyList = async ({
 			isMonorepoRoot,
 			dependencies,
 		} of filteredPackages) {
-			const isHoistedRoot = isHoisted && isMonorepoRoot;
-			const installedDeps = isHoistedRoot
+			const installedDeps = isMonorepoRoot
 				? hoistedDeps
 				: await pm.packageManager.getInstalledDeps(pkgPath);
 

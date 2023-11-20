@@ -13,10 +13,7 @@ import { mapDataToRows, sortDependencies } from '../common/dependencies';
 import getDependencies from '../common/getDependencies';
 
 // get table columns based on the config
-const getListColumns = (
-	{ verbose, packageDirs, hoisted, global },
-	showColor = true
-) => {
+const getListColumns = ({ verbose, packageDirs, global }, showColor = true) => {
 	const columns = [
 		{
 			name: 'Name',
@@ -71,7 +68,7 @@ const getListColumns = (
 		{
 			name: 'Hoisted',
 			accessor: 'hoisted',
-			show: verbose && packageDirs?.length && hoisted,
+			show: verbose && packageDirs?.length,
 			wrap: 'truncate',
 		},
 		{
