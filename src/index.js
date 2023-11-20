@@ -5,7 +5,7 @@ import { hideBin } from 'yargs/helpers';
 import { render } from 'ink';
 import List from './commands/List';
 import Update from './commands/Update';
-import Interactive from './commands/Interactive';
+import Wizard from './commands/Wizard';
 import {
 	withConfig,
 	// getConfigFile,
@@ -22,8 +22,8 @@ const updateCommand = ({ appConfig }) => {
 	render(<Update config={appConfig} />);
 };
 
-const interactiveCommand = ({ appConfig }) => {
-	render(<Interactive config={appConfig} />);
+const WizardCommand = ({ appConfig }) => {
+	render(<Wizard config={appConfig} />);
 };
 
 const cliCommands = [
@@ -46,12 +46,12 @@ const cliCommands = [
 		},
 	},
 	{
-		id: 'interactive',
+		id: 'wizard',
 		yargsConfig: {
-			command: 'interactive',
-			aliases: ['i'],
-			desc: 'interactively update dependencies',
-			handler: interactiveCommand,
+			command: 'wizard',
+			aliases: ['w'],
+			desc: 'interactively add and update dependencies',
+			handler: WizardCommand,
 		},
 	},
 ];

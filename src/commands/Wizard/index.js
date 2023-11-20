@@ -27,7 +27,7 @@ import CompleteStep from './CompleteStep';
 // import monorepoDeps from '../../../examples/monorepoDeps.json';
 // import monorepoPackages from '../../../examples/monorepoPackages.json';
 
-const Interactive = ({ config }) => {
+const WizardCommand = ({ config }) => {
 	const {
 		loading,
 		updateLoading,
@@ -247,7 +247,7 @@ const Interactive = ({ config }) => {
 	);
 };
 
-Interactive.propTypes = {
+WizardCommand.propTypes = {
 	config: PropTypes.shape({
 		rootPath: PropTypes.string,
 		concurrency: PropTypes.number,
@@ -260,4 +260,4 @@ Interactive.propTypes = {
 	}).isRequired,
 };
 
-export default Interactive;
+export default WizardCommand;
