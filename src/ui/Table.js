@@ -3,7 +3,7 @@ import React from 'react';
 import { Text, Box } from 'ink';
 import PropTypes from 'prop-types';
 
-const calculateColumnWidths = ({ data, columns }) => {
+const getColumnsMinMax = ({ data, columns }) => {
 	const minColumnWidths = columns.reduce((acc, curr) => {
 		acc[curr.accessor] = curr.name.length;
 		return acc;
@@ -23,21 +23,27 @@ const calculateColumnWidths = ({ data, columns }) => {
 	return { min: minColumnWidths, max: maxColumnWidths };
 };
 
-const Table = ({ data, columns, borderColor, maxColumnWidths }) => {
-	let columnWidths = maxColumnWidths;
-	if (!columnWidths) {
-		columnWidths = calculateColumnWidths({ data, columns }).max;
-	}
+const getColumnsWidth = ({ data, columns, columnGap, maxColumnWidths }) => {
+	const { max } = getColumnsMinMax({ data, columns });
+	const maxOverride = maxColumnWidths || {};
 
-	const columnsConfig = columns.map((c) => {
-		const columnGap = 4;
+	return columns.reduce((acc, c) => {
+		const width = c.width || maxOverride[c.accessor] || max[c.accessor];
 
-		const width = c.width || columnWidths[c.accessor];
-		return {
-			...c,
+		acc[c.accessor] = {
 			width: width + columnGap,
-			baseWidth: width,
+			minWidth: c.noWrap ? c.width : undefined,
 		};
+		return acc;
+	}, {});
+};
+
+const Table = ({ data, columns, columnGap, borderColor, maxColumnWidths }) => {
+	const columnWidths = getColumnsWidth({
+		data,
+		columns,
+		columnGap,
+		maxColumnWidths,
 	});
 
 	return (
@@ -48,34 +54,34 @@ const Table = ({ data, columns, borderColor, maxColumnWidths }) => {
 			borderColor={borderColor}
 		>
 			<Box>
-				{columnsConfig.map((c) => (
-					<Box
-						key={c.name}
-						width={c.width}
-						minWidth={c.noWrap && c.baseWidth}
-					>
-						<Text color={c.color} wrap={c.wrap}>
-							{c.name}
-						</Text>
-					</Box>
-				))}
+				{columns.map((c) => {
+					const { width, minWidth } = columnWidths[c.accessor];
+
+					return (
+						<Box key={c.name} width={width} minWidth={minWidth}>
+							<Text color={c.color} wrap={c.wrap}>
+								{c.name}
+							</Text>
+						</Box>
+					);
+				})}
 			</Box>
 
 			{data.map((d) => (
 				<Box key={d.key}>
-					{columnsConfig.map((c) => (
-						<Box
-							key={c.name}
-							width={c.width}
-							minWidth={c.noWrap && c.baseWidth}
-						>
-							{c.Component ? (
-								<c.Component row={d} column={c} />
-							) : (
-								<Text wrap={c.wrap}>{d[c.accessor]}</Text>
-							)}
-						</Box>
-					))}
+					{columns.map((c) => {
+						const { width, minWidth } = columnWidths[c.accessor];
+
+						return (
+							<Box key={c.name} width={width} minWidth={minWidth}>
+								{c.Component ? (
+									<c.Component row={d} column={c} />
+								) : (
+									<Text wrap={c.wrap}>{d[c.accessor]}</Text>
+								)}
+							</Box>
+						);
+					})}
 				</Box>
 			))}
 		</Box>
@@ -87,12 +93,14 @@ Table.propTypes = {
 	columns: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 	borderColor: PropTypes.string,
 	maxColumnWidths: PropTypes.shape({}),
+	columnGap: PropTypes.number,
 };
 
 Table.defaultProps = {
 	borderColor: 'blue',
 	maxColumnWidths: null,
+	columnGap: 4,
 };
 
 export default Table;
-export { calculateColumnWidths };
+export { getColumnsMinMax, getColumnsWidth };

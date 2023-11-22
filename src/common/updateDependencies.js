@@ -19,7 +19,6 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 
 	const packageList = await getPackages({
 		rootPath,
-		isMonorepo: !!packageDirs?.length,
 		packageDirs,
 	});
 
@@ -38,8 +37,6 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		allowDeprecated: deprecated,
 		packageManager,
 	});
-
-	// TODO: error handling for packages that don't exist
 
 	const depsToUpdate = dependencyList.filter((dep) => {
 		const isValidType =

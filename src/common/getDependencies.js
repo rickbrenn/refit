@@ -1,5 +1,5 @@
 import { getPackages } from './packages';
-import { getDependencyList } from './dependencies';
+import { getDependencyList, filterDependencies } from './dependencies';
 
 const getDependencies = async (config, onDepenencyProcessed) => {
 	const {
@@ -23,7 +23,6 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		? new Map()
 		: await getPackages({
 				rootPath,
-				isMonorepo: !!packageDirs?.length,
 				packageDirs,
 		  });
 
@@ -46,22 +45,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		global,
 	});
 
-	return all
-		? dependencyList
-		: dependencyList.filter((pkg) => {
-				const isValidType =
-					!updateTypes.length || updateTypes.includes(pkg.updateType);
-
-				if (isValidType) {
-					if (pkg.upgradable) {
-						return true;
-					}
-
-					return !noIssues && pkg.hasError;
-				}
-
-				return false;
-		  });
+	return filterDependencies(dependencyList, { all, updateTypes, noIssues });
 };
 
 export default getDependencies;

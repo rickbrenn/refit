@@ -405,6 +405,25 @@ const sortDependencies = (dependencies, sortBy) => {
 	return sortedList;
 };
 
+const filterDependencies = (dependencies, { all, updateTypes, noIssues }) => {
+	return all
+		? dependencies
+		: dependencies.filter((pkg) => {
+				const isValidType =
+					!updateTypes.length || updateTypes.includes(pkg.updateType);
+
+				if (isValidType) {
+					if (pkg.upgradable) {
+						return true;
+					}
+
+					return !noIssues && pkg.hasError;
+				}
+
+				return false;
+		  });
+};
+
 const getDependencyList = async ({
 	packageList,
 	filterByPackages,
@@ -642,15 +661,7 @@ const mapDataToRows = (pkgs) => {
 			in: appsText || '',
 			color: p.color,
 			lastPublishedAt: lastPublishedAtText,
-			upgradable: p.upgradable,
-			apps: p.apps,
-			errors: {
-				multipleTargets: p.multipleTargets,
-				deprecated: p.deprecated,
-				notOnRegistry: p.notOnRegistry,
-				installNeeded: p.installNeeded,
-			},
-			upgradeParts: p.upgradeParts || {},
+			original: p,
 			key: p.name + p.versionRange.target + p.version.installed,
 		};
 	});
@@ -664,5 +675,6 @@ export {
 	getDependenciesFromPackageJson,
 	mapDataToRows,
 	sortDependencies,
+	filterDependencies,
 	depTypesList,
 };

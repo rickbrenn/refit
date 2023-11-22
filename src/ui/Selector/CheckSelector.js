@@ -18,6 +18,7 @@ const CheckSelector = ({
 	renderHighlighter,
 	renderSelector,
 	defaultSelected,
+	itemKey,
 }) => {
 	// const { searchResults, searchComponent } = useSearch({
 	// 	items,
@@ -75,6 +76,7 @@ const CheckSelector = ({
 			renderItem={renderItem}
 			selectable
 			creatable={false}
+			itemKey={itemKey}
 		/>
 	);
 };
@@ -94,6 +96,7 @@ CheckSelector.propTypes = {
 	renderHighlighter: PropTypes.func,
 	renderSelector: PropTypes.func,
 	defaultSelected: PropTypes.arrayOf(PropTypes.number),
+	itemKey: PropTypes.string,
 };
 
 CheckSelector.defaultProps = {
@@ -107,6 +110,7 @@ CheckSelector.defaultProps = {
 	renderHighlighter: null,
 	renderSelector: null,
 	defaultSelected: [],
+	itemKey: null,
 };
 
 export default CheckSelector;

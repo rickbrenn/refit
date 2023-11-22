@@ -2,85 +2,14 @@ import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Box, Text } from 'ink';
-import NameColumn from '../ui/NameColumn';
-import UpgradeColumn from '../ui/UpgradeColumn';
-import Table, { calculateColumnWidths } from '../ui/Table';
+import { getListColumns } from '../ui/columns';
+import Table, { getColumnsMinMax } from '../ui/Table';
 import Static from '../ui/Static';
 import useDependencyLoader from '../ui/useDependencyLoader';
 import UpToDateBoundary from '../ui/UpToDateBoundary';
 import LoaderBoundary from '../ui/LoaderBoundary';
 import { mapDataToRows, sortDependencies } from '../common/dependencies';
 import getDependencies from '../common/getDependencies';
-
-// get table columns based on the config
-const getListColumns = ({ verbose, packageDirs, global }, showColor = true) => {
-	const columns = [
-		{
-			name: 'Name',
-			accessor: 'name',
-			Component: NameColumn,
-			show: true,
-			showColor,
-		},
-		{
-			name: 'Target',
-			accessor: 'target',
-			show: !global,
-			noWrap: true,
-		},
-		{
-			name: 'Installed',
-			accessor: 'installed',
-			show: true,
-			noWrap: true,
-		},
-		{
-			name: 'Wanted',
-			accessor: 'wanted',
-			show: verbose,
-			noWrap: true,
-		},
-		{
-			name: 'Latest',
-			accessor: 'latest',
-			show: verbose,
-			noWrap: true,
-		},
-		{
-			name: 'Upgrade',
-			accessor: 'upgrade',
-			Component: UpgradeColumn,
-			show: true,
-			noWrap: true,
-			showColor,
-		},
-		{
-			name: 'Last Updated',
-			accessor: 'lastPublishedAt',
-			show: verbose,
-		},
-		{
-			name: 'Type',
-			accessor: 'type',
-			show: verbose,
-			wrap: 'truncate',
-		},
-		{
-			name: 'Hoisted',
-			accessor: 'hoisted',
-			show: verbose && packageDirs?.length,
-			wrap: 'truncate',
-		},
-		{
-			name: 'In',
-			accessor: 'in',
-			show: packageDirs?.length && !global,
-			wrap: 'truncate',
-		},
-	];
-
-	return columns.filter((c) => c.show);
-};
 
 const errors = [
 	{
@@ -147,7 +76,7 @@ const List = ({ config }) => {
 
 	const columnWidths = useMemo(
 		() =>
-			calculateColumnWidths({
+			getColumnsMinMax({
 				data: dependencies,
 				columns,
 			}),
@@ -156,14 +85,16 @@ const List = ({ config }) => {
 
 	const dependencyTableData = useMemo(() => {
 		// filter out deps with errors
-		return dependencies.filter((d) => (config.all ? true : d.upgradable));
+		return dependencies.filter((d) =>
+			config.all ? true : d.original.upgradable
+		);
 	}, [dependencies, config]);
 
 	const errorTables = useMemo(() => {
 		const errorColumns = getListColumns(config, false);
 		const sortedDependencies = sortDependencies(dependencies, 'name');
 		const errorData = errors.reduce((acc, curr) => {
-			const data = sortedDependencies.filter((d) => d.errors[curr.key]);
+			const data = sortedDependencies.filter((d) => d.original[curr.key]);
 			if (data.length) {
 				acc.push({
 					...curr,
@@ -190,9 +121,9 @@ const List = ({ config }) => {
 
 	const groupDependenciesByPackage = (deps) => {
 		const groupedDependencies = deps.reduce((acc, curr) => {
-			const { apps } = curr;
+			const { original } = curr;
 
-			apps.forEach((app) => {
+			original.apps.forEach((app) => {
 				if (!acc[app.name]) {
 					acc[app.name] = [];
 				}

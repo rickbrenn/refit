@@ -81,6 +81,17 @@ const configOptions = [
 		yargsCommmands: ['list'],
 	},
 	{
+		name: 'interactive',
+		options: {
+			alias: 'i',
+			describe: 'interactively bulk update dependencies',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'command',
+		yargsCommmands: ['update'],
+	},
+	{
 		name: 'noIssues',
 		options: {
 			alias: 'n',

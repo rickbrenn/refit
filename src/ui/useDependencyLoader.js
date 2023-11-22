@@ -15,6 +15,7 @@ const useDependencyLoader = () => {
 
 	const showLoaderError = useCallback(() => {
 		setLoaderText('Error!');
+		setLoading(false);
 	}, []);
 
 	return useMemo(

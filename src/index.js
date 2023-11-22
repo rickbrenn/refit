@@ -5,6 +5,7 @@ import { hideBin } from 'yargs/helpers';
 import { render } from 'ink';
 import List from './commands/List';
 import Update from './commands/Update';
+import InteractiveUpdate from './commands/InteractiveUpdate';
 import Wizard from './commands/Wizard';
 import {
 	withConfig,
@@ -19,7 +20,8 @@ const listCommand = ({ appConfig }) => {
 };
 
 const updateCommand = ({ appConfig }) => {
-	render(<Update config={appConfig} />);
+	const Command = appConfig.interactive ? InteractiveUpdate : Update;
+	render(<Command config={appConfig} />);
 };
 
 const WizardCommand = ({ appConfig }) => {
