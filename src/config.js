@@ -45,7 +45,7 @@ const configOptions = [
 			default: false,
 		},
 		yargsType: 'command',
-		yargsCommmands: ['list', 'update', 'interactive'],
+		yargsCommmands: ['list', 'update', 'wizard'],
 	},
 	{
 		name: 'depTypes',
@@ -56,7 +56,7 @@ const configOptions = [
 			default: [],
 		},
 		yargsType: 'command',
-		yargsCommmands: ['list', 'update', 'interactive'],
+		yargsCommmands: ['list', 'update', 'wizard'],
 	},
 	{
 		name: 'global',
@@ -134,7 +134,7 @@ const configOptions = [
 			default: false,
 		},
 		yargsType: 'command',
-		yargsCommmands: ['list', 'update', 'interactive'],
+		yargsCommmands: ['list', 'update', 'wizard'],
 	},
 	{
 		name: 'packages',
@@ -145,7 +145,7 @@ const configOptions = [
 			default: [],
 		},
 		yargsType: 'command',
-		yargsCommmands: ['list', 'update', 'interactive'],
+		yargsCommmands: ['list', 'update', 'wizard'],
 	},
 	{
 		name: 'sort',
