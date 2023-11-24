@@ -24,6 +24,7 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 							new: !!value.create,
 						},
 						step: prevState.step + 1,
+						errorMessage: null,
 					}));
 				}}
 				limit={8}

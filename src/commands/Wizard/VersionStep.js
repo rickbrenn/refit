@@ -46,12 +46,21 @@ const VersionStep = ({
 				},
 			});
 
-			setDepData({
-				loading: false,
-				dep,
-			});
+			if (dep.notOnRegistry) {
+				setWizardState((prevState) => ({
+					...prevState,
+					dependency: null,
+					step: prevState.step - 1,
+					errorMessage: 'Dependency not found!',
+				}));
+			} else {
+				setDepData({
+					loading: false,
+					dep,
+				});
+			}
 		},
-		[allowPrerelease, allowDeprecated]
+		[allowPrerelease, allowDeprecated, setWizardState]
 	);
 
 	useEffect(() => {

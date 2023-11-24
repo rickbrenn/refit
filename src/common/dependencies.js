@@ -332,7 +332,7 @@ const getRegistryData = async (name, packumentOptions) => {
 	try {
 		registryData = await pacote.packument(name, packumentOptions);
 	} catch (error) {
-		// ignore 404 errors is they get caught by isMissing
+		// ignore 404 errors so they get caught by isMissing
 		if (error.statusCode !== 404) {
 			throw error;
 		}

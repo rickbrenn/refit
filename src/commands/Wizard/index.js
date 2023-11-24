@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
-import { Box } from 'ink';
+import { Box, Text } from 'ink';
 
 import LoaderBoundary from '../../ui/LoaderBoundary';
 import useDependencyLoader from '../../ui/useDependencyLoader';
@@ -47,6 +47,7 @@ const WizardCommand = ({ config }) => {
 		dependency: null,
 		packages: null,
 		version: null,
+		errorMessage: null,
 	});
 
 	const fetchPackagesAndDependencies = useCallback(async () => {
@@ -204,6 +205,13 @@ const WizardCommand = ({ config }) => {
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>
 			<UpToDateBoundary enabled={!dependencies.length}>
+				{wizardState.errorMessage && (
+					<Box flexDirection="column" marginTop={1}>
+						<Text bold color="red">
+							{wizardState.errorMessage}
+						</Text>
+					</Box>
+				)}
 				<Box flexDirection="column" marginTop={1} marginBottom={1}>
 					<Wizard controlledStep={wizardState.step}>
 						<DependencyStep
