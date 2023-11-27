@@ -1,62 +1,13 @@
-import React from 'react';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
-import { render } from 'ink';
-import List from './commands/List';
-import Update from './commands/Update';
-import InteractiveUpdate from './commands/InteractiveUpdate';
-import Wizard from './commands/Wizard';
 import {
 	withConfig,
 	// getConfigFile,
 	getGlobalOptions,
 	getCommandOptions,
+	cliCommands,
 } from './config';
 import log from './logger';
-
-const listCommand = ({ appConfig }) => {
-	render(<List config={appConfig} />);
-};
-
-const updateCommand = ({ appConfig }) => {
-	const Command = appConfig.interactive ? InteractiveUpdate : Update;
-	render(<Command config={appConfig} />);
-};
-
-const WizardCommand = ({ appConfig }) => {
-	render(<Wizard config={appConfig} />);
-};
-
-const cliCommands = [
-	{
-		id: 'list',
-		yargsConfig: {
-			command: '*',
-			aliases: ['ls'],
-			desc: 'list all dependencies',
-			handler: listCommand,
-		},
-	},
-	{
-		id: 'update',
-		yargsConfig: {
-			command: 'update [dependencies..]',
-			aliases: ['up'],
-			desc: 'update dependencies',
-			handler: updateCommand,
-		},
-	},
-	{
-		id: 'wizard',
-		yargsConfig: {
-			command: 'wizard',
-			aliases: ['w'],
-			desc: 'interactively add and update dependencies',
-			handler: WizardCommand,
-		},
-	},
-];
 
 const createCli = async (argv) => {
 	const cli = yargs(argv)

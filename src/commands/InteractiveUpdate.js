@@ -35,7 +35,7 @@ const InteractiveUpdate = ({ config }) => {
 				updateProgress
 			);
 
-			setDependencies(mapDataToRows(dependenciesData));
+			setDependencies(mapDataToRows(dependenciesData, config));
 			updateLoading(false);
 		} catch (error) {
 			if (!error.catch) {

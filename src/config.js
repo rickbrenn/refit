@@ -1,8 +1,59 @@
+import React from 'react';
 import fs from 'fs';
 import path from 'path';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
+import { render } from 'ink';
 import packageManagers, {
 	determinePackageManager,
 } from './common/packageManagers';
+import List from './commands/List';
+import Update from './commands/Update';
+import InteractiveUpdate from './commands/InteractiveUpdate';
+import Wizard from './commands/Wizard';
+import { depTypesList } from './common/dependencies';
+
+const listCommand = ({ appConfig }) => {
+	render(<List config={appConfig} />);
+};
+
+const updateCommand = ({ appConfig }) => {
+	const Command = appConfig.interactive ? InteractiveUpdate : Update;
+	render(<Command config={appConfig} />);
+};
+
+const WizardCommand = ({ appConfig }) => {
+	render(<Wizard config={appConfig} />);
+};
+
+const cliCommands = [
+	{
+		id: 'list',
+		yargsConfig: {
+			command: '*',
+			aliases: ['ls'],
+			desc: 'list all dependencies',
+			handler: listCommand,
+		},
+	},
+	{
+		id: 'update',
+		yargsConfig: {
+			command: 'update [dependencies..]',
+			aliases: ['up'],
+			desc: 'update dependencies',
+			handler: updateCommand,
+		},
+	},
+	{
+		id: 'wizard',
+		yargsConfig: {
+			command: 'wizard',
+			aliases: ['w'],
+			desc: 'interactively add and update dependencies',
+			handler: WizardCommand,
+		},
+	},
+];
 
 const configOptions = [
 	{
@@ -54,6 +105,7 @@ const configOptions = [
 			describe: 'filter by dependency type',
 			type: 'array',
 			default: [],
+			choices: Object.keys(depTypesList),
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list', 'update', 'wizard'],
@@ -166,10 +218,10 @@ const configOptions = [
 			describe: 'update dependencies to semver type',
 			type: 'string',
 			default: 'latest',
-			choices: ['latest', 'wanted', 'target'],
+			choices: ['latest', 'wanted'],
 		},
 		yargsType: 'command',
-		yargsCommmands: ['update'],
+		yargsCommmands: ['list', 'update'],
 	},
 	{
 		name: 'updateTypes',
@@ -262,4 +314,10 @@ const withConfig = (argv, yargsInstance) => {
 	argv.appConfig = appConfig;
 };
 
-export { configOptions, withConfig, getGlobalOptions, getCommandOptions };
+export {
+	configOptions,
+	withConfig,
+	getGlobalOptions,
+	getCommandOptions,
+	cliCommands,
+};

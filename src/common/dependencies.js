@@ -139,6 +139,7 @@ const createDependencyObject = ({
 	upgradableToLatest = false,
 	color,
 	updateType,
+	upgradeVersion,
 	upgradeParts = {
 		wildcard: '',
 		midDot: '',
@@ -165,6 +166,7 @@ const createDependencyObject = ({
 	upgradableToLatest,
 	color,
 	updateType,
+	upgradeVersion,
 	upgradeParts,
 	versions,
 	distTags,
@@ -181,7 +183,7 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 		internal,
 		multipleTargets,
 	} = dependency;
-	const { allowPrerelease, allowDeprecated } = config;
+	const { allowPrerelease, allowDeprecated, updateTo } = config;
 
 	if (internal) {
 		return createDependencyObject({
@@ -285,9 +287,11 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 	const installNeeded = !installedVersion || installedIsOff;
 	const deprecated = isDeprecated(registryData.versions[installedVersion]);
 
+	const upgradeVersion = updateTo === 'wanted' ? wantedRange : latestRange;
+
 	// get coloring and version parts for the upgrade text
 	const { color, updateType, wildcard, midDot, uncoloredText, coloredText } =
-		getDiffVersionParts(parsedTargetRange, latestRange);
+		getDiffVersionParts(parsedTargetRange, upgradeVersion);
 
 	const lastPublishedAt = registryData?.time?.[latestVersion] || '';
 
@@ -314,6 +318,7 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 		upgradableToLatest,
 		color,
 		updateType,
+		upgradeVersion,
 		upgradeParts: {
 			wildcard,
 			midDot,
@@ -439,6 +444,7 @@ const getDependencyList = async ({
 	allowPrerelease = false,
 	packageManager,
 	global = false,
+	updateTo,
 }) => {
 	const pm = getPackageManagerConfig(packageManager);
 
@@ -567,11 +573,13 @@ const getDependencyList = async ({
 	}, []);
 
 	const processDependency = async (name, index) => {
-		updateProgress({
-			progressCurrent: index + 1,
-			progressMax: depsToFetch.length,
-			name,
-		});
+		if (updateProgress) {
+			updateProgress({
+				progressCurrent: index + 1,
+				progressMax: depsToFetch.length,
+				name,
+			});
+		}
 
 		return getRegistryData(name, packumentOptions);
 	};
@@ -593,7 +601,7 @@ const getDependencyList = async ({
 				multipleTargets: multipleTargetVersions.includes(d.name),
 			},
 			registryData: packumentMap.get(d.name),
-			config: { allowDeprecated, allowPrerelease },
+			config: { allowDeprecated, allowPrerelease, updateTo },
 		})
 	);
 
@@ -621,12 +629,12 @@ const getDependenciesFromPackageJson = ({ pkgJsonData }) => {
 };
 
 // map the dependencies data to table row objects
-const mapDataToRows = (pkgs) => {
+const mapDataToRows = (pkgs, config) => {
 	return pkgs.map((p) => {
 		// display version to upgrade to
 		const upgradeVersion = p.notOnRegistry
 			? 'NOT FOUND'
-			: p.upgradable && p.versionRange.latest;
+			: p.upgradable && p.versionRange[config.updateTo];
 
 		// if the dependency is not in node_modules display 'missing'
 		const installedText = p.version.installed || 'MISSING';

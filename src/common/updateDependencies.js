@@ -36,6 +36,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		allowPrerelease: prerelease,
 		allowDeprecated: deprecated,
 		packageManager,
+		updateTo,
 	});
 
 	const depsToUpdate = dependencyList.filter((dep) => {

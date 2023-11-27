@@ -17,6 +17,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		packageManager,
 		noIssues,
 		global,
+		updateTo,
 	} = config;
 
 	const packageList = global
@@ -43,6 +44,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		allowDeprecated: deprecated,
 		packageManager,
 		global,
+		updateTo,
 	});
 
 	return filterDependencies(dependencyList, { all, updateTypes, noIssues });

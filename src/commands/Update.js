@@ -28,7 +28,7 @@ const Update = ({ config }) => {
 			);
 
 			// format the data for the tab rows
-			const formattedData = mapDataToRows(dependenciesData);
+			const formattedData = mapDataToRows(dependenciesData, config);
 
 			setDependencies(formattedData);
 			updateLoading(false);
