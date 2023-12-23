@@ -11,6 +11,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		all,
 		depTypes,
 		updateTypes,
+		dependencies,
 		verbose,
 		prerelease,
 		deprecated,
@@ -31,6 +32,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		packageList,
 		filterByPackages: packages,
 		rootPath,
+		filterByDeps: dependencies,
 		filterByDepTypes: depTypes,
 		updateProgress: onDepenencyProcessed,
 		pMapOptions: {

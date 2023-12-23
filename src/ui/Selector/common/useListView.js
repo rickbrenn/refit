@@ -1,36 +1,17 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
-import { useInput } from 'ink';
+import { useMemo, useEffect, useCallback } from 'react';
+import useListInput from '../../useListInput';
 
 const useListView = ({ items, limit }) => {
-	const [highlightedIndex, setHighlightedIndex] = useState(0);
-
-	useInput((input, key) => {
-		// move up the list
-		if (key.upArrow) {
-			setHighlightedIndex((prev) => {
-				if (prev === 0) {
-					return items.length - 1;
-				}
-				return prev - 1;
-			});
-		}
-
-		// move down the list
-		if (key.downArrow) {
-			setHighlightedIndex((prev) => {
-				if (prev === items.length - 1) {
-					return 0;
-				}
-				return prev + 1;
-			});
-		}
+	const [highlightedIndex, setHighlightedIndex] = useListInput({
+		baseIndex: 0,
+		shouldLoop: true,
+		listLength: items.length,
 	});
 
 	useEffect(() => {
 		// reset the highlighted index when the items change
 		setHighlightedIndex(0);
-	}, [items]);
+	}, [items, setHighlightedIndex]);
 
 	const visible = useMemo(() => {
 		if (!limit) {

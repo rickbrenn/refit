@@ -10,6 +10,7 @@ import List from './commands/List';
 import Update from './commands/Update';
 import InteractiveUpdate from './commands/InteractiveUpdate';
 import Wizard from './commands/Wizard';
+import Changes from './commands/Changes';
 import { depTypesList } from './common/dependencies';
 
 const listCommand = ({ appConfig }) => {
@@ -23,6 +24,10 @@ const updateCommand = ({ appConfig }) => {
 
 const WizardCommand = ({ appConfig }) => {
 	render(<Wizard config={appConfig} />);
+};
+
+const ChangesCommand = async ({ appConfig }) => {
+	render(<Changes config={appConfig} />);
 };
 
 const cliCommands = [
@@ -51,6 +56,15 @@ const cliCommands = [
 			aliases: ['w'],
 			desc: 'interactively add and update dependencies',
 			handler: WizardCommand,
+		},
+	},
+	{
+		id: 'changes',
+		yargsConfig: {
+			command: 'changes [dependency]',
+			aliases: [],
+			desc: 'view changelog for a dependency',
+			handler: ChangesCommand,
 		},
 	},
 ];
@@ -89,6 +103,16 @@ const configOptions = [
 		yargsCommmands: ['update'],
 	},
 	{
+		name: 'dependency',
+		options: {
+			describe: 'dependency to view changelog for',
+			type: 'string',
+			default: '',
+		},
+		yargsType: 'positional',
+		yargsCommmands: ['changes'],
+	},
+	{
 		name: 'deprecated',
 		options: {
 			describe: 'allow updating to deprecated versions',
@@ -109,6 +133,17 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list', 'update', 'wizard'],
+	},
+	{
+		name: 'full',
+		options: {
+			alias: 'f',
+			describe: 'show full changelog',
+			type: 'boolean',
+			default: false,
+		},
+		yargsType: 'command',
+		yargsCommmands: ['changes'],
 	},
 	{
 		name: 'global',

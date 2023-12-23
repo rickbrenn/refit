@@ -94,9 +94,10 @@ const isMissing = (registryVersion) => {
 	return !registryVersion?.versions;
 };
 
-const parseGitHubUrl = (versionString) => {
-	const gitHubRegex = /^(github:)?(?<user>.+)\/(?<project>.+)#(?<ref>.+)$/;
-	const match = gitHubRegex.exec(versionString);
+const parseGitHubUrl = (url) => {
+	const gitHubRegex =
+		/^(github:|(git\+)?https:\/\/github.com\/)?(?<user>.+)\/(?<project>.+)(\.git|#(?<ref>.+))$/;
+	const match = gitHubRegex.exec(url);
 
 	if (!match) {
 		return null;
@@ -149,6 +150,7 @@ const createDependencyObject = ({
 	versions = [],
 	distTags = {},
 	lastPublishedAt = '',
+	url = '',
 }) => ({
 	name,
 	apps,
@@ -171,6 +173,7 @@ const createDependencyObject = ({
 	versions,
 	distTags,
 	lastPublishedAt,
+	url,
 });
 
 const createDependency = ({ dependency, registryData = {}, config = {} }) => {
@@ -294,6 +297,7 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 		getDiffVersionParts(parsedTargetRange, upgradeVersion);
 
 	const lastPublishedAt = registryData?.time?.[latestVersion] || '';
+	const url = registryData?.repository?.url || '';
 
 	return createDependencyObject({
 		name,
@@ -328,6 +332,7 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 		versions,
 		distTags,
 		lastPublishedAt,
+		url,
 	});
 };
 
@@ -342,14 +347,6 @@ const getRegistryData = async (name, packumentOptions) => {
 			throw error;
 		}
 	}
-
-	// get the package link
-	// TODO: npms has a bulk API, maybe run a bunch of these using the bulk API instead
-	// TODO: will have to change this for yarn support
-	// const npmsInfo = await (
-	// 	await fetch(`https://api.npms.io/v2/package/${name}`)
-	// ).json();
-	// const npmLink = npmsInfo?.collected?.metadata?.links?.npm;
 
 	return registryData;
 };
@@ -415,7 +412,8 @@ const filterDependencies = (dependencies, { all, updateTypes, noIssues }) => {
 		? dependencies
 		: dependencies.filter((pkg) => {
 				const isValidType =
-					!updateTypes.length || updateTypes.includes(pkg.updateType);
+					!updateTypes?.length ||
+					updateTypes?.includes(pkg.updateType);
 
 				if (isValidType) {
 					if (pkg.upgradable) {
@@ -431,7 +429,7 @@ const filterDependencies = (dependencies, { all, updateTypes, noIssues }) => {
 
 const getDependencyList = async ({
 	packageList,
-	filterByPackages,
+	filterByPackages = [],
 	rootPath,
 	filterByDeps = [],
 	filterByDepTypes = [],
@@ -469,7 +467,7 @@ const getDependencyList = async ({
 
 		let filteredPackages = packageList.values();
 
-		if (filterByPackages.length) {
+		if (filterByPackages?.length) {
 			filteredPackages = filterByPackages.reduce((acc, pkgName) => {
 				if (packageList.has(pkgName)) {
 					return [...acc, packageList.get(pkgName)];
@@ -678,6 +676,7 @@ const mapDataToRows = (pkgs, config) => {
 export {
 	getDiffVersionParts,
 	createDependency,
+	parseGitHubUrl,
 	getRegistryData,
 	getDependencyList,
 	getDependenciesFromPackageJson,
