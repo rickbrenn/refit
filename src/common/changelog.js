@@ -139,7 +139,7 @@ const getGitHubReleases = async ({ user, project, version }) => {
 				);
 				const currVersion = semverString.match(semverRegex)[0];
 
-				if (semver.gte(version, currVersion)) {
+				if (version && semver.gte(version, currVersion)) {
 					atMinVersion = true;
 				}
 
