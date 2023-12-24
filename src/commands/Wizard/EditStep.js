@@ -46,7 +46,7 @@ const EditStep = ({ wizardState, setWizardState }) => {
 					</Box>
 				);
 			}}
-			inputHandler={(input) => {
+			inputHandler={({ input }) => {
 				if (input === 'q') {
 					setWizardState((prevState) => {
 						return {

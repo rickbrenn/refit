@@ -1,13 +1,16 @@
 import { useMemo, useEffect, useCallback } from 'react';
 import useListInput from '../../useListInput';
 
-const useListView = ({ items, limit }) => {
+const useListView = ({ items, limit, isFocused }) => {
 	const [highlightedIndex, setHighlightedIndex] = useListInput({
 		baseIndex: 0,
 		shouldLoop: true,
 		listLength: items.length,
+		isFocused,
 	});
 
+	// TODO: update this, and the Selector component in general, to not need
+	// `items` and `setHighlightedIndex` to be memoized
 	useEffect(() => {
 		// reset the highlighted index when the items change
 		setHighlightedIndex(0);

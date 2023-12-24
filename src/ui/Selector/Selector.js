@@ -21,6 +21,7 @@ const Selector = ({
 	renderSelector,
 	inputHandler,
 	itemKey,
+	isFocused,
 }) => {
 	const { searchResults, searchComponent } = useSearch({
 		items,
@@ -28,22 +29,33 @@ const Selector = ({
 		creatable,
 		labelKey,
 		searchByKey,
+		isFocused,
 	});
 	const { highlightedIndex, visibleItems, getIndex } = useListView({
 		items: searchResults,
 		limit,
+		isFocused,
 	});
 
-	useInput((input, key) => {
-		// select an item in the list
-		if (key.return) {
-			onSelect(searchResults[highlightedIndex]);
-		}
+	useInput(
+		(input, key) => {
+			// select an item in the list
+			if (key.return) {
+				onSelect(searchResults[highlightedIndex]);
+			}
 
-		if (inputHandler) {
-			inputHandler(input, key);
-		}
-	});
+			if (inputHandler) {
+				inputHandler(
+					{ input, key },
+					{
+						index: highlightedIndex,
+						item: searchResults[highlightedIndex],
+					}
+				);
+			}
+		},
+		{ isActive: isFocused }
+	);
 
 	return (
 		<List
@@ -81,6 +93,7 @@ Selector.propTypes = {
 	renderSelector: PropTypes.func,
 	inputHandler: PropTypes.func,
 	itemKey: PropTypes.string,
+	isFocused: PropTypes.bool,
 };
 
 Selector.defaultProps = {
@@ -96,6 +109,7 @@ Selector.defaultProps = {
 	renderSelector: null,
 	inputHandler: null,
 	itemKey: null,
+	isFocused: true,
 };
 
 export default Selector;

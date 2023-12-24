@@ -5,7 +5,14 @@ import { Text, Box } from 'ink';
 import TextInput from 'ink-text-input';
 import { getItemName } from './utils';
 
-const useSearch = ({ items, searchable, creatable, labelKey, searchByKey }) => {
+const useSearch = ({
+	items,
+	searchable,
+	creatable,
+	labelKey,
+	searchByKey,
+	isFocused = true,
+}) => {
 	const [searchText, setSearchText] = useState('');
 
 	const searchResults = useMemo(() => {
@@ -38,10 +45,14 @@ const useSearch = ({ items, searchable, creatable, labelKey, searchByKey }) => {
 		return searchable ? (
 			<Box marginBottom={1}>
 				<Text>search: </Text>
-				<TextInput value={searchText} onChange={setSearchText} />
+				<TextInput
+					value={searchText}
+					onChange={setSearchText}
+					focus={isFocused}
+				/>
 			</Box>
 		) : null;
-	}, [searchable, searchText]);
+	}, [searchable, searchText, isFocused]);
 
 	return {
 		searchResults,

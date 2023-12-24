@@ -13,7 +13,6 @@ const useAltScreenBuffer = () => {
 	}, [write]);
 
 	const closeAltScreenBuffer = useCallback(() => {
-		console.log('closeAltScreenBuffer');
 		write(leaveAltScreenCommand);
 	}, [write]);
 
