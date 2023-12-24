@@ -38,11 +38,12 @@ const ChangelogViewer = ({
 	exitKeyLabel,
 	showExitOnFallback,
 }) => {
-	const shouldFocus = isFocused && (data.length || showExitOnFallback);
+	const hasData = data.length > 0;
+	const shouldFocus = isFocused && (hasData || showExitOnFallback);
 	const [currentIndex] = useListInput({
 		baseIndex: baseIndex || 0,
 		shouldLoop: false,
-		listLength: data.length,
+		listLength: hasData,
 		upKey: (input, key) => key.leftArrow,
 		downKey: (input, key) => key.rightArrow,
 		isFocused: shouldFocus,
@@ -78,25 +79,27 @@ const ChangelogViewer = ({
 
 	useInput(
 		(input, key) => {
-			// scroll up
-			if (key.upArrow) {
-				setTop((prevState) => Math.max(0, prevState - 1));
-			}
+			if (hasData) {
+				// scroll up
+				if (key.upArrow) {
+					setTop((prevState) => Math.max(0, prevState - 1));
+				}
 
-			// scroll down
-			if (key.downArrow) {
-				setTop((prevState) => Math.min(maxTop, prevState + 1));
-			}
+				// scroll down
+				if (key.downArrow) {
+					setTop((prevState) => Math.min(maxTop, prevState + 1));
+				}
 
-			if (input === 's') {
-				setPreferredSource((prevState) => {
-					const nextState = getNextSource(currentVersion, source);
-					return nextState || prevState;
-				});
-			}
+				if (input === 's') {
+					setPreferredSource((prevState) => {
+						const nextState = getNextSource(currentVersion, source);
+						return nextState || prevState;
+					});
+				}
 
-			if (input === 'o') {
-				open(url);
+				if (input === 'o') {
+					open(url);
+				}
 			}
 
 			if (exitKey ? exitKey(input, key) : input === 'q') {
@@ -129,7 +132,7 @@ const ChangelogViewer = ({
 		return paginationIndexes.slice(currentIndex - 1, currentIndex + 2);
 	}, [currentIndex, data]);
 
-	if (!data.length) {
+	if (!hasData) {
 		return (
 			<Box flexDirection="column" marginTop={1}>
 				<Text color="blue">No changelog data to display</Text>
@@ -243,8 +246,7 @@ const ChangelogViewer = ({
 			>
 				<Box gap={2}>
 					<Text bold>
-						{exitText}:{' '}
-						<Text color="blue">{exitKeyLabel || 'q'}</Text>
+						{exitText}: <Text color="blue">{exitKeyLabel}</Text>
 					</Text>
 					<Text bold>
 						verison: <Text color="blue">◄</Text>{' '}
@@ -301,7 +303,7 @@ ChangelogViewer.defaultProps = {
 	baseIndex: 0,
 	isFocused: true,
 	exitKey: undefined,
-	exitKeyLabel: undefined,
+	exitKeyLabel: 'q',
 	showExitOnFallback: false,
 };
 
