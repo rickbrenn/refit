@@ -14,6 +14,7 @@ import LoaderBoundary from '../ui/LoaderBoundary';
 import useDependencyLoader from '../ui/useDependencyLoader';
 import FocusTarget from '../ui/FocusTarget';
 import Changelog from '../ui/Changelog/Changelog';
+import useTerminalSize from '../ui/useTerminalSize';
 
 const InteractiveUpdate = ({ config }) => {
 	const [step, setStep] = useState(0);
@@ -33,6 +34,7 @@ const InteractiveUpdate = ({ config }) => {
 		showLoaderError,
 		interactive,
 	} = useDependencyLoader();
+	const { height } = useTerminalSize();
 
 	const startLoader = useCallback(async () => {
 		try {
@@ -114,7 +116,7 @@ const InteractiveUpdate = ({ config }) => {
 						>
 							{(isFocused) => {
 								return (
-									<Box flexDirection="column">
+									<Box flexDirection="column" marginTop={1}>
 										<Box>
 											<Box marginRight="1">
 												<Text>
@@ -149,6 +151,7 @@ const InteractiveUpdate = ({ config }) => {
 											onSelect={handleSelect}
 											itemKey="key"
 											labelKey="name"
+											limit={height - 6}
 											inputHandler={(
 												{ key },
 												{ item }
