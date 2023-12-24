@@ -87,7 +87,7 @@ const configOptions = [
 			alias: 'c',
 			describe: '',
 			type: 'number',
-			default: 8,
+			default: Infinity,
 		},
 		yargsType: 'global',
 		yargsCommmands: [],
