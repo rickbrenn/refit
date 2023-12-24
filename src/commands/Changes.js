@@ -1,26 +1,19 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
-import { useApp, Text } from 'ink';
+import { useApp } from 'ink';
 import semver from 'semver';
 import useDependencyLoader from '../ui/useDependencyLoader';
-import LoaderBoundary from '../ui/LoaderBoundary';
-import { getChangelog } from '../common/changelog';
 import getDependencies from '../common/getDependencies';
-import ChangelogViewer from '../ui/ChangelogViewer';
+import Changelog from '../ui/Changelog/Changelog';
+import LoaderBoundary from '../ui/LoaderBoundary';
 
 const Changes = ({ config }) => {
-	const {
-		loading,
-		updateLoading,
-		loaderText,
-		updateLoaderText,
-		showLoaderError,
-	} = useDependencyLoader();
-	const [changelog, setChangelog] = useState({ data: [], url: '' });
-	const { exit } = useApp();
-
+	const { loading, updateLoading, showLoaderError, loaderText } =
+		useDependencyLoader();
 	const [argsName, argsVersion] = config.dependency.split('@');
+	const [depData, setDepData] = useState({ version: null, url: null });
+	const { exit } = useApp();
 
 	const startLoader = useCallback(async () => {
 		try {
@@ -44,13 +37,10 @@ const Changes = ({ config }) => {
 				url = oldestVerisonDep.url;
 			}
 
-			updateLoaderText('fetching changelog');
-			const res = await getChangelog({
-				name: argsName,
+			setDepData({
 				version,
 				url,
 			});
-			setChangelog(res);
 		} catch (err) {
 			// TODO: test error handling
 			showLoaderError();
@@ -58,31 +48,19 @@ const Changes = ({ config }) => {
 		} finally {
 			updateLoading(false);
 		}
-	}, [
-		config,
-		updateLoading,
-		showLoaderError,
-		updateLoaderText,
-		argsName,
-		argsVersion,
-	]);
+	}, [config, updateLoading, showLoaderError, argsName, argsVersion]);
 
 	useEffect(() => {
 		startLoader();
-	}, [startLoader, config]);
-
-	if (!loading && !changelog?.data?.length) {
-		return <Text color="blue">No changelog data to display</Text>;
-	}
+	}, [startLoader]);
 
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>
-			<ChangelogViewer
+			<Changelog
 				name={argsName}
-				url={changelog?.url}
-				data={changelog?.data}
-				height={30}
-				width={80}
+				version={depData.version}
+				url={depData.url}
+				full={config.full}
 				onExit={exit}
 			/>
 		</LoaderBoundary>

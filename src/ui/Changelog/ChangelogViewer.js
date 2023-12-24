@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Box, Text, useInput } from 'ink';
 import open from 'open';
-import useListInput from './useListInput';
-import useComponentSize from './useComponentSize';
-import { sourceConfigs } from '../common/changelog';
+import useListInput from '../useListInput';
+import useComponentSize from '../useComponentSize';
+import { sourceConfigs } from '../../common/changelog';
 
 const getNextSource = (data, source) => {
 	const sourceIndex = sourceConfigs.findIndex(
@@ -27,12 +27,15 @@ const getNextSource = (data, source) => {
 const ChangelogViewer = ({
 	name,
 	url,
-	exitText,
 	onExit,
 	data,
 	height,
 	width,
 	baseIndex,
+	isFocused,
+	exitText,
+	exitKey,
+	exitKeyLabel,
 }) => {
 	const [currentIndex] = useListInput({
 		baseIndex: baseIndex || 0,
@@ -70,32 +73,35 @@ const ChangelogViewer = ({
 	const scrollPercent =
 		!maxTop || !top ? 0 : Math.floor((top / maxTop) * 100);
 
-	useInput((input, key) => {
-		// scroll up
-		if (key.upArrow) {
-			setTop((prevState) => Math.max(0, prevState - 1));
-		}
+	useInput(
+		(input, key) => {
+			// scroll up
+			if (key.upArrow) {
+				setTop((prevState) => Math.max(0, prevState - 1));
+			}
 
-		// scroll down
-		if (key.downArrow) {
-			setTop((prevState) => Math.min(maxTop, prevState + 1));
-		}
+			// scroll down
+			if (key.downArrow) {
+				setTop((prevState) => Math.min(maxTop, prevState + 1));
+			}
 
-		if (input === 's') {
-			setPreferredSource((prevState) => {
-				const nextState = getNextSource(currentVersion, source);
-				return nextState || prevState;
-			});
-		}
+			if (input === 's') {
+				setPreferredSource((prevState) => {
+					const nextState = getNextSource(currentVersion, source);
+					return nextState || prevState;
+				});
+			}
 
-		if (input === 'o') {
-			open(url);
-		}
+			if (input === 'o') {
+				open(url);
+			}
 
-		if (input === 'q') {
-			onExit();
-		}
-	});
+			if (exitKey ? exitKey(input, key) : input === 'q') {
+				onExit();
+			}
+		},
+		{ isActive: isFocused }
+	);
 
 	const displayIndexes = useMemo(() => {
 		const paginationIndexes = Object.keys(data);
@@ -218,7 +224,8 @@ const ChangelogViewer = ({
 			>
 				<Box gap={2}>
 					<Text bold>
-						{exitText}: <Text color="blue">q</Text>
+						{exitText}:{' '}
+						<Text color="blue">{exitKeyLabel || 'q'}</Text>
 					</Text>
 					<Text bold>
 						verison: <Text color="blue">◄</Text>{' '}
@@ -262,6 +269,9 @@ ChangelogViewer.propTypes = {
 	exitText: PropTypes.string,
 	onExit: PropTypes.func.isRequired,
 	baseIndex: PropTypes.number,
+	isFocused: PropTypes.bool,
+	exitKey: PropTypes.func,
+	exitKeyLabel: PropTypes.string,
 };
 
 ChangelogViewer.defaultProps = {
@@ -269,6 +279,9 @@ ChangelogViewer.defaultProps = {
 	width: undefined,
 	exitText: 'exit',
 	baseIndex: 0,
+	isFocused: true,
+	exitKey: undefined,
+	exitKeyLabel: undefined,
 };
 
 export default ChangelogViewer;
