@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
+import { Text, Box, useFocusManager } from 'ink';
 import getDependencies from '../common/getDependencies';
 import { mapDataToRows, depTypesList } from '../common/dependencies';
 import { getPackages } from '../common/packages';
@@ -10,11 +12,19 @@ import CheckSelectorTable from '../ui/CheckSelectorTable';
 import UpToDateBoundary from '../ui/UpToDateBoundary';
 import LoaderBoundary from '../ui/LoaderBoundary';
 import useDependencyLoader from '../ui/useDependencyLoader';
+import FocusTarget from '../ui/FocusTarget';
+import Changelog from '../ui/Changelog/Changelog';
 
 const InteractiveUpdate = ({ config }) => {
 	const [step, setStep] = useState(0);
 	const [updates, setUpdates] = useState([]);
 	const [dependencies, setDependencies] = useState([]);
+	const [changelog, setChangelog] = useState({
+		open: false,
+		name: null,
+		version: null,
+	});
+	const { focus } = useFocusManager();
 	const {
 		loading,
 		updateLoading,
@@ -96,13 +106,97 @@ const InteractiveUpdate = ({ config }) => {
 		<LoaderBoundary loading={loading} text={loaderText}>
 			<UpToDateBoundary enabled={!dependencies.length}>
 				{step === 0 && (
-					<CheckSelectorTable
-						columns={listColumns}
-						data={dependencies}
-						onSelect={handleSelect}
-						itemKey="key"
-						labelKey="name"
-					/>
+					<>
+						<FocusTarget
+							active={!changelog.open}
+							id="selector"
+							autoFocus
+						>
+							{(isFocused) => {
+								return (
+									<Box flexDirection="column">
+										<Box>
+											<Box marginRight="1">
+												<Text>
+													Select a package below
+												</Text>
+											</Box>
+											<Box>
+												<Text color="gray">(</Text>
+												<Text color="magenta">
+													{'<space>'}
+												</Text>
+												<Text color="gray">
+													{' to select, '}
+												</Text>
+												<Text color="magenta">
+													{'<a>'}
+												</Text>
+												<Text color="gray">
+													{' to select all, '}
+												</Text>
+												<Text color="magenta">
+													{'<tab>'}
+												</Text>
+												<Text color="gray">
+													{' to view changelog)'}
+												</Text>
+											</Box>
+										</Box>
+										<CheckSelectorTable
+											columns={listColumns}
+											data={dependencies}
+											onSelect={handleSelect}
+											itemKey="key"
+											labelKey="name"
+											inputHandler={(
+												{ key },
+												{ item }
+											) => {
+												if (key.tab) {
+													setChangelog({
+														open: true,
+														name: item.name,
+														version: item.installed,
+													});
+													focus('changelog');
+												}
+											}}
+											isFocused={isFocused}
+										/>
+									</Box>
+								);
+							}}
+						</FocusTarget>
+						<FocusTarget
+							active={changelog.open}
+							id="changelog"
+							keepRendered={false}
+						>
+							{(isFocused) => {
+								return (
+									<Changelog
+										open={changelog.open}
+										name={changelog.name}
+										version={changelog.version}
+										onExit={() => {
+											setChangelog({
+												open: false,
+												name: null,
+												version: null,
+											});
+											focus('selector');
+										}}
+										exitKey={(input, key) => key.tab}
+										exitKeyLabel="tab"
+										exitText="back"
+										isFocused={isFocused}
+										showExitOnFallback
+									/>
+								);
+							}}
+						</FocusTarget>
+					</>
 				)}
 				{step === 1 && (
 					<Static>

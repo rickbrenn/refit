@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
-import { Text } from 'ink';
 import ChangelogViewer from './ChangelogViewer';
 import LoaderBoundary from '../LoaderBoundary';
 import useDependencyLoader from '../useDependencyLoader';
@@ -17,6 +15,7 @@ const Changelog = ({
 	exitKey,
 	exitKeyLabel,
 	exitText,
+	showExitOnFallback,
 }) => {
 	const {
 		loading,
@@ -57,10 +56,6 @@ const Changelog = ({
 		startLoader();
 	}, [startLoader]);
 
-	if (!loading && !changelog?.data?.length) {
-		return <Text color="blue">No changelog data to display</Text>;
-	}
-
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>
 			<ChangelogViewer
@@ -74,6 +69,7 @@ const Changelog = ({
 				exitKey={exitKey}
 				exitKeyLabel={exitKeyLabel}
 				exitText={exitText}
+				showExitOnFallback={showExitOnFallback}
 			/>
 		</LoaderBoundary>
 	);
@@ -89,6 +85,7 @@ Changelog.propTypes = {
 	exitKey: PropTypes.func,
 	exitKeyLabel: PropTypes.string,
 	exitText: PropTypes.string,
+	showExitOnFallback: PropTypes.bool,
 };
 
 Changelog.defaultProps = {
@@ -99,6 +96,7 @@ Changelog.defaultProps = {
 	exitKey: undefined,
 	exitKeyLabel: undefined,
 	exitText: undefined,
+	showExitOnFallback: false,
 };
 
 export default Changelog;

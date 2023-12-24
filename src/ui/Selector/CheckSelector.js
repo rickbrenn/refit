@@ -19,6 +19,8 @@ const CheckSelector = ({
 	renderSelector,
 	defaultSelected,
 	itemKey,
+	inputHandler,
+	isFocused,
 }) => {
 	// const { searchResults, searchComponent } = useSearch({
 	// 	items,
@@ -26,40 +28,55 @@ const CheckSelector = ({
 	// 	creatable: false,
 	// 	labelKey,
 	// 	searchByKey,
+	// isFocused,
 	// });
 	const { highlightedIndex, visibleItems, getIndex } = useListView({
 		items,
 		limit,
+		isFocused,
 	});
 	const [selectedIndexes, setSelectedIndexes] = useState(defaultSelected);
 
-	useInput((input, key) => {
-		// select an item in the list
-		if (key.return) {
-			onSelect(selectedIndexes.map((i) => items[i]));
-			return;
-		}
+	useInput(
+		(input, key) => {
+			// select an item in the list
+			if (key.return) {
+				onSelect(selectedIndexes.map((i) => items[i]));
+				return;
+			}
 
-		// select or deselect an item
-		if (input === ' ') {
-			setSelectedIndexes((prev) => {
-				if (prev.includes(highlightedIndex)) {
-					return prev.filter((i) => i !== highlightedIndex);
-				}
-				return [...prev, highlightedIndex];
-			});
-		}
+			// select or deselect an item
+			if (input === ' ') {
+				setSelectedIndexes((prev) => {
+					if (prev.includes(highlightedIndex)) {
+						return prev.filter((i) => i !== highlightedIndex);
+					}
+					return [...prev, highlightedIndex];
+				});
+			}
 
-		// select all items
-		if (input === 'a') {
-			setSelectedIndexes((prev) => {
-				if (prev.length === items.length) {
-					return [];
-				}
-				return items.map((_, index) => index);
-			});
-		}
-	});
+			// select all items
+			if (input === 'a') {
+				setSelectedIndexes((prev) => {
+					if (prev.length === items.length) {
+						return [];
+					}
+					return items.map((_, index) => index);
+				});
+			}
+
+			if (inputHandler) {
+				inputHandler(
+					{ input, key },
+					{
+						index: highlightedIndex,
+						item: items[highlightedIndex],
+					}
+				);
+			}
+		},
+		{ isActive: isFocused }
+	);
 
 	return (
 		<List
@@ -97,6 +114,8 @@ CheckSelector.propTypes = {
 	renderSelector: PropTypes.func,
 	defaultSelected: PropTypes.arrayOf(PropTypes.number),
 	itemKey: PropTypes.string,
+	inputHandler: PropTypes.func,
+	isFocused: PropTypes.bool,
 };
 
 CheckSelector.defaultProps = {
@@ -111,6 +130,8 @@ CheckSelector.defaultProps = {
 	renderSelector: null,
 	defaultSelected: [],
 	itemKey: null,
+	inputHandler: null,
+	isFocused: true,
 };
 
 export default CheckSelector;

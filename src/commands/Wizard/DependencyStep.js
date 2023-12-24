@@ -214,6 +214,7 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 							exitKeyLabel="tab"
 							exitText="back"
 							isFocused={isFocused}
+							showExitOnFallback
 						/>
 					);
 				}}

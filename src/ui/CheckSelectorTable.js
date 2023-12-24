@@ -16,6 +16,8 @@ const CheckSelectorTable = ({
 	labelKey,
 	defaultSelected,
 	itemKey,
+	inputHandler,
+	isFocused,
 }) => {
 	const columnWidths = getColumnsWidth({
 		data,
@@ -79,6 +81,8 @@ const CheckSelectorTable = ({
 							</Box>
 						);
 					}}
+					inputHandler={inputHandler}
+					isFocused={isFocused}
 				/>
 			</Box>
 		</Box>
@@ -96,6 +100,8 @@ CheckSelectorTable.propTypes = {
 	labelKey: PropTypes.string,
 	defaultSelected: PropTypes.arrayOf(PropTypes.number),
 	itemKey: PropTypes.string,
+	inputHandler: PropTypes.func,
+	isFocused: PropTypes.bool,
 };
 
 CheckSelectorTable.defaultProps = {
@@ -106,6 +112,8 @@ CheckSelectorTable.defaultProps = {
 	labelKey: 'label',
 	defaultSelected: [],
 	itemKey: null,
+	inputHandler: undefined,
+	isFocused: true,
 };
 
 export default CheckSelectorTable;

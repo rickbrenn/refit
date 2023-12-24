@@ -7,7 +7,9 @@ const useComponentSize = () => {
 	const [size, setSize] = useState({ height: 0, width: 0 });
 
 	const measure = useCallback(() => {
-		setSize(measureElement(ref.current));
+		if (ref.current) {
+			setSize(measureElement(ref.current));
+		}
 	}, []);
 
 	useEffect(() => {

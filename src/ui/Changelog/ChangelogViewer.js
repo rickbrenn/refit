@@ -21,7 +21,7 @@ const getNextSource = (data, source) => {
 
 	const nextSource = sourceConfigs[nextSourceIndex];
 
-	return data[nextSource.name] ? nextSource.name : null;
+	return data?.[nextSource.name] ? nextSource.name : null;
 };
 
 const ChangelogViewer = ({
@@ -36,13 +36,16 @@ const ChangelogViewer = ({
 	exitText,
 	exitKey,
 	exitKeyLabel,
+	showExitOnFallback,
 }) => {
+	const shouldFocus = isFocused && (data.length || showExitOnFallback);
 	const [currentIndex] = useListInput({
 		baseIndex: baseIndex || 0,
 		shouldLoop: false,
 		listLength: data.length,
 		upKey: (input, key) => key.leftArrow,
 		downKey: (input, key) => key.rightArrow,
+		isFocused: shouldFocus,
 	});
 	const [contentRef, contentSize, measuerContent] = useComponentSize();
 	const [footerRef, footerSize] = useComponentSize();
@@ -54,7 +57,7 @@ const ChangelogViewer = ({
 
 	const nextSource = getNextSource(currentVersion, preferredSource);
 	const source =
-		!currentVersion[preferredSource] && nextSource
+		!currentVersion?.[preferredSource] && nextSource
 			? nextSource
 			: preferredSource;
 
@@ -100,7 +103,9 @@ const ChangelogViewer = ({
 				onExit();
 			}
 		},
-		{ isActive: isFocused }
+		{
+			isActive: shouldFocus,
+		}
 	);
 
 	const displayIndexes = useMemo(() => {
@@ -123,6 +128,20 @@ const ChangelogViewer = ({
 		// rest
 		return paginationIndexes.slice(currentIndex - 1, currentIndex + 2);
 	}, [currentIndex, data]);
+
+	if (!data.length) {
+		return (
+			<Box flexDirection="column" marginTop={1}>
+				<Text color="blue">No changelog data to display</Text>
+				{showExitOnFallback && (
+					<Box marginTop={1}>
+						<Text color="magenta">{`<${exitKeyLabel}>`}</Text>
+						<Text color="gray">{` ${exitText}`}</Text>
+					</Box>
+				)}
+			</Box>
+		);
+	}
 
 	return (
 		<Box
@@ -272,6 +291,7 @@ ChangelogViewer.propTypes = {
 	isFocused: PropTypes.bool,
 	exitKey: PropTypes.func,
 	exitKeyLabel: PropTypes.string,
+	showExitOnFallback: PropTypes.bool,
 };
 
 ChangelogViewer.defaultProps = {
@@ -282,6 +302,7 @@ ChangelogViewer.defaultProps = {
 	isFocused: true,
 	exitKey: undefined,
 	exitKeyLabel: undefined,
+	showExitOnFallback: false,
 };
 
 export default ChangelogViewer;
