@@ -1,36 +1,48 @@
-import path from 'path';
-import { getDepsFromDirNames } from './common';
 import spawnAsync from '../spawnAsync';
+import { depTypesList } from '../dependencies';
 
-const getInstalledDeps = async (pkgPath) => {
-	return getDepsFromDirNames(
-		path.resolve(pkgPath, 'node_modules/.pnpm'),
-		/^(?<name>.+)@(?<version>\d+.\d+.\d+)/
-	);
+const getPnpmCommand = () => {
+	return process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 };
 
-const getGlobalDeps = async () => {
-	const pnpmCmd = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
-
-	const command = `${pnpmCmd} ls -g --depth=0 --json`;
-	const result = await spawnAsync(command);
+const parsePnpmDeps = (rawData) => {
 	let parsedDeps = {};
 
 	try {
-		parsedDeps = JSON.parse(result)?.[0]?.dependencies;
+		const validTypes = Object.values(depTypesList);
+		for (const type of validTypes) {
+			const depsOfType = JSON.parse(rawData)?.[0]?.[type] ?? {};
+			parsedDeps = { ...parsedDeps, ...depsOfType };
+		}
 	} catch (error) {
 		// ignore error
 	}
 
-	const globalDeps = {};
+	const deps = {};
 	for (const [name, data] of Object.entries(parsedDeps)) {
 		// ignore linked packages
 		if (!data.version.startsWith('link:')) {
-			globalDeps[name] = data.version;
+			deps[name] = data.version;
 		}
 	}
 
-	return globalDeps;
+	return deps;
+};
+
+const getInstalledDeps = async (pkgPath) => {
+	const pnpmCmd = getPnpmCommand();
+	const command = `${pnpmCmd} ls --depth=0 --json`;
+	const result = await spawnAsync(command, { cwd: pkgPath });
+
+	return parsePnpmDeps(result);
+};
+
+const getGlobalDeps = async () => {
+	const pnpmCmd = getPnpmCommand();
+	const command = `${pnpmCmd} ls -g --depth=0 --json`;
+	const result = await spawnAsync(command);
+
+	return parsePnpmDeps(result);
 };
 
 export { getInstalledDeps, getGlobalDeps };
