@@ -10,11 +10,11 @@ import { Wizard } from '../../ui/Wizard';
 
 import { getPackages } from '../../common/packages';
 import {
-	getDependencyList,
 	getDiffVersionParts,
 	depTypesList,
 	sortDependencies,
 } from '../../common/dependencies';
+import getDependencyList from '../../common/getDependencyList';
 
 import DependencyStep from './DependencyStep';
 import VersionStep from './VersionStep';

@@ -1,5 +1,6 @@
 import { getPackages } from './packages';
-import { getDependencyList, filterDependencies } from './dependencies';
+import { filterDependencies } from './dependencies';
+import getDependencyList from './getDependencyList';
 
 const getDependencies = async (config, onDepenencyProcessed) => {
 	const {
