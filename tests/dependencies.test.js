@@ -8,6 +8,13 @@ describe('parseGitHubUrl', () => {
 		expect(result.project).toEqual('chalk');
 	});
 
+	test('should parse github http urls', async () => {
+		const result = parseGitHubUrl('git://github.com/mqttjs/MQTT.js.git');
+
+		expect(result.user).toEqual('mqttjs');
+		expect(result.project).toEqual('MQTT.js');
+	});
+
 	test('should parse github version urls', async () => {
 		const result = parseGitHubUrl('github:chalk/chalk#5.3.0');
 

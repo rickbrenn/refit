@@ -94,7 +94,7 @@ const isMissing = (registryVersion) => {
 
 const parseGitHubUrl = (url) => {
 	const gitHubRegex =
-		/^(github:|(git\+)?https:\/\/github.com\/)?(?<user>.+)\/(?<project>.+)(\.git|#(?<ref>.+))$/;
+		/^(github:|(git\+)?(https|git):\/\/github.com\/)?(?<user>.+)\/(?<project>.+)(\.git|#(?<ref>.+))$/;
 	const match = gitHubRegex.exec(url);
 
 	if (!match) {
