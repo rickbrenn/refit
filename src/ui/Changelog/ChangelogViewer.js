@@ -43,7 +43,7 @@ const ChangelogViewer = ({
 	const [currentIndex] = useListInput({
 		baseIndex: baseIndex || 0,
 		shouldLoop: false,
-		listLength: hasData,
+		listLength: data.length,
 		upKey: (input, key) => key.leftArrow,
 		downKey: (input, key) => key.rightArrow,
 		isFocused: shouldFocus,
