@@ -45,7 +45,7 @@ const getDependencyList = async ({
 	} else {
 		const hoistedDeps = await pm.packageManager.getInstalledDeps(rootPath);
 
-		let filteredPackages = packageList.values();
+		let filteredPackages = Array.from(packageList.values());
 
 		if (filterByPackages?.length) {
 			filteredPackages = filterByPackages.reduce((acc, pkgName) => {
@@ -57,15 +57,22 @@ const getDependencyList = async ({
 			}, []);
 		}
 
-		for (const {
-			name: pkgName,
-			path: pkgPath,
-			isMonorepoRoot,
-			dependencies,
-		} of filteredPackages) {
-			const installedDeps = isMonorepoRoot
-				? hoistedDeps
-				: await pm.packageManager.getInstalledDeps(pkgPath);
+		const localDeps = {};
+
+		await Promise.all(
+			filteredPackages.map(
+				async ({ name: pkgName, path: pkgPath, isMonorepoRoot }) => {
+					const deps = isMonorepoRoot
+						? hoistedDeps
+						: await pm.packageManager.getInstalledDeps(pkgPath);
+
+					localDeps[pkgName] = deps;
+				}
+			)
+		);
+
+		for (const { name: pkgName, dependencies } of filteredPackages) {
+			const installedDeps = localDeps[pkgName] ?? {};
 
 			for (const { name, target, type } of dependencies.values()) {
 				const isValidName =
@@ -82,8 +89,6 @@ const getDependencyList = async ({
 
 					const localVersion = installedDeps[name];
 					const hoistedVersion = hoistedDeps[name];
-
-					// console.log(pkgName, name, localVersion, hoistedVersion);
 
 					// prefers local version over hoisted version
 					let installedVersion = localVersion || hoistedVersion;
