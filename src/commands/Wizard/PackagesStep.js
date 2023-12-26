@@ -111,7 +111,7 @@ const PackagesStep = ({
 				}}
 				defaultSelected={packageOptions.defaultSelected}
 				labelKey="name"
-				renderItem={(item, highlighted, selected, textColor) => {
+				renderItem={({ item, textColor }) => {
 					const {
 						color,
 						wildcard,

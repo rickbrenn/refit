@@ -26,6 +26,19 @@ const CheckSelectorTable = ({
 		maxColumnWidths,
 	});
 
+	const renderPagination = ({ viewIndex, canScroll, total }) => {
+		let paginationIcon = ' ';
+		if (viewIndex === 0 && canScroll.up) {
+			paginationIcon = '▲';
+		}
+
+		if (viewIndex === total - 1 && canScroll.down) {
+			paginationIcon = '▼';
+		}
+
+		return <Text color="blue">{paginationIcon}</Text>;
+	};
+
 	return (
 		<Box>
 			<Box
@@ -55,7 +68,7 @@ const CheckSelectorTable = ({
 					limit={limit}
 					labelKey={labelKey}
 					defaultSelected={defaultSelected}
-					renderItem={(item) => {
+					renderItem={({ item, canScroll, viewIndex, items }) => {
 						return (
 							<Box>
 								{columns.map((c) => (
@@ -78,6 +91,12 @@ const CheckSelectorTable = ({
 										)}
 									</Box>
 								))}
+								{(canScroll.up || canScroll.down) &&
+									renderPagination({
+										viewIndex,
+										canScroll,
+										total: items.length,
+									})}
 							</Box>
 						);
 					}}

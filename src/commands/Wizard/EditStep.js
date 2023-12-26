@@ -59,7 +59,7 @@ const EditStep = ({ wizardState, setWizardState }) => {
 			renderHighlighter={(item, highlighted) => {
 				return <Text color="red">{highlighted ? 'X' : ' '}</Text>;
 			}}
-			renderItem={(item) => {
+			renderItem={({ item }) => {
 				const value = `${item.dependency}@${item.version}`;
 				return (
 					<Box key={value}>

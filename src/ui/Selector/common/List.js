@@ -19,6 +19,7 @@ const List = ({
 	renderHighlighter,
 	renderSelector,
 	itemKey,
+	canScroll,
 }) => {
 	const isSelected = (index) => selectable && selectedIndexes.includes(index);
 
@@ -67,12 +68,16 @@ const List = ({
 							</Box>
 						);
 					} else if (renderItem) {
-						itemComp = renderItem(
+						itemComp = renderItem({
 							item,
 							highlighted,
 							selected,
-							textColor
-						);
+							textColor,
+							canScroll,
+							highlightedIndex,
+							viewIndex: index,
+							items,
+						});
 					}
 
 					let highlightComp = (
@@ -121,6 +126,10 @@ List.propTypes = {
 	renderHighlighter: PropTypes.func,
 	renderSelector: PropTypes.func,
 	itemKey: PropTypes.string,
+	canScroll: PropTypes.shape({
+		up: PropTypes.bool,
+		down: PropTypes.bool,
+	}),
 };
 
 List.defaultProps = {
@@ -135,6 +144,10 @@ List.defaultProps = {
 	renderHighlighter: null,
 	renderSelector: null,
 	itemKey: null,
+	canScroll: {
+		up: false,
+		down: false,
+	},
 };
 
 export default List;

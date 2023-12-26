@@ -31,11 +31,13 @@ const Selector = ({
 		searchByKey,
 		isFocused,
 	});
-	const { highlightedIndex, visibleItems, getIndex } = useListView({
-		items: searchResults,
-		limit,
-		isFocused,
-	});
+	const { highlightedIndex, visibleItems, getIndex, canScroll } = useListView(
+		{
+			items: searchResults,
+			limit,
+			isFocused,
+		}
+	);
 
 	useInput(
 		(input, key) => {
@@ -72,6 +74,7 @@ const Selector = ({
 			selectable={false}
 			creatable
 			itemKey={itemKey}
+			canScroll={canScroll}
 		/>
 	);
 };

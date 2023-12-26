@@ -49,10 +49,18 @@ const useListView = ({ items, limit, isFocused }) => {
 		[visible.indexes]
 	);
 
+	const canScroll = useMemo(() => {
+		return {
+			up: !visible.indexes.includes(0),
+			down: !visible.indexes.includes(items.length - 1),
+		};
+	}, [visible.indexes, items.length]);
+
 	return {
 		highlightedIndex,
 		visibleItems: visible.items,
 		getIndex,
+		canScroll,
 	};
 };
 

@@ -74,12 +74,7 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 								searchable
 								creatable
 								searchByKey="name"
-								renderItem={(
-									item,
-									highlighted,
-									selected,
-									textColor
-								) => {
+								renderItem={({ item, textColor }) => {
 									const installedVersions = Object.values(
 										item.versionData
 									);

@@ -30,11 +30,13 @@ const CheckSelector = ({
 	// 	searchByKey,
 	// isFocused,
 	// });
-	const { highlightedIndex, visibleItems, getIndex } = useListView({
-		items,
-		limit,
-		isFocused,
-	});
+	const { highlightedIndex, visibleItems, getIndex, canScroll } = useListView(
+		{
+			items,
+			limit,
+			isFocused,
+		}
+	);
 	const [selectedIndexes, setSelectedIndexes] = useState(defaultSelected);
 
 	useInput(
@@ -94,6 +96,7 @@ const CheckSelector = ({
 			selectable
 			creatable={false}
 			itemKey={itemKey}
+			canScroll={canScroll}
 		/>
 	);
 };

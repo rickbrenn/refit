@@ -170,7 +170,7 @@ const VersionStep = ({
 					searchable
 					searchByKey="version"
 					itemKey="key"
-					renderItem={(item, highlighted, selected, textColor) => {
+					renderItem={({ item, textColor }) => {
 						return (
 							<Box>
 								<Box marginRight={1} flexShrink={0}>
