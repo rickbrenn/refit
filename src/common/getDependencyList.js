@@ -157,16 +157,20 @@ const getDependencyList = async ({
 		return acc;
 	}, []);
 
-	const processDependency = async (name, index) => {
+	let progressCurrent = 0;
+	const processDependency = async (name) => {
+		const res = await getRegistryData(name, packumentOptions);
+
 		if (updateProgress) {
+			progressCurrent += 1;
 			updateProgress({
-				progressCurrent: index + 1,
+				progressCurrent,
 				progressMax: depsToFetch.length,
 				name,
 			});
 		}
 
-		return getRegistryData(name, packumentOptions);
+		return res;
 	};
 
 	const packumentData = await pMap(
