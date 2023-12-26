@@ -29,12 +29,17 @@ const Changes = ({ config }) => {
 					verbose: true,
 				});
 
-				const oldestVerisonDep = dependencies.sort((a, b) =>
-					semver.compare(a.version.installed, b.version.installed)
-				)[0];
+				if (dependencies.length) {
+					const oldestVerisonDep = dependencies.sort((a, b) =>
+						semver.compare(
+							a?.version?.installed,
+							b?.version?.installed
+						)
+					)[0];
 
-				version = oldestVerisonDep.version.installed;
-				url = oldestVerisonDep.url;
+					version = oldestVerisonDep?.version?.installed;
+					url = oldestVerisonDep?.url;
+				}
 			}
 
 			setDepData({
