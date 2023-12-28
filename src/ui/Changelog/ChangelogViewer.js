@@ -139,7 +139,7 @@ const ChangelogViewer = ({
 				{showExitOnFallback && (
 					<Box marginTop={1}>
 						<Text color="magenta">{`<${exitKeyLabel}>`}</Text>
-						<Text color="gray">{` ${exitText}`}</Text>
+						<Text color="grey">{` ${exitText}`}</Text>
 					</Box>
 				)}
 			</Box>

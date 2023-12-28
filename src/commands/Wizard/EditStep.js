@@ -37,11 +37,11 @@ const EditStep = ({ wizardState, setWizardState }) => {
 							<Text>Select updates to remove</Text>
 						</Box>
 						<Box>
-							<Text color="gray">(</Text>
+							<Text color="grey">(</Text>
 							<Text color="blue">{'<enter>'}</Text>
-							<Text color="gray">{' to remove update, '}</Text>
+							<Text color="grey">{' to remove update, '}</Text>
 							<Text color="blue">{'<q>'}</Text>
-							<Text color="gray">{' to return)'}</Text>
+							<Text color="grey">{' to return)'}</Text>
 						</Box>
 					</Box>
 				);

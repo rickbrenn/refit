@@ -124,23 +124,23 @@ const InteractiveUpdate = ({ config }) => {
 												</Text>
 											</Box>
 											<Box>
-												<Text color="gray">(</Text>
+												<Text color="grey">(</Text>
 												<Text color="magenta">
 													{'<space>'}
 												</Text>
-												<Text color="gray">
+												<Text color="grey">
 													{' to select, '}
 												</Text>
 												<Text color="magenta">
 													{'<a>'}
 												</Text>
-												<Text color="gray">
+												<Text color="grey">
 													{' to select all, '}
 												</Text>
 												<Text color="magenta">
 													{'<tab>'}
 												</Text>
-												<Text color="gray">
+												<Text color="grey">
 													{' to view changelog)'}
 												</Text>
 											</Box>

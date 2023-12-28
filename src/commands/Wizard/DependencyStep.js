@@ -60,11 +60,11 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 												</Text>
 											</Box>
 											<Box>
-												<Text color="gray">(</Text>
+												<Text color="grey">(</Text>
 												<Text color="magenta">
 													{'<tab>'}
 												</Text>
-												<Text color="gray">
+												<Text color="grey">
 													{' to view changelog)'}
 												</Text>
 											</Box>

@@ -100,11 +100,11 @@ const PackagesStep = ({
 								<Text>Select a package below</Text>
 							</Box>
 							<Box>
-								<Text color="gray">(</Text>
+								<Text color="grey">(</Text>
 								<Text color="magenta">{'<space>'}</Text>
-								<Text color="gray">{' to select, '}</Text>
+								<Text color="grey">{' to select, '}</Text>
 								<Text color="magenta">{'<a>'}</Text>
-								<Text color="gray">{' to select all)'}</Text>
+								<Text color="grey">{' to select all)'}</Text>
 							</Box>
 						</Box>
 					);
