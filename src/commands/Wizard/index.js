@@ -7,6 +7,7 @@ import LoaderBoundary from '../../ui/LoaderBoundary';
 import useDependencyLoader from '../../ui/useDependencyLoader';
 import UpToDateBoundary from '../../ui/UpToDateBoundary';
 import { Wizard } from '../../ui/Wizard';
+import { useError } from '../../ui/ErrorBoundary';
 
 import { getPackages } from '../../common/packages';
 import {
@@ -28,13 +29,9 @@ import CompleteStep from './CompleteStep';
 // import monorepoPackages from '../../../examples/monorepoPackages.json';
 
 const WizardCommand = ({ config }) => {
-	const {
-		loading,
-		updateLoading,
-		loaderText,
-		showLoaderError,
-		updateProgress,
-	} = useDependencyLoader();
+	const { loading, updateLoading, loaderText, updateProgress } =
+		useDependencyLoader();
+	const { setError } = useError();
 
 	const [packages, setPackages] = useState({});
 	const [dependencies, setDependencies] = useState([]);
@@ -162,10 +159,9 @@ const WizardCommand = ({ config }) => {
 			setDependencies(depOptions);
 			updateLoading(false);
 		} catch (error) {
-			showLoaderError();
-			throw error;
+			setError(error);
 		}
-	}, [config, updateProgress, updateLoading, showLoaderError]);
+	}, [config, updateProgress, updateLoading, setError]);
 
 	const updateDependencies = async () => {
 		const pkgsToUpdate = new Set();

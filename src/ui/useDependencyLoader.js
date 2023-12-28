@@ -13,11 +13,6 @@ const useDependencyLoader = () => {
 		[]
 	);
 
-	const showLoaderError = useCallback(() => {
-		setLoaderText('Error!');
-		setLoading(false);
-	}, []);
-
 	return useMemo(
 		() => ({
 			loading,
@@ -25,9 +20,8 @@ const useDependencyLoader = () => {
 			loaderText,
 			updateLoaderText: setLoaderText,
 			updateProgress,
-			showLoaderError,
 		}),
-		[loading, loaderText, updateProgress, showLoaderError]
+		[loading, loaderText, updateProgress]
 	);
 };
 

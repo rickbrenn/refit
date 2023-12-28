@@ -12,22 +12,31 @@ import InteractiveUpdate from './commands/InteractiveUpdate';
 import Wizard from './commands/Wizard';
 import Changes from './commands/Changes';
 import { depTypesList } from './common/dependencies';
+import ErrorBoundary from './ui/ErrorBoundary/ErrorBoundary';
 
-const listCommand = ({ appConfig }) => {
-	render(<List config={appConfig} />);
+const renderCommand = (Command, appConfig) => {
+	render(
+		<ErrorBoundary>
+			<Command config={appConfig} />
+		</ErrorBoundary>
+	);
 };
 
-const updateCommand = ({ appConfig }) => {
+const renderListCommand = ({ appConfig }) => {
+	renderCommand(List, appConfig);
+};
+
+const renderUpdateCommand = ({ appConfig }) => {
 	const Command = appConfig.interactive ? InteractiveUpdate : Update;
-	render(<Command config={appConfig} />);
+	renderCommand(Command, appConfig);
 };
 
-const WizardCommand = ({ appConfig }) => {
-	render(<Wizard config={appConfig} />);
+const renderWizardCommand = ({ appConfig }) => {
+	renderCommand(Wizard, appConfig);
 };
 
-const ChangesCommand = async ({ appConfig }) => {
-	render(<Changes config={appConfig} />);
+const renderChangesCommand = ({ appConfig }) => {
+	renderCommand(Changes, appConfig);
 };
 
 const cliCommands = [
@@ -37,7 +46,7 @@ const cliCommands = [
 			command: '*',
 			aliases: ['ls'],
 			desc: 'list all dependencies',
-			handler: listCommand,
+			handler: renderListCommand,
 		},
 	},
 	{
@@ -46,7 +55,7 @@ const cliCommands = [
 			command: 'update [dependencies..]',
 			aliases: ['up'],
 			desc: 'update dependencies',
-			handler: updateCommand,
+			handler: renderUpdateCommand,
 		},
 	},
 	{
@@ -55,7 +64,7 @@ const cliCommands = [
 			command: 'wizard',
 			aliases: ['w'],
 			desc: 'interactively add and update dependencies',
-			handler: WizardCommand,
+			handler: renderWizardCommand,
 		},
 	},
 	{
@@ -64,7 +73,7 @@ const cliCommands = [
 			command: 'changes [dependency]',
 			aliases: [],
 			desc: 'view changelog for a dependency',
-			handler: ChangesCommand,
+			handler: renderChangesCommand,
 		},
 	},
 ];

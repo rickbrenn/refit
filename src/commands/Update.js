@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
+import { Box, Text } from 'ink';
 import updateDependencies from '../common/updateDependencies';
 import { mapDataToRows } from '../common/dependencies';
 import { getUpdateColumns } from '../ui/columns';
@@ -8,16 +10,14 @@ import Static from '../ui/Static';
 import UpToDateBoundary from '../ui/UpToDateBoundary';
 import LoaderBoundary from '../ui/LoaderBoundary';
 import useDependencyLoader from '../ui/useDependencyLoader';
+import { useError } from '../ui/ErrorBoundary';
 
 const Update = ({ config }) => {
 	const [dependencies, setDependencies] = useState([]);
-	const {
-		loading,
-		updateLoading,
-		loaderText,
-		updateProgress,
-		showLoaderError,
-	} = useDependencyLoader();
+	const [errorMessage, setErrorMessage] = useState('');
+	const { loading, updateLoading, loaderText, updateProgress } =
+		useDependencyLoader();
+	const { setError } = useError();
 
 	const startLoader = useCallback(async () => {
 		try {
@@ -33,12 +33,14 @@ const Update = ({ config }) => {
 			setDependencies(formattedData);
 			updateLoading(false);
 		} catch (error) {
-			if (!error.catch) {
-				showLoaderError();
-				throw error;
+			if (error.catch) {
+				setErrorMessage(error.message);
+				updateLoading(false);
+			} else {
+				setError(error);
 			}
 		}
-	}, [config, updateProgress, updateLoading, showLoaderError]);
+	}, [config, updateProgress, updateLoading, setError]);
 
 	useEffect(() => {
 		startLoader();
@@ -47,6 +49,16 @@ const Update = ({ config }) => {
 	const columns = useMemo(() => {
 		return getUpdateColumns(config);
 	}, [config]);
+
+	if (errorMessage) {
+		return (
+			<Box flexDirection="column">
+				<Text bold color="red">
+					{errorMessage}
+				</Text>
+			</Box>
+		);
+	}
 
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>

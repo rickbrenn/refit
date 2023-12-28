@@ -4,6 +4,7 @@ import ChangelogViewer from './ChangelogViewer';
 import LoaderBoundary from '../LoaderBoundary';
 import useDependencyLoader from '../useDependencyLoader';
 import { getChangelog } from '../../common/changelog';
+import { useError } from '../ErrorBoundary';
 
 const Changelog = ({
 	name,
@@ -17,13 +18,9 @@ const Changelog = ({
 	exitText,
 	showExitOnFallback,
 }) => {
-	const {
-		loading,
-		updateLoading,
-		loaderText,
-		updateLoaderText,
-		showLoaderError,
-	} = useDependencyLoader();
+	const { loading, updateLoading, loaderText, updateLoaderText } =
+		useDependencyLoader();
+	const { setError } = useError();
 	const [changelog, setChangelog] = useState({ data: [], url: '' });
 
 	const startLoader = useCallback(async () => {
@@ -35,22 +32,11 @@ const Changelog = ({
 				url,
 			});
 			setChangelog(res);
-		} catch (err) {
-			// TODO: test error handling
-			showLoaderError();
-			throw err;
-		} finally {
 			updateLoading(false);
+		} catch (error) {
+			setError(error);
 		}
-	}, [
-		updateLoading,
-		showLoaderError,
-		updateLoaderText,
-		name,
-		version,
-		url,
-		full,
-	]);
+	}, [updateLoading, updateLoaderText, name, version, url, full, setError]);
 
 	useEffect(() => {
 		startLoader();

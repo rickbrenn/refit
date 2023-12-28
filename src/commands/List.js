@@ -8,6 +8,7 @@ import Static from '../ui/Static';
 import useDependencyLoader from '../ui/useDependencyLoader';
 import UpToDateBoundary from '../ui/UpToDateBoundary';
 import LoaderBoundary from '../ui/LoaderBoundary';
+import { useError } from '../ui/ErrorBoundary';
 import { mapDataToRows, sortDependencies } from '../common/dependencies';
 import getDependencies from '../common/getDependencies';
 
@@ -37,13 +38,9 @@ const errors = [
 const List = ({ config }) => {
 	const [dependencies, setDependencies] = useState([]);
 	const [errorMessage, setErrorMessage] = useState('');
-	const {
-		loading,
-		updateLoading,
-		loaderText,
-		updateProgress,
-		showLoaderError,
-	} = useDependencyLoader();
+	const { setError } = useError();
+	const { loading, updateLoading, loaderText, updateProgress } =
+		useDependencyLoader();
 
 	const startLoader = useCallback(async () => {
 		try {
@@ -56,15 +53,14 @@ const List = ({ config }) => {
 			setDependencies(mapDataToRows(dependenciesData, config));
 			updateLoading(false);
 		} catch (error) {
-			if (!error.catch) {
-				showLoaderError();
-				throw error;
+			if (error.catch) {
+				setErrorMessage(error.message);
+				updateLoading(false);
+			} else {
+				setError(error);
 			}
-
-			setErrorMessage(error.message);
-			updateLoading(false);
 		}
-	}, [config, updateProgress, updateLoading, showLoaderError]);
+	}, [config, updateProgress, updateLoading, setError]);
 
 	useEffect(() => {
 		startLoader();

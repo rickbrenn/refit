@@ -7,13 +7,14 @@ import useDependencyLoader from '../ui/useDependencyLoader';
 import getDependencies from '../common/getDependencies';
 import Changelog from '../ui/Changelog/Changelog';
 import LoaderBoundary from '../ui/LoaderBoundary';
+import { useError } from '../ui/ErrorBoundary';
 
 const Changes = ({ config }) => {
-	const { loading, updateLoading, showLoaderError, loaderText } =
-		useDependencyLoader();
+	const { loading, updateLoading, loaderText } = useDependencyLoader();
 	const [argsName, argsVersion] = config.dependency.split('@');
 	const [depData, setDepData] = useState({ version: null, url: null });
 	const { exit } = useApp();
+	const { setError } = useError();
 
 	const startLoader = useCallback(async () => {
 		try {
@@ -46,14 +47,11 @@ const Changes = ({ config }) => {
 				version,
 				url,
 			});
-		} catch (err) {
-			// TODO: test error handling
-			showLoaderError();
-			throw err;
-		} finally {
 			updateLoading(false);
+		} catch (error) {
+			setError(error);
 		}
-	}, [config, updateLoading, showLoaderError, argsName, argsVersion]);
+	}, [config, updateLoading, argsName, argsVersion, setError]);
 
 	useEffect(() => {
 		startLoader();

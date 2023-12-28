@@ -15,6 +15,7 @@ import useDependencyLoader from '../ui/useDependencyLoader';
 import FocusTarget from '../ui/FocusTarget';
 import Changelog from '../ui/Changelog/Changelog';
 import useTerminalSize from '../ui/useTerminalSize';
+import { useError } from '../ui/ErrorBoundary';
 
 const InteractiveUpdate = ({ config }) => {
 	const [step, setStep] = useState(0);
@@ -25,16 +26,12 @@ const InteractiveUpdate = ({ config }) => {
 		name: null,
 		version: null,
 	});
+	const [errorMessage, setErrorMessage] = useState('');
 	const { focus } = useFocusManager();
-	const {
-		loading,
-		updateLoading,
-		loaderText,
-		updateProgress,
-		showLoaderError,
-		interactive,
-	} = useDependencyLoader();
+	const { loading, updateLoading, loaderText, updateProgress, interactive } =
+		useDependencyLoader();
 	const { height } = useTerminalSize();
+	const { setError } = useError();
 
 	const startLoader = useCallback(async () => {
 		try {
@@ -50,12 +47,14 @@ const InteractiveUpdate = ({ config }) => {
 			setDependencies(mapDataToRows(dependenciesData, config));
 			updateLoading(false);
 		} catch (error) {
-			if (!error.catch) {
-				showLoaderError();
-				throw error;
+			if (error.catch) {
+				setErrorMessage(error.message);
+				updateLoading(false);
+			} else {
+				setError(error);
 			}
 		}
-	}, [config, updateProgress, updateLoading, showLoaderError]);
+	}, [config, updateProgress, updateLoading, setError]);
 
 	useEffect(() => {
 		startLoader();
@@ -103,6 +102,16 @@ const InteractiveUpdate = ({ config }) => {
 		setUpdates(selectedDeps);
 		setStep(1);
 	};
+
+	if (errorMessage) {
+		return (
+			<Box flexDirection="column">
+				<Text bold color="red">
+					{errorMessage}
+				</Text>
+			</Box>
+		);
+	}
 
 	return (
 		<LoaderBoundary loading={loading} text={loaderText}>
