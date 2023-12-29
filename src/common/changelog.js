@@ -39,10 +39,6 @@ const getGitHubChangelog = async ({ user, project, version }) => {
 		project,
 	});
 
-	if (contentRes.status >= 400) {
-		return versions;
-	}
-
 	const changelogFile = contentRes.data.find((file) =>
 		validChangelogFiles.includes(file.name.toLowerCase())
 	);
@@ -51,7 +47,6 @@ const getGitHubChangelog = async ({ user, project, version }) => {
 		return versions;
 	}
 
-	// TODO: error handling
 	const fileRes = await octokit.request({
 		method: 'GET',
 		url: '/repos/{user}/{project}/contents/{file}',
@@ -59,10 +54,6 @@ const getGitHubChangelog = async ({ user, project, version }) => {
 		project,
 		file: changelogFile.path,
 	});
-
-	if (fileRes.status >= 400) {
-		return versions;
-	}
 
 	const { data } = fileRes;
 
@@ -118,45 +109,39 @@ const getGitHubReleases = async ({ user, project, version }) => {
 	const versions = [];
 
 	while (page && !atMinVersion) {
-		try {
-			const response = await octokit.request({
-				method: 'GET',
-				url: '/repos/{user}/{project}/releases',
-				user,
-				project,
-				per_page: 100,
-				page,
-			});
+		const response = await octokit.request({
+			method: 'GET',
+			url: '/repos/{user}/{project}/releases',
+			user,
+			project,
+			per_page: 100,
+			page,
+		});
 
-			if (response.status >= 400) {
-				throw new Error('Error fetching releases');
-			}
-
-			for (const release of response.data) {
-				const stringsToTest = [release.tag_name, release.name];
-				const semverString = stringsToTest.find((s) =>
-					semverRegex.test(s)
-				);
-				const currVersion = semverString.match(semverRegex)[0];
-
-				if (version && semver.gte(version, currVersion)) {
-					atMinVersion = true;
-				}
-
-				if (!atMinVersion && release.body) {
-					versions.push({
-						version: currVersion,
-						changes: marked.parse(release.body),
-					});
-				}
-			}
-
-			const nextLink = response.headers.link;
-			const nextPage = parsePaginationHeader(nextLink).next;
-			page = nextPage || null;
-		} catch (error) {
-			atMinVersion = true;
+		if (response.status >= 400) {
+			throw new Error('Error fetching releases');
 		}
+
+		for (const release of response.data) {
+			const stringsToTest = [release.tag_name, release.name];
+			const semverString = stringsToTest.find((s) => semverRegex.test(s));
+			const currVersion = semverString.match(semverRegex)[0];
+
+			if (version && semver.gte(version, currVersion)) {
+				atMinVersion = true;
+			}
+
+			if (!atMinVersion && release.body) {
+				versions.push({
+					version: currVersion,
+					changes: marked.parse(release.body),
+				});
+			}
+		}
+
+		const nextLink = response.headers.link;
+		const nextPage = parsePaginationHeader(nextLink).next;
+		page = nextPage || null;
 	}
 
 	return versions;
