@@ -25,9 +25,6 @@ import SummaryStep from './SummaryStep';
 import EditStep from './EditStep';
 import CompleteStep from './CompleteStep';
 
-// import monorepoDeps from '../../../examples/monorepoDeps.json';
-// import monorepoPackages from '../../../examples/monorepoPackages.json';
-
 const WizardCommand = ({ config }) => {
 	const { loading, updateLoading, loaderText, updateProgress } =
 		useDependencyLoader();
@@ -152,9 +149,6 @@ const WizardCommand = ({ config }) => {
 
 			const packageOptions = Object.fromEntries(packageList);
 
-			// setPackages(monorepoPackages);
-			// setDependencies(monorepoDeps);
-
 			setPackages(packageOptions);
 			setDependencies(depOptions);
 			updateLoading(false);
@@ -164,34 +158,43 @@ const WizardCommand = ({ config }) => {
 	}, [config, updateProgress, updateLoading, setError]);
 
 	const updateDependencies = async () => {
-		const pkgsToUpdate = new Set();
+		try {
+			const pkgsToUpdate = new Set();
 
-		for (const update of wizardState.updates) {
-			const dep = dependencies.find((d) => d.name === update.dependency);
-			for (const { name: pkgName, type: pkgType } of update.packages) {
-				const pkg = packages[pkgName];
-				const depType = depTypesList[pkgType];
-				// TODO: add wildcard selection step?
-				const { wildcard } = dep.apps[pkgName] || {};
-				const depWildcard = wildcard === undefined ? '^' : wildcard;
-				pkgsToUpdate.add(pkgName);
-				pkg.pkgJsonInstance.update({
-					[depType]: {
-						...pkg.pkgJsonInstance.content[depType],
-						[update.dependency]: depWildcard + update.version,
-					},
-				});
+			for (const update of wizardState.updates) {
+				const dep = dependencies.find(
+					(d) => d.name === update.dependency
+				);
+				for (const {
+					name: pkgName,
+					type: pkgType,
+				} of update.packages) {
+					const pkg = packages[pkgName];
+					const depType = depTypesList[pkgType];
+					// TODO: add wildcard selection step?
+					const { wildcard } = dep.apps[pkgName] || {};
+					const depWildcard = wildcard === undefined ? '^' : wildcard;
+					pkgsToUpdate.add(pkgName);
+					pkg.pkgJsonInstance.update({
+						[depType]: {
+							...pkg.pkgJsonInstance.content[depType],
+							[update.dependency]: depWildcard + update.version,
+						},
+					});
+				}
 			}
+
+			const pkgListArray = Array.from(pkgsToUpdate);
+
+			await Promise.all(
+				pkgListArray.map(async (pkgName) => {
+					const pkg = packages[pkgName];
+					return pkg.pkgJsonInstance.save();
+				})
+			);
+		} catch (error) {
+			setError(error);
 		}
-
-		const pkgListArray = Array.from(pkgsToUpdate);
-
-		await Promise.all(
-			pkgListArray.map(async (pkgName) => {
-				const pkg = packages[pkgName];
-				return pkg.pkgJsonInstance.save();
-			})
-		);
 	};
 
 	useEffect(() => {

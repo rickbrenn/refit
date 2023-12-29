@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
 import LoaderBoundary from '../../ui/LoaderBoundary';
+import { useError } from '../../ui/ErrorBoundary';
 import { createDependency, getRegistryData } from '../../common/dependencies';
 import Header from './Header';
 import steps from './wizardSteps';
@@ -17,6 +18,7 @@ const VersionStep = ({
 	allowPrerelease,
 	allowDeprecated,
 }) => {
+	const { setError } = useError();
 	const existingDependency = dependencies.find(
 		(d) => d.name === wizardState.dependency.name
 	);
@@ -27,40 +29,43 @@ const VersionStep = ({
 
 	const getNewDependency = useCallback(
 		async (name) => {
-			setDepData((prevState) => ({
-				...prevState,
-				loading: true,
-			}));
-
-			// TODO: error handling
-			const registryData = await getRegistryData(name);
-
-			const dep = createDependency({
-				dependency: {
-					name,
-				},
-				registryData,
-				config: {
-					allowPrerelease,
-					allowDeprecated,
-				},
-			});
-
-			if (dep.notOnRegistry) {
-				setWizardState((prevState) => ({
+			try {
+				setDepData((prevState) => ({
 					...prevState,
-					dependency: null,
-					step: prevState.step - 1,
-					errorMessage: 'Dependency not found!',
+					loading: true,
 				}));
-			} else {
-				setDepData({
-					loading: false,
-					dep,
+
+				const registryData = await getRegistryData(name);
+
+				const dep = createDependency({
+					dependency: {
+						name,
+					},
+					registryData,
+					config: {
+						allowPrerelease,
+						allowDeprecated,
+					},
 				});
+
+				if (dep.notOnRegistry) {
+					setWizardState((prevState) => ({
+						...prevState,
+						dependency: null,
+						step: prevState.step - 1,
+						errorMessage: 'Dependency not found!',
+					}));
+				} else {
+					setDepData({
+						loading: false,
+						dep,
+					});
+				}
+			} catch (error) {
+				setError(error);
 			}
 		},
-		[allowPrerelease, allowDeprecated, setWizardState]
+		[allowPrerelease, allowDeprecated, setWizardState, setError]
 	);
 
 	useEffect(() => {
