@@ -1,5 +1,9 @@
 import PackageJson from '@npmcli/package-json';
-import updateDependencies from '../src/common/updateDependencies';
+
+const { default: pacote, mockChalkData } = await import('./mocks/pacote');
+const { default: updateDependencies } = await import(
+	'../src/common/updateDependencies'
+);
 
 const config = {
 	rootPath: '.',
@@ -26,6 +30,8 @@ const cwd = 'tests/testDirs/npmOutdated';
 const originalPkgJson = await PackageJson.load(cwd);
 
 test('should update dependencies to latest', async () => {
+	pacote.packument.mockImplementation(() => mockChalkData);
+
 	const dependencies = await updateDependencies({
 		...config,
 		rootPath: cwd,
@@ -44,9 +50,12 @@ test('should update dependencies to latest', async () => {
 	});
 
 	await newPkgJson.save();
+	pacote.packument.mockClear();
 });
 
 test('should update dependencies to wanted', async () => {
+	pacote.packument.mockImplementation(() => mockChalkData);
+
 	const dependencies = await updateDependencies({
 		...config,
 		rootPath: cwd,
@@ -65,4 +74,5 @@ test('should update dependencies to wanted', async () => {
 	});
 
 	await newPkgJson.save();
+	pacote.packument.mockClear();
 });

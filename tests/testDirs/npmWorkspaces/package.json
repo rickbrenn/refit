@@ -1,0 +1,10 @@
+{
+	"workspaces": [
+	  "packages/*"
+	],
+	"dependencies": {
+	  "chalk": "^5.3.0",
+	  "ink": "^4.4.0"
+	}
+  }
+  

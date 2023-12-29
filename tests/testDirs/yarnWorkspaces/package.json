@@ -1,0 +1,11 @@
+{
+	"name": "yarn-workspaces",
+	"packageManager": "yarn@3.6.1",
+	"workspaces": [
+		"packages/*"
+	],
+	"dependencies": {
+		"chalk": "^5.3.0",
+		"ink": "^4.4.0"
+	}
+}

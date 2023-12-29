@@ -19,20 +19,19 @@ const semverUpdateColors = {
 	patch: 'green',
 };
 
-// TODO: could probably simplify this with the semver package
+const wildcardRegex = /^(?<wildcard>[~^(>)(<)(=)(>=)(<=)]+)?(?<version>.+)/;
+
 const getDiffVersionParts = (current, upgrade, returnCurrent = false) => {
-	if (!current || !upgrade) {
+	const currentMatches = wildcardRegex.exec(current);
+	const upgradeMatches = wildcardRegex.exec(upgrade);
+
+	if (!currentMatches || !upgradeMatches) {
 		return {};
 	}
 
-	// check for a wildcard
-	const upgradeHasWildcard = /^[~^]/.test(upgrade);
-	const hasSameWildcard = upgradeHasWildcard && upgrade[0] === current[0];
-
-	// define wildcard and versions to compare
-	const wildcard = hasSameWildcard ? upgrade[0] : '';
-	const upgradeVersion = hasSameWildcard ? upgrade.slice(1) : upgrade;
-	const currentVersion = hasSameWildcard ? current.slice(1) : current;
+	const { version: currentVersion } = currentMatches.groups;
+	const { wildcard: upgradeWildcard, version: upgradeVersion } =
+		upgradeMatches.groups;
 
 	// split versions into parts
 	const upgradeParts = upgradeVersion.split('.');
@@ -70,7 +69,7 @@ const getDiffVersionParts = (current, upgrade, returnCurrent = false) => {
 	return {
 		color: semverUpdateColors[updateType],
 		updateType,
-		wildcard,
+		wildcard: upgradeWildcard || '',
 		midDot,
 		uncoloredText,
 		coloredText,
@@ -207,11 +206,9 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 	// use the version from the github url if it exists
 	const parsedTargetRange = gitHubInfo?.version || targetRange;
 
-	// TODO: support more semver types
-	const wildcards = ['^', '~'];
-	const currentWildcard =
-		wildcards.find((wildcard) => parsedTargetRange.includes(wildcard)) ||
-		'';
+	// get the current wildcard from the target range
+	const matches = wildcardRegex.exec(parsedTargetRange);
+	const currentWildcard = matches?.groups?.wildcard || '';
 
 	// missing from the npm registry
 	if (isMissing(registryData)) {

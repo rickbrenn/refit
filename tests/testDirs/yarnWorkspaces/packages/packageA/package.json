@@ -1,0 +1,6 @@
+{
+	"name": "yarn-package-a",
+	"dependencies": {
+		"chalk": "^5.3.0"
+	}
+}

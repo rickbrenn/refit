@@ -1,0 +1,8 @@
+{
+	"name": "package-b",
+	"dependencies": {
+		"chalk": "^5.1.0",
+		"marked": "^9.0.0",
+		"yargs": "^17.7.0"
+	}
+}
