@@ -1,5 +1,4 @@
 import { useEffect, useCallback, useState } from 'react';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { useStdout } from 'ink';
 
 const useTerminalSize = () => {

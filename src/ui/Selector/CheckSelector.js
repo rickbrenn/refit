@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { useInput } from 'ink';
 import List from './common/List';
 import useListView from './common/useListView';

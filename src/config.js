@@ -1,7 +1,6 @@
 import React from 'react';
 import fs from 'fs';
 import path from 'path';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { render } from 'ink';
 import packageManagers, {
 	determinePackageManager,

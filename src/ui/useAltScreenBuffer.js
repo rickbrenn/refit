@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useCallback } from 'react';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { useStdout } from 'ink';
 
 const enterAltScreenCommand = '\x1b[?1049h';

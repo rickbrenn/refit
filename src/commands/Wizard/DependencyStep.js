@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box, useFocusManager } from 'ink';
 import semver from 'semver';
 import { Selector } from '../../ui/Selector';

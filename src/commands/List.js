@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Box, Text } from 'ink';
 import { getListColumns } from '../ui/columns';
 import Table, { getColumnsMinMax } from '../ui/Table';

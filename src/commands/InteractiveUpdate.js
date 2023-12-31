@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box, useFocusManager } from 'ink';
 import getDependencies from '../common/getDependencies';
 import { mapDataToRows, depTypesList } from '../common/dependencies';

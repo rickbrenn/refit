@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Box, useFocus } from 'ink';
 
 const FocusTarget = ({ active, id, autoFocus, children, keepRendered }) => {

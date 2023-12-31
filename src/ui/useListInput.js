@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { useInput } from 'ink';
 
 const useListInput = ({

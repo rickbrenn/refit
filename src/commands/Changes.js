@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { useApp } from 'ink';
 import semver from 'semver';
 import useDependencyLoader from '../ui/useDependencyLoader';

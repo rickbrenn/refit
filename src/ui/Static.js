@@ -1,5 +1,4 @@
 import React from 'react';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Static as InkStatic } from 'ink';
 import PropTypes from 'prop-types';
 

@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text, Box } from 'ink';
 import { CheckSelector } from '../../ui/Selector';
 import Header from './Header';

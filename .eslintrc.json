@@ -58,6 +58,13 @@
 		"no-restricted-syntax": "off",
 		"no-await-in-loop": "off",
 		"no-console": "off",
-		"node/no-unsupported-features/es-syntax": ["off"]
+		"node/no-unsupported-features/es-syntax": ["off"],
+
+		// needed since ink does not have a "main" entry in package.json
+		// https://github.com/import-js/eslint-plugin-import/issues/2132
+		"node/no-missing-import": ["error", {
+            "allowModules": ["ink", "ink-text-input"]
+        }],
+		"import/no-unresolved": [2, { "ignore": ["ink"] }]
 	}
 }

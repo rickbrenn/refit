@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Box, Text, useInput } from 'ink';
 import open from 'open';
 import useListInput from '../useListInput';

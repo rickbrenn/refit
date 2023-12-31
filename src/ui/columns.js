@@ -1,5 +1,4 @@
 import React from 'react';
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import { Text } from 'ink';
 import NameColumn from './NameColumn';
 import UpgradeColumn from './UpgradeColumn';

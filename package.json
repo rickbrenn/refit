@@ -45,7 +45,6 @@
 		"yargs": "^17.7.2"
 	},
 	"devDependencies": {
-		"@babel/cli": "^7.23.4",
 		"@babel/core": "^7.23.3",
 		"@babel/preset-react": "^7.23.3",
 		"@jest/globals": "^29.7.0",
