@@ -20,7 +20,7 @@ const useListView = ({ items, limit, isFocused }) => {
 		if (!limit) {
 			return {
 				items,
-				indexes: Array(items).keys(),
+				indexes: Array.from(items.keys()),
 			};
 		}
 
