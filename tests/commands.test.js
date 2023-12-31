@@ -1,8 +1,8 @@
 import spawnAsync from '../src/common/spawnAsync';
 import { cleanupInstall, installDependencies } from './common';
 
-const cwd = 'tests/testDirs/npmBasic';
-const command = 'node ../../../bin/cli.js';
+const cwd = 'tests/testDirs/commands/npmBasic';
+const command = 'node ../../../../bin/cli.js';
 
 test('list command should run successfully', async () => {
 	await installDependencies('npm', cwd);

@@ -26,7 +26,7 @@ const config = {
 	verbose: false,
 };
 
-const cwd = 'tests/testDirs/npmOutdated';
+const cwd = 'tests/testDirs/updateDependencies/npmOutdated';
 const originalPkgJson = await PackageJson.load(cwd);
 
 test('should update dependencies to latest', async () => {

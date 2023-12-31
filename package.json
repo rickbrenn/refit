@@ -3,9 +3,8 @@
 	"version": "1.0.0",
 	"description": "A CLI tool for easily managing node module updates.",
 	"type": "module",
-	"exports": "./dist/main.bundle.js",
 	"engines": {
-		"node": ">=16.0.0"
+		"node": ">=18"
 	},
 	"scripts": {
 		"start": "./bin/cli.js",

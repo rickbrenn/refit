@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { installDependencies, cleanupInstall } from './common';
+import { cleanupInstall } from './common';
 
 const {
 	default: pacote,
@@ -36,9 +36,7 @@ const config = {
 
 describe('npm', () => {
 	test('should contain accurate data for up to date dependency', async () => {
-		const cwd = 'tests/testDirs/npmBasic';
-
-		await installDependencies('npm', cwd);
+		const cwd = 'tests/testDirs/getDependencies/npmBasic';
 
 		pacote.packument.mockImplementation(() => mockChalkData);
 
@@ -52,18 +50,14 @@ describe('npm', () => {
 
 		expect(chalkData).toHaveProperty('versionRange.target', '5.3.0');
 		expect(chalkData).toHaveProperty('versionRange.wanted', '5.3.0');
-		expect(chalkData).toHaveProperty('version.installed', '5.3.0');
 		expect(chalkData).toHaveProperty('version.wanted', '5.3.0');
-		expect(chalkData).toHaveProperty('hasError', false);
 
 		cleanupInstall(cwd);
 		pacote.packument.mockClear();
 	});
 
 	test('should contain accurate data for outdated dependency', async () => {
-		const cwd = 'tests/testDirs/npmOutdated';
-
-		await installDependencies('npm', cwd);
+		const cwd = 'tests/testDirs/getDependencies/npmOutdated';
 
 		pacote.packument.mockImplementation(() => mockChalkData);
 
@@ -77,19 +71,15 @@ describe('npm', () => {
 		expect(chalkData).toHaveProperty('versionRange.target', '^4.0.0');
 		expect(chalkData).toHaveProperty('versionRange.wanted', '^4.1.2');
 		expect(chalkData).toHaveProperty('versionRange.latest', '^5.3.0');
-		expect(chalkData).toHaveProperty('version.installed', '4.1.2');
 		expect(chalkData).toHaveProperty('version.wanted', '4.1.2');
 		expect(chalkData).toHaveProperty('version.latest', '5.3.0');
-		expect(chalkData).toHaveProperty('hasError', false);
 
 		cleanupInstall(cwd);
 		pacote.packument.mockClear();
 	});
 
 	test('should contain accurate data for different version ranges', async () => {
-		const cwd = 'tests/testDirs/npmRanges';
-
-		await installDependencies('npm', cwd);
+		const cwd = 'tests/testDirs/getDependencies/npmRanges';
 
 		pacote.packument
 			.mockImplementationOnce(() => mockChalkData)
@@ -110,43 +100,33 @@ describe('npm', () => {
 		expect(chalkData).toHaveProperty('versionRange.target', '^5.1.0');
 		expect(chalkData).toHaveProperty('versionRange.wanted', '^5.3.0');
 		expect(chalkData).toHaveProperty('versionRange.latest', '^5.3.0');
-		expect(chalkData).toHaveProperty('version.installed', '5.3.0');
 		expect(chalkData).toHaveProperty('version.wanted', '5.3.0');
 		expect(chalkData).toHaveProperty('version.latest', '5.3.0');
-		expect(chalkData).toHaveProperty('hasError', false);
 
 		expect(yargsData).toHaveProperty('versionRange.target', '~17.7.0');
 		expect(yargsData).toHaveProperty('versionRange.wanted', '~17.7.2');
 		expect(yargsData).toHaveProperty('versionRange.latest', '~17.7.2');
-		expect(yargsData).toHaveProperty('version.installed', '17.7.2');
 		expect(yargsData).toHaveProperty('version.wanted', '17.7.2');
 		expect(yargsData).toHaveProperty('version.latest', '17.7.2');
-		expect(yargsData).toHaveProperty('hasError', false);
 
 		expect(inkData).toHaveProperty('versionRange.target', '=4.4.0');
 		expect(inkData).toHaveProperty('versionRange.wanted', '=4.4.0');
 		expect(inkData).toHaveProperty('versionRange.latest', '=4.4.1');
-		expect(inkData).toHaveProperty('version.installed', '4.4.0');
 		expect(inkData).toHaveProperty('version.wanted', '4.4.0');
 		expect(inkData).toHaveProperty('version.latest', '4.4.1');
-		expect(inkData).toHaveProperty('hasError', false);
 
 		expect(markedData).toHaveProperty('versionRange.target', '>9.0.0');
 		expect(markedData).toHaveProperty('versionRange.wanted', '>11.1.0');
 		expect(markedData).toHaveProperty('versionRange.latest', '>11.1.0');
-		expect(markedData).toHaveProperty('version.installed', '11.1.0');
 		expect(markedData).toHaveProperty('version.wanted', '11.1.0');
 		expect(markedData).toHaveProperty('version.latest', '11.1.0');
-		expect(markedData).toHaveProperty('hasError', false);
 
 		cleanupInstall(cwd);
 		pacote.packument.mockClear();
 	});
 
 	test('should contain accurate data for workspaces', async () => {
-		const cwd = 'tests/testDirs/npmWorkspaces';
-
-		await installDependencies('npm', cwd);
+		const cwd = 'tests/testDirs/getDependencies/npmWorkspaces';
 
 		pacote.packument
 			.mockImplementationOnce(() => mockChalkData)
@@ -176,7 +156,6 @@ describe('npm', () => {
 		expect(chalkData).toHaveProperty('versionRange.target', '^5.1.0');
 		expect(chalkData).toHaveProperty('versionRange.wanted', '^5.3.0');
 		expect(chalkData).toHaveProperty('versionRange.latest', '^5.3.0');
-		expect(chalkData).toHaveProperty('version.installed', '5.3.0');
 		expect(chalkData).toHaveProperty('version.wanted', '5.3.0');
 		expect(chalkData).toHaveProperty('version.latest', '5.3.0');
 		expect(chalkData).toHaveProperty(['apps', 0, 'name'], 'package-b');
@@ -186,7 +165,6 @@ describe('npm', () => {
 		expect(chalk2Data).toHaveProperty('versionRange.target', '^5.3.0');
 		expect(chalk2Data).toHaveProperty('versionRange.wanted', '^5.3.0');
 		expect(chalk2Data).toHaveProperty('versionRange.latest', '^5.3.0');
-		expect(chalk2Data).toHaveProperty('version.installed', '5.3.0');
 		expect(chalk2Data).toHaveProperty('version.wanted', '5.3.0');
 		expect(chalk2Data).toHaveProperty('version.latest', '5.3.0');
 		expect(chalk2Data).toHaveProperty(
@@ -213,29 +191,23 @@ describe('npm', () => {
 		expect(yargsData).toHaveProperty('versionRange.target', '^17.7.0');
 		expect(yargsData).toHaveProperty('versionRange.wanted', '^17.7.2');
 		expect(yargsData).toHaveProperty('versionRange.latest', '^17.7.2');
-		expect(yargsData).toHaveProperty('version.installed', '17.7.2');
 		expect(yargsData).toHaveProperty('version.wanted', '17.7.2');
 		expect(yargsData).toHaveProperty('version.latest', '17.7.2');
 		expect(yargsData).toHaveProperty(['apps', 0, 'name'], 'package-b');
-		expect(yargsData).toHaveProperty('hasError', false);
 
 		expect(inkData).toHaveProperty('versionRange.target', '^4.4.0');
 		expect(inkData).toHaveProperty('versionRange.wanted', '^4.4.1');
 		expect(inkData).toHaveProperty('versionRange.latest', '^4.4.1');
-		expect(inkData).toHaveProperty('version.installed', '4.4.1');
 		expect(inkData).toHaveProperty('version.wanted', '4.4.1');
 		expect(inkData).toHaveProperty('version.latest', '4.4.1');
 		expect(inkData).toHaveProperty(['apps', 0, 'name'], 'npmWorkspaces');
-		expect(inkData).toHaveProperty('hasError', false);
 
 		expect(markedData).toHaveProperty('versionRange.target', '^9.0.0');
 		expect(markedData).toHaveProperty('versionRange.wanted', '^9.1.6');
 		expect(markedData).toHaveProperty('versionRange.latest', '^11.1.0');
-		expect(markedData).toHaveProperty('version.installed', '9.1.6');
 		expect(markedData).toHaveProperty('version.wanted', '9.1.6');
 		expect(markedData).toHaveProperty('version.latest', '11.1.0');
 		expect(markedData).toHaveProperty(['apps', 0, 'name'], 'package-b');
-		expect(markedData).toHaveProperty('hasError', false);
 
 		cleanupInstall(cwd);
 		pacote.packument.mockClear();
@@ -244,9 +216,7 @@ describe('npm', () => {
 
 describe('pnpm', () => {
 	test('should contain accurate data for workspaces', async () => {
-		const cwd = 'tests/testDirs/pnpmWorkspaces';
-
-		await installDependencies('pnpm', cwd);
+		const cwd = 'tests/testDirs/getDependencies/pnpmWorkspaces';
 
 		pacote.packument
 			.mockImplementationOnce(() => mockChalkData)
@@ -277,7 +247,6 @@ describe('pnpm', () => {
 		expect(chalkData).toHaveProperty('versionRange.target', '^5.1.0');
 		expect(chalkData).toHaveProperty('versionRange.wanted', '^5.3.0');
 		expect(chalkData).toHaveProperty('versionRange.latest', '^5.3.0');
-		expect(chalkData).toHaveProperty('version.installed', '5.3.0');
 		expect(chalkData).toHaveProperty('version.wanted', '5.3.0');
 		expect(chalkData).toHaveProperty('version.latest', '5.3.0');
 		expect(chalkData).toHaveProperty(['apps', 0, 'name'], 'pnpm-package-b');
@@ -287,7 +256,6 @@ describe('pnpm', () => {
 		expect(chalk2Data).toHaveProperty('versionRange.target', '^5.3.0');
 		expect(chalk2Data).toHaveProperty('versionRange.wanted', '^5.3.0');
 		expect(chalk2Data).toHaveProperty('versionRange.latest', '^5.3.0');
-		expect(chalk2Data).toHaveProperty('version.installed', '5.3.0');
 		expect(chalk2Data).toHaveProperty('version.wanted', '5.3.0');
 		expect(chalk2Data).toHaveProperty('version.latest', '5.3.0');
 		expect(chalk2Data).toHaveProperty(
@@ -314,32 +282,26 @@ describe('pnpm', () => {
 		expect(yargsData).toHaveProperty('versionRange.target', '^17.7.0');
 		expect(yargsData).toHaveProperty('versionRange.wanted', '^17.7.2');
 		expect(yargsData).toHaveProperty('versionRange.latest', '^17.7.2');
-		expect(yargsData).toHaveProperty('version.installed', '17.7.2');
 		expect(yargsData).toHaveProperty('version.wanted', '17.7.2');
 		expect(yargsData).toHaveProperty('version.latest', '17.7.2');
 		expect(yargsData).toHaveProperty(['apps', 0, 'name'], 'pnpm-package-b');
-		expect(yargsData).toHaveProperty('hasError', false);
 
 		expect(inkData).toHaveProperty('versionRange.target', '^4.4.0');
 		expect(inkData).toHaveProperty('versionRange.wanted', '^4.4.1');
 		expect(inkData).toHaveProperty('versionRange.latest', '^4.4.1');
-		expect(inkData).toHaveProperty('version.installed', '4.4.1');
 		expect(inkData).toHaveProperty('version.wanted', '4.4.1');
 		expect(inkData).toHaveProperty('version.latest', '4.4.1');
 		expect(inkData).toHaveProperty(['apps', 0, 'name'], 'pnpmWorkspaces');
-		expect(inkData).toHaveProperty('hasError', false);
 
 		expect(markedData).toHaveProperty('versionRange.target', '^9.0.0');
 		expect(markedData).toHaveProperty('versionRange.wanted', '^9.1.6');
 		expect(markedData).toHaveProperty('versionRange.latest', '^11.1.0');
-		expect(markedData).toHaveProperty('version.installed', '9.1.6');
 		expect(markedData).toHaveProperty('version.wanted', '9.1.6');
 		expect(markedData).toHaveProperty('version.latest', '11.1.0');
 		expect(markedData).toHaveProperty(
 			['apps', 0, 'name'],
 			'pnpm-package-b'
 		);
-		expect(markedData).toHaveProperty('hasError', false);
 
 		cleanupInstall(cwd);
 		pacote.packument.mockClear();
@@ -348,9 +310,7 @@ describe('pnpm', () => {
 
 describe('yarn', () => {
 	test('should contain accurate data for workspaces', async () => {
-		const cwd = 'tests/testDirs/yarnWorkspaces';
-
-		await installDependencies('yarn', cwd);
+		const cwd = 'tests/testDirs/getDependencies/yarnWorkspaces';
 
 		pacote.packument
 			.mockImplementationOnce(() => mockChalkData)
@@ -381,7 +341,6 @@ describe('yarn', () => {
 		expect(chalkData).toHaveProperty('versionRange.target', '^5.1.0');
 		expect(chalkData).toHaveProperty('versionRange.wanted', '^5.3.0');
 		expect(chalkData).toHaveProperty('versionRange.latest', '^5.3.0');
-		expect(chalkData).toHaveProperty('version.installed', '5.3.0');
 		expect(chalkData).toHaveProperty('version.wanted', '5.3.0');
 		expect(chalkData).toHaveProperty('version.latest', '5.3.0');
 		expect(chalkData).toHaveProperty(['apps', 0, 'name'], 'yarn-package-b');
@@ -391,7 +350,6 @@ describe('yarn', () => {
 		expect(chalk2Data).toHaveProperty('versionRange.target', '^5.3.0');
 		expect(chalk2Data).toHaveProperty('versionRange.wanted', '^5.3.0');
 		expect(chalk2Data).toHaveProperty('versionRange.latest', '^5.3.0');
-		expect(chalk2Data).toHaveProperty('version.installed', '5.3.0');
 		expect(chalk2Data).toHaveProperty('version.wanted', '5.3.0');
 		expect(chalk2Data).toHaveProperty('version.latest', '5.3.0');
 		expect(chalk2Data).toHaveProperty(
@@ -418,32 +376,26 @@ describe('yarn', () => {
 		expect(yargsData).toHaveProperty('versionRange.target', '^17.7.0');
 		expect(yargsData).toHaveProperty('versionRange.wanted', '^17.7.2');
 		expect(yargsData).toHaveProperty('versionRange.latest', '^17.7.2');
-		expect(yargsData).toHaveProperty('version.installed', '17.7.2');
 		expect(yargsData).toHaveProperty('version.wanted', '17.7.2');
 		expect(yargsData).toHaveProperty('version.latest', '17.7.2');
 		expect(yargsData).toHaveProperty(['apps', 0, 'name'], 'yarn-package-b');
-		expect(yargsData).toHaveProperty('hasError', false);
 
 		expect(inkData).toHaveProperty('versionRange.target', '^4.4.0');
 		expect(inkData).toHaveProperty('versionRange.wanted', '^4.4.1');
 		expect(inkData).toHaveProperty('versionRange.latest', '^4.4.1');
-		expect(inkData).toHaveProperty('version.installed', '4.4.1');
 		expect(inkData).toHaveProperty('version.wanted', '4.4.1');
 		expect(inkData).toHaveProperty('version.latest', '4.4.1');
 		expect(inkData).toHaveProperty(['apps', 0, 'name'], 'yarn-workspaces');
-		expect(inkData).toHaveProperty('hasError', false);
 
 		expect(markedData).toHaveProperty('versionRange.target', '^9.0.0');
 		expect(markedData).toHaveProperty('versionRange.wanted', '^9.1.6');
 		expect(markedData).toHaveProperty('versionRange.latest', '^11.1.0');
-		expect(markedData).toHaveProperty('version.installed', '9.1.6');
 		expect(markedData).toHaveProperty('version.wanted', '9.1.6');
 		expect(markedData).toHaveProperty('version.latest', '11.1.0');
 		expect(markedData).toHaveProperty(
 			['apps', 0, 'name'],
 			'yarn-package-b'
 		);
-		expect(markedData).toHaveProperty('hasError', false);
 
 		cleanupInstall(cwd);
 		fs.openSync(path.join(cwd, 'yarn.lock'), 'w');

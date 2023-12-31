@@ -419,7 +419,7 @@ const filterDependencies = (dependencies, { all, updateTypes, noIssues }) => {
 				}
 
 				return false;
-		  });
+			});
 };
 
 const getDependenciesFromPackageJson = ({ pkgJsonData }) => {
