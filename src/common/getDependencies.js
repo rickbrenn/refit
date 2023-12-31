@@ -27,7 +27,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		: await getPackages({
 				rootPath,
 				packageDirs,
-		  });
+			});
 
 	const dependencyList = await getDependencyList({
 		packageList,
