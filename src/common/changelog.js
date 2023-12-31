@@ -140,8 +140,7 @@ const getGitHubReleases = async ({ user, project, version }) => {
 		}
 
 		const nextLink = response.headers.link;
-		const nextPage = parsePaginationHeader(nextLink).next;
-		page = nextPage || null;
+		page = nextLink ? parsePaginationHeader(nextLink).next : null;
 	}
 
 	return versions;
