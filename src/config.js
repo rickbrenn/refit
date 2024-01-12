@@ -13,29 +13,37 @@ import Changes from './commands/Changes';
 import { depTypesList } from './common/dependencies';
 import ErrorBoundary from './ui/ErrorBoundary/ErrorBoundary';
 
-const renderCommand = (Command, appConfig) => {
-	render(
+const renderCommand = async (Command, appConfig) => {
+	const app = render(
 		<ErrorBoundary>
 			<Command config={appConfig} />
 		</ErrorBoundary>
 	);
+	try {
+		await app.waitUntilExit();
+	} catch (error) {
+		// the react app prints it's own error message
+		process.exitCode = 1;
+	}
+
+	return app;
 };
 
-const renderListCommand = ({ appConfig }) => {
-	renderCommand(List, appConfig);
+const renderListCommand = async ({ appConfig }) => {
+	await renderCommand(List, appConfig);
 };
 
-const renderUpdateCommand = ({ appConfig }) => {
+const renderUpdateCommand = async ({ appConfig }) => {
 	const Command = appConfig.interactive ? InteractiveUpdate : Update;
-	renderCommand(Command, appConfig);
+	await renderCommand(Command, appConfig);
 };
 
-const renderWizardCommand = ({ appConfig }) => {
-	renderCommand(Wizard, appConfig);
+const renderWizardCommand = async ({ appConfig }) => {
+	await renderCommand(Wizard, appConfig);
 };
 
-const renderChangesCommand = ({ appConfig }) => {
-	renderCommand(Changes, appConfig);
+const renderChangesCommand = async ({ appConfig }) => {
+	await renderCommand(Changes, appConfig);
 };
 
 const cliCommands = [

@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Text } from 'ink';
+import { Box, Text, useApp } from 'ink';
 import { ErrorProvider } from './ErrorProvider';
+
+const AppExit = ({ error, children }) => {
+	const { exit } = useApp();
+
+	useEffect(() => {
+		exit(error);
+	}, [exit, error]);
+
+	return children;
+};
 
 class ErrorBoundary extends React.Component {
 	constructor(props) {
@@ -27,17 +37,19 @@ class ErrorBoundary extends React.Component {
 
 		if (hasError) {
 			return (
-				<Box flexDirection="column" margin={1} gap={1}>
-					<Box gap={1}>
-						<Text color="white" backgroundColor="red">
-							{' ERROR '}
+				<AppExit error={error}>
+					<Box flexDirection="column" margin={1} gap={1}>
+						<Box gap={1}>
+							<Text color="white" backgroundColor="red">
+								{' ERROR '}
+							</Text>
+							<Text>{error?.message}</Text>
+						</Box>
+						<Text color="grey" dimColor>
+							{error?.stack}
 						</Text>
-						<Text>{error?.message}</Text>
 					</Box>
-					<Text color="grey" dimColor>
-						{error?.stack}
-					</Text>
-				</Box>
+				</AppExit>
 			);
 		}
 
