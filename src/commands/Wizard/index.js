@@ -46,7 +46,6 @@ const WizardCommand = ({ config }) => {
 	const fetchPackagesAndDependencies = useCallback(async () => {
 		const {
 			rootPath,
-			concurrency,
 			packageDirs,
 			packages: filterByPackages,
 			depTypes: filterByDepTypes,
@@ -68,9 +67,6 @@ const WizardCommand = ({ config }) => {
 				rootPath,
 				filterByDepTypes,
 				updateProgress,
-				pMapOptions: {
-					concurrency,
-				},
 				allowPrerelease: prerelease,
 				allowDeprecated: deprecated,
 				packageManager,
@@ -256,7 +252,6 @@ const WizardCommand = ({ config }) => {
 WizardCommand.propTypes = {
 	config: PropTypes.shape({
 		rootPath: PropTypes.string,
-		concurrency: PropTypes.number,
 		packages: PropTypes.arrayOf(PropTypes.string),
 		packageDirs: PropTypes.arrayOf(PropTypes.string),
 		depTypes: PropTypes.arrayOf(PropTypes.string),

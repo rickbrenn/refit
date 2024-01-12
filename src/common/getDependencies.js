@@ -5,7 +5,6 @@ import getDependencyList from './getDependencyList';
 const getDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootPath,
-		concurrency,
 		packageDirs,
 		packages,
 		sort,
@@ -36,9 +35,6 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		filterByDeps: dependencies,
 		filterByDepTypes: depTypes,
 		updateProgress: onDepenencyProcessed,
-		pMapOptions: {
-			concurrency,
-		},
 		sortBy: sort,
 		packumentOptions: {
 			fullMetadata: verbose,

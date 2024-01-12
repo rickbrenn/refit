@@ -6,7 +6,6 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootPath,
 		packages,
-		concurrency,
 		packageDirs,
 		sort,
 		updateTo,
@@ -30,9 +29,6 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		filterByDeps: dependencies,
 		filterByDepTypes: depTypes,
 		updateProgress: onDepenencyProcessed,
-		pMapOptions: {
-			concurrency,
-		},
 		sortBy: sort,
 		allowPrerelease: prerelease,
 		allowDeprecated: deprecated,

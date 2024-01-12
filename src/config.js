@@ -90,17 +90,6 @@ const configOptions = [
 		yargsCommmands: ['list'],
 	},
 	{
-		name: 'concurrency',
-		options: {
-			alias: 'c',
-			describe: '',
-			type: 'number',
-			default: Infinity,
-		},
-		yargsType: 'global',
-		yargsCommmands: [],
-	},
-	{
 		name: 'dependencies',
 		options: {
 			describe: 'dependencies to update',

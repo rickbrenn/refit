@@ -16,7 +16,6 @@ const { default: getDependencies } = await import(
 const config = {
 	rootPath: '.',
 	all: false,
-	concurrency: 8,
 	dependencies: undefined,
 	deprecated: false,
 	depTypes: [],
