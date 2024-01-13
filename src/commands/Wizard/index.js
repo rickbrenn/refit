@@ -47,7 +47,7 @@ const WizardCommand = ({ config }) => {
 		const {
 			rootPath,
 			workspaces,
-			packages: filterByPackages,
+			workspace: filterByPackages,
 			depTypes: filterByDepTypes,
 			packageManager,
 			prerelease,
@@ -253,7 +253,7 @@ const WizardCommand = ({ config }) => {
 WizardCommand.propTypes = {
 	config: PropTypes.shape({
 		rootPath: PropTypes.string,
-		packages: PropTypes.arrayOf(PropTypes.string),
+		workspace: PropTypes.arrayOf(PropTypes.string),
 		workspaces: PropTypes.arrayOf(PropTypes.string),
 		depTypes: PropTypes.arrayOf(PropTypes.string),
 		packageManager: PropTypes.string,

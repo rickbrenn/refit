@@ -5,7 +5,7 @@ import getDependencyList from './getDependencyList';
 const updateDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootPath,
-		packages,
+		workspace,
 		workspaces,
 		sort,
 		updateTo,
@@ -24,7 +24,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 
 	const dependencyList = await getDependencyList({
 		packageList,
-		filterByPackages: packages,
+		filterByPackages: workspace,
 		rootPath,
 		filterByDeps: dependencies,
 		filterByDepTypes: depTypes,

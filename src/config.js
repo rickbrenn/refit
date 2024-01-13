@@ -217,17 +217,6 @@ const configOptions = [
 		yargsCommmands: ['list', 'update', 'wizard'],
 	},
 	{
-		name: 'packages',
-		options: {
-			alias: 'p',
-			describe: 'filter by package name',
-			type: 'array',
-			default: [],
-		},
-		yargsType: 'command',
-		yargsCommmands: ['list', 'update', 'wizard'],
-	},
-	{
 		name: 'sort',
 		options: {
 			alias: 's',
@@ -273,6 +262,17 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list'],
+	},
+	{
+		name: 'workspace',
+		options: {
+			alias: 'w',
+			describe: 'filter dependencies by workspace',
+			type: 'array',
+			default: [],
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list', 'update', 'wizard'],
 	},
 	{
 		name: 'workspaces',

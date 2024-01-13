@@ -26,7 +26,7 @@ const config = {
 	workspaces: undefined,
 	packageManager: 'npm',
 	prerelease: false,
-	packages: [],
+	workspace: [],
 	sort: 'type',
 	updateTo: undefined,
 	updateTypes: [],

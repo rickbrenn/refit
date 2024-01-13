@@ -6,7 +6,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootPath,
 		workspaces,
-		packages,
+		workspace,
 		sort,
 		all,
 		depTypes,
@@ -30,7 +30,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 
 	const dependencyList = await getDependencyList({
 		packageList,
-		filterByPackages: packages,
+		filterByPackages: workspace,
 		rootPath,
 		filterByDeps: dependencies,
 		filterByDepTypes: depTypes,
