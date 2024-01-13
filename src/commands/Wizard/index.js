@@ -46,7 +46,7 @@ const WizardCommand = ({ config }) => {
 	const fetchPackagesAndDependencies = useCallback(async () => {
 		const {
 			rootPath,
-			packageDirs,
+			workspaces,
 			packages: filterByPackages,
 			depTypes: filterByDepTypes,
 			packageManager,
@@ -57,8 +57,8 @@ const WizardCommand = ({ config }) => {
 		try {
 			const packageList = await getPackages({
 				rootPath,
-				isMonorepo: !!packageDirs?.length,
-				packageDirs,
+				isMonorepo: !!workspaces?.length,
+				workspaces,
 			});
 
 			const dependencyList = await getDependencyList({
@@ -219,7 +219,7 @@ const WizardCommand = ({ config }) => {
 							wizardState={wizardState}
 							packages={packages}
 							setWizardState={setWizardState}
-							isMonorepo={!!config.packageDirs?.length}
+							isMonorepo={!!config.workspaces?.length}
 							allowPrerelease={config.prerelease}
 							allowDeprecated={config.deprecated}
 						/>
@@ -254,7 +254,7 @@ WizardCommand.propTypes = {
 	config: PropTypes.shape({
 		rootPath: PropTypes.string,
 		packages: PropTypes.arrayOf(PropTypes.string),
-		packageDirs: PropTypes.arrayOf(PropTypes.string),
+		workspaces: PropTypes.arrayOf(PropTypes.string),
 		depTypes: PropTypes.arrayOf(PropTypes.string),
 		packageManager: PropTypes.string,
 		prerelease: PropTypes.bool,

@@ -6,7 +6,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootPath,
 		packages,
-		packageDirs,
+		workspaces,
 		sort,
 		updateTo,
 		dependencies,
@@ -19,7 +19,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 
 	const packageList = await getPackages({
 		rootPath,
-		packageDirs,
+		workspaces,
 	});
 
 	const dependencyList = await getDependencyList({

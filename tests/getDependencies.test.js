@@ -23,7 +23,7 @@ const config = {
 	groupByPackage: false,
 	interactive: undefined,
 	noIssues: false,
-	packageDirs: undefined,
+	workspaces: undefined,
 	packageManager: 'npm',
 	prerelease: false,
 	packages: [],
@@ -135,7 +135,7 @@ describe('npm', () => {
 
 		const dependencies = await getDependencies({
 			...config,
-			packageDirs: ['packages/*'],
+			workspaces: ['packages/*'],
 			rootPath: cwd,
 			all: true,
 		});
@@ -225,7 +225,7 @@ describe('pnpm', () => {
 
 		const dependencies = await getDependencies({
 			...config,
-			packageDirs: ['packages/*'],
+			workspaces: ['packages/*'],
 			packageManager: 'pnpm',
 			rootPath: cwd,
 			all: true,
@@ -319,7 +319,7 @@ describe('yarn', () => {
 
 		const dependencies = await getDependencies({
 			...config,
-			packageDirs: ['packages/*'],
+			workspaces: ['packages/*'],
 			packageManager: 'yarn',
 			rootPath: cwd,
 			all: true,

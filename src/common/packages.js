@@ -17,16 +17,14 @@ const getPackageData = async ({ path: pkgPath, isMonorepoRoot = false }) => {
 	};
 };
 
-const getPackages = async ({ rootPath, packageDirs }) => {
-	const pkgsArgs = [
-		{ path: rootPath, isMonorepoRoot: !!packageDirs?.length },
-	];
+const getPackages = async ({ rootPath, workspaces }) => {
+	const pkgsArgs = [{ path: rootPath, isMonorepoRoot: !!workspaces?.length }];
 
-	if (packageDirs?.length) {
+	if (workspaces?.length) {
 		const subPkgs = await mapWorkspaces({
 			cwd: rootPath,
 			pkg: {
-				workspaces: packageDirs,
+				workspaces,
 			},
 		});
 

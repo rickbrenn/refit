@@ -15,7 +15,7 @@ const config = {
 	groupByPackage: false,
 	interactive: undefined,
 	noIssues: false,
-	packageDirs: undefined,
+	workspaces: undefined,
 	packageManager: 'npm',
 	prerelease: false,
 	packages: [],

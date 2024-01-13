@@ -4,7 +4,7 @@ import NameColumn from './NameColumn';
 import UpgradeColumn from './UpgradeColumn';
 
 // get list table columns based on the config
-const getListColumns = ({ verbose, packageDirs, global }, showColor = true) => {
+const getListColumns = ({ verbose, workspaces, global }, showColor = true) => {
 	const columns = [
 		{
 			name: 'Name',
@@ -59,13 +59,13 @@ const getListColumns = ({ verbose, packageDirs, global }, showColor = true) => {
 		{
 			name: 'Hoisted',
 			accessor: 'hoisted',
-			show: verbose && packageDirs?.length,
+			show: verbose && workspaces?.length,
 			wrap: 'truncate',
 		},
 		{
 			name: 'In',
 			accessor: 'in',
-			show: packageDirs?.length && !global,
+			show: workspaces?.length && !global,
 			wrap: 'truncate',
 		},
 	];

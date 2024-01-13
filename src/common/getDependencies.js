@@ -5,7 +5,7 @@ import getDependencyList from './getDependencyList';
 const getDependencies = async (config, onDepenencyProcessed) => {
 	const {
 		rootPath,
-		packageDirs,
+		workspaces,
 		packages,
 		sort,
 		all,
@@ -25,7 +25,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		? new Map()
 		: await getPackages({
 				rootPath,
-				packageDirs,
+				workspaces,
 			});
 
 	const dependencyList = await getDependencyList({

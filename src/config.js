@@ -195,18 +195,6 @@ const configOptions = [
 		yargsCommmands: ['list'],
 	},
 	{
-		name: 'packageDirs',
-		options: {
-			alias: 'P',
-			describe: 'directories of the monorepo packages',
-			type: 'array',
-			default: [],
-		},
-		getDefault: (pkgJson) => pkgJson.workspaces,
-		yargsType: 'global',
-		yargsCommmands: [],
-	},
-	{
 		name: 'packageManager',
 		options: {
 			describe: 'package manager to use',
@@ -285,6 +273,17 @@ const configOptions = [
 		},
 		yargsType: 'command',
 		yargsCommmands: ['list'],
+	},
+	{
+		name: 'workspaces',
+		options: {
+			describe: 'directories of the monorepo workspaces',
+			type: 'array',
+			default: [],
+		},
+		getDefault: (pkgJson) => pkgJson.workspaces,
+		yargsType: 'global',
+		yargsCommmands: [],
 	},
 ];
 
