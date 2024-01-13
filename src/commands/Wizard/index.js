@@ -160,6 +160,7 @@ const WizardCommand = ({ config }) => {
 				const dep = dependencies.find(
 					(d) => d.name === update.dependency
 				);
+
 				for (const {
 					name: pkgName,
 					type: pkgType,
@@ -167,7 +168,7 @@ const WizardCommand = ({ config }) => {
 					const pkg = packages[pkgName];
 					const depType = depTypesList[pkgType];
 					// TODO: add wildcard selection step?
-					const { wildcard } = dep.apps[pkgName] || {};
+					const { wildcard } = dep?.apps?.[pkgName] || {};
 					const depWildcard = wildcard === undefined ? '^' : wildcard;
 					pkgsToUpdate.add(pkgName);
 					pkg.pkgJsonInstance.update({
