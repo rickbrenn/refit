@@ -402,13 +402,15 @@ const sortDependencies = (dependencies, sortBy) => {
 	return sortedList;
 };
 
-const filterDependencies = (dependencies, { all, updateTypes, noIssues }) => {
+const filterDependencies = (
+	dependencies,
+	{ all, semver: semvers, noIssues }
+) => {
 	return all
 		? dependencies
 		: dependencies.filter((pkg) => {
 				const isValidType =
-					!updateTypes?.length ||
-					updateTypes?.includes(pkg.updateType);
+					!semvers?.length || semvers?.includes(pkg.updateType);
 
 				if (isValidType) {
 					if (pkg.upgradable) {

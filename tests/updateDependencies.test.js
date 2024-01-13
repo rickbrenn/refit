@@ -21,7 +21,7 @@ const config = {
 	workspace: [],
 	sort: 'type',
 	updateTo: 'latest',
-	updateTypes: [],
+	semver: [],
 	verbose: false,
 };
 

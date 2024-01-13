@@ -29,7 +29,7 @@ const config = {
 	workspace: [],
 	sort: 'type',
 	updateTo: undefined,
-	updateTypes: [],
+	semver: [],
 	verbose: false,
 };
 

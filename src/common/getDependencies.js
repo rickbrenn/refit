@@ -10,7 +10,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		sort,
 		all,
 		depTypes,
-		updateTypes,
+		semver,
 		dependencies,
 		verbose,
 		prerelease,
@@ -46,7 +46,7 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		updateTo,
 	});
 
-	return filterDependencies(dependencyList, { all, updateTypes, noIssues });
+	return filterDependencies(dependencyList, { all, semver, noIssues });
 };
 
 export default getDependencies;

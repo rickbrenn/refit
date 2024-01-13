@@ -11,7 +11,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		updateTo,
 		dependencies,
 		depTypes,
-		updateTypes,
+		semver,
 		packageManager,
 		prerelease,
 		deprecated,
@@ -37,8 +37,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 	});
 
 	const depsToUpdate = dependencyList.filter((dep) => {
-		const isValidType =
-			!updateTypes.length || updateTypes.includes(dep.updateType);
+		const isValidType = !semver.length || semver.includes(dep.updateType);
 		return isValidType && dep.upgradable;
 	});
 	const pkgsToUpdate = new Set();

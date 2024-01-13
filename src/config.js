@@ -219,7 +219,6 @@ const configOptions = [
 	{
 		name: 'sort',
 		options: {
-			alias: 's',
 			describe: 'sort dependencies',
 			type: 'string',
 			default: 'type',
@@ -231,7 +230,7 @@ const configOptions = [
 	{
 		name: 'updateTo',
 		options: {
-			alias: 't',
+			alias: 'to',
 			describe: 'update dependencies to semver type',
 			type: 'string',
 			default: 'latest',
@@ -241,9 +240,9 @@ const configOptions = [
 		yargsCommmands: ['list', 'update'],
 	},
 	{
-		name: 'updateTypes',
+		name: 'semver',
 		options: {
-			alias: 'u',
+			alias: 's',
 			describe: 'filter by update type',
 			type: 'array',
 			default: [],
