@@ -165,7 +165,7 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 										)
 											.filter(Boolean)
 											.map((v) => v.installed)
-											.toSorted((a, b) =>
+											.sort((a, b) =>
 												semver.compare(b, a)
 											);
 

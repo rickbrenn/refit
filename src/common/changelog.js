@@ -199,7 +199,7 @@ const getChangelog = async ({ name, version, url }) => {
 
 	return {
 		url: `https://github.com/${user}/${project}`,
-		data: combined.toSorted((a, b) => semver.compare(b.version, a.version)),
+		data: combined.sort((a, b) => semver.compare(b.version, a.version)),
 	};
 };
 
