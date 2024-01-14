@@ -1,17 +1,32 @@
 import { jest } from '@jest/globals';
+import packageManagers, * as realPm from '../src/common/packageManagers';
 
-const fsMock = {
-	existsSync: jest.fn(),
-	readFileSync: jest.fn(),
+const filesystemMock = {
+	readJsonFile: jest.fn(),
+	readYamlFile: jest.fn(),
 };
 
-jest.unstable_mockModule('fs', () => ({
+jest.unstable_mockModule('../src/common/filesystem', () => ({
 	__esModule: true,
-	default: fsMock,
-	...fsMock,
+	...filesystemMock,
 }));
 
-const fs = await import('fs');
+const npmMock = {
+	getWorkspaces: jest.fn(),
+};
+
+const pmMock = {
+	getPackageManager: jest.fn(),
+};
+
+jest.unstable_mockModule('../src/common/packageManagers', () => ({
+	...realPm,
+	__esModule: true,
+	...pmMock,
+}));
+
+const { getPackageManager } = await import('../src/common/packageManagers');
+const { readJsonFile } = await import('../src/common/filesystem');
 const { configOptions, cliCommands, withConfig } = await import(
 	'../src/config'
 );
@@ -44,10 +59,12 @@ test('should prioritize args > config > defaults', async () => {
 		sort: 'name',
 	};
 
-	fs.existsSync.mockImplementation(() => true);
-	fs.readFileSync
-		.mockImplementation(() => JSON.stringify({}))
-		.mockImplementationOnce(() => JSON.stringify(config));
+	readJsonFile.mockImplementationOnce(() => config);
+	getPackageManager.mockImplementationOnce(() => ({
+		...packageManagers[0],
+		packageManager: npmMock,
+	}));
+	npmMock.getWorkspaces.mockImplementationOnce(() => ['packages/*']);
 
 	const argv = {
 		all: false,
@@ -60,22 +77,26 @@ test('should prioritize args > config > defaults', async () => {
 			defaulted: {
 				all: true,
 				sort: true,
+				workspaces: true,
 			},
 		},
 	};
 
-	withConfig(argv, yargsInstance);
+	await withConfig(argv, yargsInstance);
 
 	const expected = {
 		all: false,
 		verbose: true,
 		sort: 'name',
+		workspaces: ['packages/*'],
 	};
 
 	expect(argv.appConfig.all).toEqual(expected.all);
 	expect(argv.appConfig.verbose).toEqual(expected.verbose);
 	expect(argv.appConfig.sort).toEqual(expected.sort);
+	expect(argv.appConfig.workspaces).toEqual(expected.workspaces);
 
-	fs.existsSync.mockClear();
-	fs.readFileSync.mockClear();
+	readJsonFile.mockClear();
+	getPackageManager.mockClear();
+	npmMock.getWorkspaces.mockClear();
 });

@@ -1,10 +1,7 @@
 import React from 'react';
-import fs from 'fs';
-import path from 'path';
 import { render } from 'ink';
-import packageManagers, {
-	determinePackageManager,
-} from './common/packageManagers';
+import packageManagers, { getPackageManager } from './common/packageManagers';
+import { readJsonFile } from './common/filesystem';
 import List from './commands/List';
 import Update from './commands/Update';
 import InteractiveUpdate from './commands/InteractiveUpdate';
@@ -202,7 +199,7 @@ const configOptions = [
 			default: 'npm',
 			choices: packageManagers.map(({ name }) => name),
 		},
-		getDefault: determinePackageManager,
+		getDefault: ({ packageManager: pm }) => pm?.name,
 		yargsType: 'global',
 		yargsCommmands: [],
 	},
@@ -280,7 +277,10 @@ const configOptions = [
 			type: 'array',
 			default: [],
 		},
-		getDefault: (pkgJson) => pkgJson.workspaces,
+		getDefault: async ({ packageManager: pm }) => {
+			const workspaces = await pm?.packageManager.getWorkspaces();
+			return workspaces || [];
+		},
 		yargsType: 'global',
 		yargsCommmands: [],
 	},
@@ -314,17 +314,12 @@ const getCommandOptions = (commandId) => {
 	);
 };
 
-const withConfig = (argv, yargsInstance) => {
+const withConfig = async (argv, yargsInstance) => {
 	// an array of option keys that were not user defined by argv
 	const defaultedOptions = Object.keys(yargsInstance.parsed.defaulted);
 
-	const configPath = path.resolve('.refitrc.json');
-	const configExists = fs.existsSync(configPath);
-	const config = configExists
-		? JSON.parse(fs.readFileSync(configPath, 'utf8'))
-		: {};
-
-	const pkgJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+	const config = (await readJsonFile('.refitrc.json')) || {};
+	const packageManager = getPackageManager();
 
 	const appConfig = {
 		rootPath: process.cwd(),
@@ -341,7 +336,7 @@ const withConfig = (argv, yargsInstance) => {
 				val = config[name];
 				// custom method to determine default value
 			} else if (getDefault) {
-				val = getDefault(pkgJson);
+				val = await getDefault({ packageManager });
 			}
 		}
 

@@ -23,12 +23,13 @@ const packageManagers = [
 	},
 ];
 
-const determinePackageManager = () => {
+const getPackageManager = () => {
 	const packageManager = packageManagers.find(({ lockFile }) => {
 		return existsSync(path.resolve(lockFile));
 	});
 
-	return packageManager?.name || 'npm';
+	// default to npm if no lock file found
+	return packageManager || packageManagers[0];
 };
 
 const getPackageManagerConfig = (packageManager) => {
@@ -36,4 +37,4 @@ const getPackageManagerConfig = (packageManager) => {
 };
 
 export default packageManagers;
-export { determinePackageManager, getPackageManagerConfig };
+export { getPackageManager, getPackageManagerConfig };

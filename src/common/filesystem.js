@@ -1,24 +1,21 @@
-import path from 'path';
 import fs from 'fs';
+import ryf from 'read-yaml-file';
 
-const isDirectory = (dirPath) => {
+const readJsonFile = async (filePath) => {
 	try {
-		return fs.lstatSync(dirPath).isDirectory();
+		const fileContent = await fs.readFile(filePath, 'utf8');
+		return JSON.parse(fileContent);
 	} catch (error) {
-		return false;
+		return undefined;
 	}
 };
 
-const hasPackageJsonFile = (packagePath) => {
+const readYamlFile = async (filePath) => {
 	try {
-		if (fs.existsSync(path.resolve(packagePath, 'package.json'))) {
-			return true;
-		}
-
-		return false;
+		return await ryf(filePath);
 	} catch (error) {
-		return false;
+		return undefined;
 	}
 };
 
-export { isDirectory, hasPackageJsonFile };
+export { readJsonFile, readYamlFile };

@@ -1,5 +1,11 @@
 import Arborist from '@npmcli/arborist';
 import spawnAsync from '../spawnAsync';
+import { readJsonFile } from '../filesystem';
+
+const getWorkspaces = async () => {
+	const pkgJson = await readJsonFile('package.json');
+	return pkgJson?.workspaces;
+};
 
 const getInstalledDeps = async (pkgPath) => {
 	const arb = new Arborist({ path: pkgPath });
@@ -37,4 +43,4 @@ const getGlobalDeps = async () => {
 	return globalDeps;
 };
 
-export { getInstalledDeps, getGlobalDeps };
+export { getInstalledDeps, getGlobalDeps, getWorkspaces };

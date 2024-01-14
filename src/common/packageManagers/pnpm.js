@@ -1,8 +1,14 @@
 import spawnAsync from '../spawnAsync';
 import { depTypesList } from '../dependencies';
+import { readYamlFile } from '../filesystem';
 
 const getPnpmCommand = () => {
 	return process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+};
+
+const getWorkspaces = async () => {
+	const yamlContent = await readYamlFile('pnpm-workspace.yaml');
+	return yamlContent?.packages;
 };
 
 const parsePnpmDeps = (rawData) => {
@@ -45,4 +51,4 @@ const getGlobalDeps = async () => {
 	return parsePnpmDeps(result);
 };
 
-export { getInstalledDeps, getGlobalDeps };
+export { getInstalledDeps, getGlobalDeps, getWorkspaces };

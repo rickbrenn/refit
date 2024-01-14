@@ -1,5 +1,11 @@
 import path from 'path';
 import { getDepsFromDirNames } from './common';
+import { readJsonFile } from '../filesystem';
+
+const getWorkspaces = async () => {
+	const pkgJson = await readJsonFile('package.json');
+	return pkgJson?.workspaces;
+};
 
 const getInstalledDeps = async (pkgPath) => {
 	return getDepsFromDirNames(
@@ -14,4 +20,4 @@ const getGlobalDeps = async () => {
 	throw error;
 };
 
-export { getInstalledDeps, getGlobalDeps };
+export { getInstalledDeps, getGlobalDeps, getWorkspaces };
