@@ -18,6 +18,15 @@ describe('parseGitHubUrl', () => {
 		expect(result.project).toEqual('MQTT.js');
 	});
 
+	test('should parse github ssh urls', async () => {
+		const result = parseGitHubUrl(
+			'git+ssh://git@github.com/rsuite/rsuite.git'
+		);
+
+		expect(result.user).toEqual('rsuite');
+		expect(result.project).toEqual('rsuite');
+	});
+
 	test('should parse github version urls', async () => {
 		const result = parseGitHubUrl('github:chalk/chalk#5.3.0');
 
