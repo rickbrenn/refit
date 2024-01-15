@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, Box } from 'ink';
 import PropTypes from 'prop-types';
+import useTerminalSize from './useTerminalSize';
 
 const getColumnsMinMax = ({ data, columns }) => {
 	const minColumnWidths = columns.reduce((acc, curr) => {
@@ -38,6 +39,7 @@ const getColumnsWidth = ({ data, columns, columnGap, maxColumnWidths }) => {
 };
 
 const Table = ({ data, columns, columnGap, borderColor, maxColumnWidths }) => {
+	const { width: terminalWidth } = useTerminalSize();
 	const columnWidths = getColumnsWidth({
 		data,
 		columns,
@@ -46,43 +48,52 @@ const Table = ({ data, columns, columnGap, borderColor, maxColumnWidths }) => {
 	});
 
 	return (
-		<Box
-			flexDirection="column"
-			paddingX={2}
-			borderStyle="round"
-			borderColor={borderColor}
-		>
-			<Box>
-				{columns.map((c) => {
-					const { width, minWidth } = columnWidths[c.accessor];
-
-					return (
-						<Box key={c.name} width={width} minWidth={minWidth}>
-							<Text color={c.color} wrap={c.wrap}>
-								{c.name}
-							</Text>
-						</Box>
-					);
-				})}
-			</Box>
-
-			{data.map((d) => (
-				<Box key={d.key}>
+		<Box width={terminalWidth}>
+			<Box
+				flexDirection="column"
+				paddingX={2}
+				borderStyle="round"
+				borderColor={borderColor}
+			>
+				<Box>
 					{columns.map((c) => {
 						const { width, minWidth } = columnWidths[c.accessor];
 
 						return (
 							<Box key={c.name} width={width} minWidth={minWidth}>
-								{c.Component ? (
-									<c.Component row={d} column={c} />
-								) : (
-									<Text wrap={c.wrap}>{d[c.accessor]}</Text>
-								)}
+								<Text color={c.color} wrap={c.wrap}>
+									{c.name}
+								</Text>
 							</Box>
 						);
 					})}
 				</Box>
-			))}
+
+				{data.map((d) => (
+					<Box key={d.key}>
+						{columns.map((c) => {
+							const { width, minWidth } =
+								columnWidths[c.accessor];
+
+							return (
+								<Box
+									key={c.name}
+									width={width}
+									minWidth={minWidth}
+								>
+									{c.Component ? (
+										<c.Component row={d} column={c} />
+									) : (
+										<Text wrap={c.wrap}>
+											{d[c.accessor]}
+										</Text>
+									)}
+								</Box>
+							);
+						})}
+					</Box>
+				))}
+			</Box>
 		</Box>
 	);
 };
