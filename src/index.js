@@ -2,10 +2,10 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {
 	withConfig,
-	// getConfigFile,
 	getGlobalOptions,
 	getCommandOptions,
 	cliCommands,
+	// configOptions,
 } from './config';
 import log from './logger';
 
@@ -49,5 +49,46 @@ const run = () => {
 		process.exitCode = 1;
 	});
 };
+
+// for generating command options table
+// const run = async () => {
+// 	const command = 'changes';
+// 	const tableRows = [];
+
+// 	const headers = ['Option', 'Type [choices]', 'Default', 'Description'];
+// 	tableRows.push(headers);
+
+// 	// opt.yargsCommmands.length === 0
+
+// 	for (const opt of configOptions) {
+// 		if (
+// 			opt.yargsType !== 'positional' &&
+// 			opt.yargsCommmands.includes(command)
+// 		) {
+// 			const row = [
+// 				`\`--${opt.name}\` ${
+// 					opt.options.alias ? `, \`-${opt.options.alias}\`` : ''
+// 				}`,
+// 				`${opt.options.type} ${
+// 					opt.options.choices
+// 						? `[${opt.options.choices
+// 								.map((c) => `\`${c}\``)
+// 								.join(', ')}]`
+// 						: ''
+// 				}`,
+// 				opt.options.default,
+// 				opt.options.describe,
+// 			];
+
+// 			tableRows.push(row);
+// 		}
+// 	}
+
+// 	for (const [i, tableRow] of tableRows.entries()) {
+// 		tableRows[i] = tableRow.join(' | ');
+// 	}
+
+// 	console.log(tableRows.join('\n'));
+// };
 
 export default run;

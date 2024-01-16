@@ -38,12 +38,37 @@ refit [options]
 
 ```
 
+| Option                    | Type [choices]                    | Default | Description                                     |
+| ------------------------- | --------------------------------- | ------- | ----------------------------------------------- |
+| `--all` , `-a`            | boolean                           | false   | show all dependencies including up to date ones |
+| `--deprecated`            | boolean                           | false   | allow updating to deprecated versions           |
+| `--depTypes` , `-d`       | array [`dev`, `prod`, `optional`] |         | filter by dependency type                       |
+| `--global` , `-g`         | boolean                           | false   | check global node modules instead of local ones |
+| `--groupByPackage` , `-G` | boolean                           | false   | list dependencies grouped by package            |
+| `--noIssues` , `-n`       | boolean                           | false   | hide issues section from list output            |
+| `--prerelease`            | boolean                           | false   | allow updating to prerelease versions           |
+| `--sort`                  | string [`name`, `date`, `type`]   | type    | sort dependencies                               |
+| `--updateTo` , `-to`      | string [`latest`, `wanted`]       | latest  | update dependencies to semver type              |
+| `--semver` , `-s`         | array [`major`, `minor`, `patch`] |         | filter by update type                           |
+| `--verbose` , `-v`        | boolean                           | false   | display all columns of dependency information   |
+| `--workspace` , `-w`      | array                             |         | filter dependencies by workspace                |
+
 ### Update
 
 ```bash
 refit update [...dependencies] [options]
 
 ```
+
+| Option                 | Type [choices]                    | Default | Description                            |
+| ---------------------- | --------------------------------- | ------- | -------------------------------------- |
+| `--deprecated`         | boolean                           | false   | allow updating to deprecated versions  |
+| `--depTypes` , `-d`    | array [`dev`, `prod`, `optional`] |         | filter by dependency type              |
+| `--interactive` , `-i` | boolean                           | false   | interactively bulk update dependencies |
+| `--prerelease`         | boolean                           | false   | allow updating to prerelease versions  |
+| `--updateTo` , `-to`   | string [`latest`, `wanted`]       | latest  | update dependencies to semver type     |
+| `--semver` , `-s`      | array [`major`, `minor`, `patch`] |         | filter by update type                  |
+| `--workspace` , `-w`   | array                             |         | filter dependencies by workspace       |
 
 ### Wizard
 
@@ -52,6 +77,13 @@ refit wizard [options]
 
 ```
 
+| Option               | Type [choices]                    | Default | Description                           |
+| -------------------- | --------------------------------- | ------- | ------------------------------------- |
+| `--deprecated`       | boolean                           | false   | allow updating to deprecated versions |
+| `--depTypes` , `-d`  | array [`dev`, `prod`, `optional`] |         | filter by dependency type             |
+| `--prerelease`       | boolean                           | false   | allow updating to prerelease versions |
+| `--workspace` , `-w` | array                             |         | filter dependencies by workspace      |
+
 ### Changelogs
 
 ```bash
@@ -59,9 +91,18 @@ refit changes [options]
 
 ```
 
+| Option          | Type [choices] | Default | Description         |
+| --------------- | -------------- | ------- | ------------------- |
+| `--full` , `-f` | boolean        | false   | show full changelog |
 
+## Global Options
 
-<!-- 
+| Option             | Type [choices]                 | Default | Description                            |
+| ------------------ | ------------------------------ | ------- | -------------------------------------- |
+| `--packageManager` | string [`npm`, `yarn`, `pnpm`] | npm     | package manager to use                 |
+| `--workspaces`     | array                          |         | directories of the monorepo workspaces |
+
+<!--
 # 📦 Refit - Dependency Management
 
 [![npm](https://img.shields.io/npm/v/refit.svg)](https://www.npmjs.com/package/refit)
@@ -172,4 +213,3 @@ refit changelog [options]
 | --full, -f        | false   | boolean | show full changelog                  |
 | --packageDirs, -P |         | array   | directories of the monorepo packages |
 | --packageManager  | npm     | string  | package manager to use               | -->
-
