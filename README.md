@@ -28,11 +28,14 @@ Or run with npx:
 npx refit
 ```
 
-> **Note:** Requires Node.js 18+
+> ![NOTE]
+> Requires Node.js 18+
 
-## Commands
+## Usage
 
 ### List
+
+List the dependencies in your project. By default, only dependencies that need to be updated are shown and are grouped by semver update type.
 
 ```bash
 refit [options]
@@ -41,6 +44,8 @@ refit [options]
 refit ls [options]
 
 ```
+
+![list command example](docs/list.gif)
 
 | Option                    | Type [choices]                    | Default | Description                                     |
 | ------------------------- | --------------------------------- | ------- | ----------------------------------------------- |
@@ -101,13 +106,21 @@ refit changes [dependency] [options]
 
 ```
 
+![changes command example](docs/changes.gif)
+
 | Option          | Type [choices] | Default | Description         |
 | --------------- | -------------- | ------- | ------------------- |
 | `--full` , `-f` | boolean        | false   | show full changelog |
 
-## Global Options
+### Global Options
+
+These options can be used with any command:
 
 | Option             | Type [choices]                 | Default | Description                            |
 | ------------------ | ------------------------------ | ------- | -------------------------------------- |
 | `--packageManager` | string [`npm`, `yarn`, `pnpm`] | npm     | package manager to use                 |
 | `--workspaces`     | array                          |         | directories of the monorepo workspaces |
+
+## Configuration File
+
+Refit supports a configuration file in the root of your project called `.refitrc.json`. This file can be used to set default options for the CLI tool. All command options and global options can be set in the configuration file.
