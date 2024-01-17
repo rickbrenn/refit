@@ -1,11 +1,5 @@
 # 📦 Refit - Dependency Manager
 
-> [!TIP]
-> Optional information to help a user be more successful.
-
-> [!IMPORTANT]  
-> Crucial information necessary for users to succeed.
-
 <!-- [![npm](https://img.shields.io/npm/v/refit.svg)](https://www.npmjs.com/package/refit)
 [![npm](https://img.shields.io/npm/dt/refit.svg)](https://www.npmjs.com/package/refit)
 ![GitHub](https://img.shields.io/github/license/bradennapier/refit.svg) -->
@@ -24,13 +18,6 @@ A CLI tool for reviewing, adding, updating, and viewing the changelog for depend
 
 ## Installation
 
-
-> [!WARNING]  
-> Critical content demanding immediate user attention due to potential risks.
-
-> [!CAUTION]
-> Negative potential consequences of an action.
-
 ```bash
 npm install -g refit
 ```
@@ -42,7 +29,7 @@ npx refit
 ```
 
 > [!NOTE]  
-> Highlights information that users should take into account, even when skimming.
+> Requires Node.js 18+
 
 ## Usage
 
