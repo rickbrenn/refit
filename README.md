@@ -35,7 +35,9 @@ npx refit
 
 ### List
 
-List the dependencies in your project. By default, only dependencies that need to be updated are shown and are grouped by semver update type.
+List the project dependencies. By default, only dependencies that need to be updated are shown and are grouped by semver update type.
+
+![list command example](docs/list.gif)
 
 ```bash
 refit [options]
@@ -43,9 +45,35 @@ refit [options]
 # or
 refit ls [options]
 
+# Examples:
+# Display all dependencies in the project
+refit --all
+
+# Display all dependencies in the project grouped by package
+refit --all --groupByPackage
+
+# Only display dependencies with patch updates
+refit --semver patch
+
+# Only display dependencies in a specific workspace
+refit --workspace workspace-name
 ```
 
-![list command example](docs/list.gif)
+#### Warnings and Errors
+
+The list command will also display warnings and errors found with your dependencies. This can be turned off with the `noIssues` option.
+
+**⚠️ Warnings:**
+
+-   Dependencies that have multiple versions installed across workspaces
+
+**❌ Errors:**
+
+-   Dependencies that are deprecated
+-   Dependencies that are not on the registry
+-   Dependencies that require an install
+    -   a dependency could require install because the `node_modules` directory is missing
+    -   changes were pulled down from the remote that include dependency updates and `npm install` hasn't been ran yet to sync up the local node modules
 
 | Option                    | Type [choices]                    | Default | Description                                     |
 | ------------------------- | --------------------------------- | ------- | ----------------------------------------------- |
@@ -64,15 +92,36 @@ refit ls [options]
 
 ### Update
 
+Updates outdated dependencies. This command only modifies the `package.json` file and does not run `npm install` or any other install command. By default, it will update all outdated dependencies to the latest version.
+
+![update command example](docs/update.gif)
+
 ```bash
 refit update [...dependencies] [options]
 
 # or
 refit up [...dependencies] [options]
 
+# Examples:
+# Update dependencies that only have patch updates
+refit up --semver patch
+
+# Update dev dependencies only
+refit up --depTypes dev
+
+# Update a single package
+refit up package-name
 ```
 
-![update command example](docs/update.gif)
+#### Interactive Mode
+
+Interactive mode allows you to select multiple dependencies to update at once across all workspaces. It also provides the ability to view the vhangelog for each dependency before updating by pressing the `tab` key.
+
+<!-- ![interactive command example](docs/interactive.gif) -->
+
+```bash
+refit up -i
+```
 
 | Option                 | Type [choices]                    | Default | Description                            |
 | ---------------------- | --------------------------------- | ------- | -------------------------------------- |
@@ -86,15 +135,16 @@ refit up [...dependencies] [options]
 
 ### Wizard
 
+<!-- description -->
+
+![wizard command example](docs/wizard.gif)
+
 ```bash
 refit wizard [options]
 
 # or
 refit w [options]
-
 ```
-
-![wizard command example](docs/wizard.gif)
 
 | Option               | Type [choices]                    | Default | Description                           |
 | -------------------- | --------------------------------- | ------- | ------------------------------------- |
@@ -105,12 +155,13 @@ refit w [options]
 
 ### Changelogs
 
-```bash
-refit changes [dependency] [options]
-
-```
+<!-- description -->
 
 ![changes command example](docs/changes.gif)
+
+```bash
+refit changes [dependency] [options]
+```
 
 | Option          | Type [choices] | Default | Description         |
 | --------------- | -------------- | ------- | ------------------- |
@@ -128,3 +179,14 @@ These options can be used with any command:
 ## Configuration File
 
 Refit supports a configuration file in the root of your project called `.refitrc.json`. This file can be used to set default options for the CLI tool. All command options and global options can be set in the configuration file.
+
+```json
+# Example .refitrc.json
+{
+	"workspaces": ["packages/*"],
+	"packageManager": "npm",
+	"depTypes": ["prod", "dev"],
+	"semver": ["major", "minor", "patch"],
+	"deprecated": false,
+}
+```
