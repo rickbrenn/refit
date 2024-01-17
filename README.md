@@ -1,4 +1,4 @@
-# 📦 Refit
+# 📦 Refit - Dependency Manager
 
 [![npm](https://img.shields.io/npm/v/refit.svg)](https://www.npmjs.com/package/refit)
 [![npm](https://img.shields.io/npm/dt/refit.svg)](https://www.npmjs.com/package/refit)
@@ -184,7 +184,7 @@ refit changes package-name@1.0.0
 The changes for each version is available from 2 sources:
 
 -   GitHub Releases
--   CHANGELOG.md file in the package
+-   `CHANGELOG.md` file in the package
 
 If both are available, the `s` key switches between the two sources.
 
