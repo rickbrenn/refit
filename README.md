@@ -18,6 +18,9 @@ A CLI tool for reviewing, adding, updating, and viewing the changelog for depend
 
 ## Installation
 
+> ![NOTE]
+> Requires Node.js 18+
+
 ```bash
 npm install -g refit
 ```
@@ -27,9 +30,6 @@ Or run with npx:
 ```bash
 npx refit
 ```
-
-> ![NOTE]
-> Requires Node.js 18+
 
 ## Usage
 
@@ -72,6 +72,8 @@ refit up [...dependencies] [options]
 
 ```
 
+![update command example](docs/update.gif)
+
 | Option                 | Type [choices]                    | Default | Description                            |
 | ---------------------- | --------------------------------- | ------- | -------------------------------------- |
 | `--deprecated`         | boolean                           | false   | allow updating to deprecated versions  |
@@ -91,6 +93,8 @@ refit wizard [options]
 refit w [options]
 
 ```
+
+![wizard command example](docs/wizard.gif)
 
 | Option               | Type [choices]                    | Default | Description                           |
 | -------------------- | --------------------------------- | ------- | ------------------------------------- |

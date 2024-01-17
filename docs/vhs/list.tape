@@ -1,6 +1,6 @@
 Output docs/list.gif
 
-Set Height 600
+Set Height 450
 Set Width 1200
 
 Source docs/vhs/core.tape
