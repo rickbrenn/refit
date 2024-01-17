@@ -1,10 +1,12 @@
-# 📦 Refit - Dependency Manager
+# 📦 Refit
 
 [![npm](https://img.shields.io/npm/v/refit.svg)](https://www.npmjs.com/package/refit)
 [![npm](https://img.shields.io/npm/dt/refit.svg)](https://www.npmjs.com/package/refit)
 ![GitHub](https://img.shields.io/github/license/bradennapier/refit.svg)
 
 A CLI tool for reviewing, adding, updating, and viewing the changelog for dependencies in your Node.js project.
+
+![list command example](docs/list.gif)
 
 ## Features
 
