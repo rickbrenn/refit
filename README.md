@@ -6,6 +6,8 @@
 
 A CLI tool for reviewing, adding, updating, and viewing the changelog for dependencies in your Node.js project.
 
+## Features
+
 **🛠️ Package Managers**: Works with `npm`, `yarn`, and `pnpm`.
 
 **🚀 Monorepo Support**: Manage all the dependencies in your monorepo with ease.
@@ -57,6 +59,21 @@ refit --semver patch
 refit --workspace workspace-name
 ```
 
+| Option                    | Type [choices]                    | Default | Description                                     |
+| ------------------------- | --------------------------------- | ------- | ----------------------------------------------- |
+| `--all` , `-a`            | boolean                           | false   | show all dependencies including up to date ones |
+| `--deprecated`            | boolean                           | false   | allow updating to deprecated versions           |
+| `--depTypes` , `-d`       | array [`dev`, `prod`, `optional`] |         | filter by dependency type                       |
+| `--global` , `-g`         | boolean                           | false   | check global node modules instead of local ones |
+| `--groupByPackage` , `-G` | boolean                           | false   | list dependencies grouped by package            |
+| `--noIssues` , `-n`       | boolean                           | false   | hide issues section from list output            |
+| `--prerelease`            | boolean                           | false   | allow updating to prerelease versions           |
+| `--sort`                  | string [`name`, `date`, `type`]   | type    | sort dependencies                               |
+| `--updateTo` , `-to`      | string [`latest`, `wanted`]       | latest  | update dependencies to semver type              |
+| `--semver` , `-s`         | array [`major`, `minor`, `patch`] |         | filter by update type                           |
+| `--verbose` , `-v`        | boolean                           | false   | display all columns of dependency information   |
+| `--workspace` , `-w`      | array                             |         | filter dependencies by workspace                |
+
 ### Warnings and Errors
 
 The list command will also display warnings and errors found with your dependencies. This can be turned off with the `noIssues` option.
@@ -72,21 +89,6 @@ The list command will also display warnings and errors found with your dependenc
 -   Dependencies that require an install
     -   a dependency could require install because the `node_modules` directory is missing
     -   changes were pulled down from the remote that include dependency updates and `npm install` hasn't been ran yet to sync up the local node modules
-
-| Option                    | Type [choices]                    | Default | Description                                     |
-| ------------------------- | --------------------------------- | ------- | ----------------------------------------------- |
-| `--all` , `-a`            | boolean                           | false   | show all dependencies including up to date ones |
-| `--deprecated`            | boolean                           | false   | allow updating to deprecated versions           |
-| `--depTypes` , `-d`       | array [`dev`, `prod`, `optional`] |         | filter by dependency type                       |
-| `--global` , `-g`         | boolean                           | false   | check global node modules instead of local ones |
-| `--groupByPackage` , `-G` | boolean                           | false   | list dependencies grouped by package            |
-| `--noIssues` , `-n`       | boolean                           | false   | hide issues section from list output            |
-| `--prerelease`            | boolean                           | false   | allow updating to prerelease versions           |
-| `--sort`                  | string [`name`, `date`, `type`]   | type    | sort dependencies                               |
-| `--updateTo` , `-to`      | string [`latest`, `wanted`]       | latest  | update dependencies to semver type              |
-| `--semver` , `-s`         | array [`major`, `minor`, `patch`] |         | filter by update type                           |
-| `--verbose` , `-v`        | boolean                           | false   | display all columns of dependency information   |
-| `--workspace` , `-w`      | array                             |         | filter dependencies by workspace                |
 
 ## Update
 
@@ -111,16 +113,6 @@ refit up --depTypes dev
 refit up package-name
 ```
 
-### Interactive Mode
-
-Interactive mode allows you to select multiple dependencies to update at once across all workspaces. It also provides the ability to view the vhangelog for each dependency before updating by pressing the `tab` key.
-
-<!-- ![interactive command example](docs/interactive.gif) -->
-
-```bash
-refit up -i
-```
-
 | Option                 | Type [choices]                    | Default | Description                            |
 | ---------------------- | --------------------------------- | ------- | -------------------------------------- |
 | `--deprecated`         | boolean                           | false   | allow updating to deprecated versions  |
@@ -131,9 +123,19 @@ refit up -i
 | `--semver` , `-s`      | array [`major`, `minor`, `patch`] |         | filter by update type                  |
 | `--workspace` , `-w`   | array                             |         | filter dependencies by workspace       |
 
+### Interactive Mode
+
+Interactive mode allows you to select multiple dependencies to update at once across all workspaces. It also provides the ability to view the changelog for each dependency before updating by pressing the `tab` key.
+
+<!-- ![interactive command example](docs/interactive.gif) -->
+
+```bash
+refit up -i
+```
+
 ## Wizard
 
-A step by step wizard to add or update dependencies. It also provides the ability to view the vhangelog for each dependency before updating by pressing the `tab` key on the dependency select step. This command is useful for granular control over workspace dependencies.
+A step by step wizard to add or update dependencies. Provides the ability to view the changelog for each dependency before updating by pressing the `tab` key on the dependency select step. This command is useful for granular control over monorepo workspace dependencies.
 
 ![wizard command example](docs/wizard.gif)
 
@@ -153,17 +155,36 @@ refit w [options]
 
 ## Changelogs
 
-View the changelog for a dependency. The changes for each version is available from 2 sources, GitHub Releases and a CHANGELOG.md file in the package. If both are available, the `s` key switches between the two sources. By default, the changelog will only display the versions newer than the current version of the dependency. Use the `full` option to display the full changelog.
+View the changelog for a dependency. By default, the changelog will only display the versions newer than the current version of the dependency. Use the `full` option to display the full changelog.
 
 ![changes command example](docs/changes.gif)
 
 ```bash
-refit changes [dependency] [options]
+refit changes [dependency[@version]] [options]
+
+# Examples:
+# View the changelog for a dependency
+refit changes package-name
+
+# View the full changelog for a dependency
+refit changes package-name --full
+
+# View the changelog for a dependency from a specific version
+refit changes package-name@1.0.0
 ```
 
 | Option          | Type [choices] | Default | Description         |
 | --------------- | -------------- | ------- | ------------------- |
 | `--full` , `-f` | boolean        | false   | show full changelog |
+
+### Sources
+
+The changes for each version is available from 2 sources:
+
+-   GitHub Releases
+-   CHANGELOG.md file in the package
+
+If both are available, the `s` key switches between the two sources.
 
 ## Global Options
 
