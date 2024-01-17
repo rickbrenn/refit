@@ -31,9 +31,7 @@ npx refit
 > [!NOTE]  
 > Requires Node.js 18+
 
-## Usage
-
-### List
+## List
 
 List the project dependencies. By default, only dependencies that need to be updated are shown and are grouped by semver update type.
 
@@ -59,7 +57,7 @@ refit --semver patch
 refit --workspace workspace-name
 ```
 
-#### Warnings and Errors
+### Warnings and Errors
 
 The list command will also display warnings and errors found with your dependencies. This can be turned off with the `noIssues` option.
 
@@ -90,7 +88,7 @@ The list command will also display warnings and errors found with your dependenc
 | `--verbose` , `-v`        | boolean                           | false   | display all columns of dependency information   |
 | `--workspace` , `-w`      | array                             |         | filter dependencies by workspace                |
 
-### Update
+## Update
 
 Updates outdated dependencies. This command only modifies the `package.json` file and does not run `npm install` or any other install command. By default, it will update all outdated dependencies to the latest version.
 
@@ -113,7 +111,7 @@ refit up --depTypes dev
 refit up package-name
 ```
 
-#### Interactive Mode
+### Interactive Mode
 
 Interactive mode allows you to select multiple dependencies to update at once across all workspaces. It also provides the ability to view the vhangelog for each dependency before updating by pressing the `tab` key.
 
@@ -133,9 +131,9 @@ refit up -i
 | `--semver` , `-s`      | array [`major`, `minor`, `patch`] |         | filter by update type                  |
 | `--workspace` , `-w`   | array                             |         | filter dependencies by workspace       |
 
-### Wizard
+## Wizard
 
-<!-- description -->
+A step by step wizard to add or update dependencies. It also provides the ability to view the vhangelog for each dependency before updating by pressing the `tab` key on the dependency select step. This command is useful for granular control over workspace dependencies.
 
 ![wizard command example](docs/wizard.gif)
 
@@ -153,9 +151,9 @@ refit w [options]
 | `--prerelease`       | boolean                           | false   | allow updating to prerelease versions |
 | `--workspace` , `-w` | array                             |         | filter dependencies by workspace      |
 
-### Changelogs
+## Changelogs
 
-<!-- description -->
+View the changelog for a dependency. The changes for each version is available from 2 sources, GitHub Releases and a CHANGELOG.md file in the package. If both are available, the `s` key switches between the two sources. By default, the changelog will only display the versions newer than the current version of the dependency. Use the `full` option to display the full changelog.
 
 ![changes command example](docs/changes.gif)
 
@@ -167,7 +165,7 @@ refit changes [dependency] [options]
 | --------------- | -------------- | ------- | ------------------- |
 | `--full` , `-f` | boolean        | false   | show full changelog |
 
-### Global Options
+## Global Options
 
 These options can be used with any command:
 
