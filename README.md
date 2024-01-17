@@ -18,9 +18,6 @@ A CLI tool for reviewing, adding, updating, and viewing the changelog for depend
 
 ## Installation
 
-> ![NOTE]
-> Requires Node.js 18+
-
 ```bash
 npm install -g refit
 ```
@@ -30,6 +27,9 @@ Or run with npx:
 ```bash
 npx refit
 ```
+
+> ![NOTE]
+> Requires Node.js 18+
 
 ## Usage
 
