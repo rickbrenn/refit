@@ -199,7 +199,7 @@ These options can be used with any command:
 
 Refit supports a configuration file in the root of your project called `.refitrc.json`. This file can be used to set default options for the CLI tool. All command options and global options can be set in the configuration file.
 
-```json
+```jsonc
 # Example .refitrc.json
 {
 	"workspaces": ["packages/*"],
