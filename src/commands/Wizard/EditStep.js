@@ -23,7 +23,7 @@ const EditStep = ({ wizardState, setWizardState }) => {
 		<Selector
 			items={wizardState.updates.map((u, i) => ({
 				...u,
-				name: u.dependency,
+				name: u.dependency.name,
 				index: i,
 			}))}
 			onSelect={handleRemoveUpdate}
@@ -59,7 +59,7 @@ const EditStep = ({ wizardState, setWizardState }) => {
 				return <Text color="red">{highlighted ? 'X' : ' '}</Text>;
 			}}
 			renderItem={({ item }) => {
-				const value = `${item.dependency}@${item.version}`;
+				const value = `${item.dependency.name}@${item.version}`;
 				return (
 					<Box key={value}>
 						<Box marginRight={1} flexShrink={0}>

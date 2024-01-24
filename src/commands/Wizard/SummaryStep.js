@@ -4,7 +4,12 @@ import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
 import steps from './wizardSteps';
 
-const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
+const SummaryStep = ({
+	wizardState,
+	setWizardState,
+	updateDependencies,
+	wizardStateDefaults,
+}) => {
 	return (
 		<Box flexDirection="column">
 			<Box marginBottom={1}>
@@ -13,9 +18,9 @@ const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
 			<Box marginLeft={1} marginBottom={1} flexDirection="column">
 				{wizardState.updates.map((update) => {
 					return (
-						<Box key={update.dependency}>
+						<Box key={update.dependency.name}>
 							<Box marginRight={1} flexShrink={0}>
-								<Text>{`${update.dependency}@${update.version}`}</Text>
+								<Text>{`${update.dependency.name}@${update.wildcard + update.version}`}</Text>
 							</Box>
 							<Text>{`(${update.packages
 								.map(({ name, type }) => `${name}:${type}`)
@@ -31,29 +36,22 @@ const SummaryStep = ({ wizardState, setWizardState, updateDependencies }) => {
 						updateDependencies();
 						setWizardState((prevState) => ({
 							...prevState,
-							version: null,
-							dependency: null,
-							packages: null,
 							step: steps.done,
 						}));
 					}
 
 					if (value === 'Edit updates') {
 						setWizardState((prevState) => ({
-							...prevState,
-							version: null,
-							dependency: null,
-							packages: null,
+							...wizardStateDefaults,
+							updates: prevState.updates,
 							step: steps.edit,
 						}));
 					}
 
 					if (value === 'Add another') {
 						setWizardState((prevState) => ({
-							...prevState,
-							version: null,
-							dependency: null,
-							packages: null,
+							...wizardStateDefaults,
+							updates: prevState.updates,
 							step: steps.dependency,
 						}));
 					}
@@ -69,6 +67,7 @@ SummaryStep.propTypes = {
 	}).isRequired,
 	setWizardState: PropTypes.func.isRequired,
 	updateDependencies: PropTypes.func.isRequired,
+	wizardStateDefaults: PropTypes.shape({}).isRequired,
 };
 
 export default SummaryStep;

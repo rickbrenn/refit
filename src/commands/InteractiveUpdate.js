@@ -64,8 +64,8 @@ const InteractiveUpdate = ({ config }) => {
 	}, [config]);
 
 	const updateColumns = useMemo(() => {
-		return getUpdateColumns(config);
-	}, [config]);
+		return getUpdateColumns();
+	}, []);
 
 	const updateDependencies = async (selectedDeps) => {
 		const pkgs = await getPackages(config);

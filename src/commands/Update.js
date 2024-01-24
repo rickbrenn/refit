@@ -46,8 +46,8 @@ const Update = ({ config }) => {
 	}, [startLoader]);
 
 	const columns = useMemo(() => {
-		return getUpdateColumns(config);
-	}, [config]);
+		return getUpdateColumns();
+	}, []);
 
 	if (errorMessage) {
 		return (

@@ -4,10 +4,22 @@ import { Text, Box, useFocusManager } from 'ink';
 import semver from 'semver';
 import { Selector } from '../../ui/Selector';
 import Changelog from '../../ui/Changelog/Changelog';
-import Header from './Header';
+import { useError } from '../../ui/ErrorBoundary';
 import FocusTarget from '../../ui/FocusTarget';
+import { createDependency, getRegistryData } from '../../common/dependencies';
+import Header from './Header';
 
-const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
+const DependencyStep = ({
+	dependencies,
+	wizardState,
+	setWizardState,
+	updateLoading,
+	updateLoaderText,
+	allowPrerelease,
+	allowDeprecated,
+	formatDependency,
+}) => {
+	const { setError } = useError();
 	const [changelog, setChangelog] = useState({
 		open: false,
 		name: null,
@@ -15,16 +27,64 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 	});
 	const { focus } = useFocusManager();
 
-	const selectorItems = useMemo(
-		() =>
-			dependencies.filter(
-				(dep) =>
-					!wizardState.updates.some(
-						(update) => update.dependency === dep.name
-					)
-			),
-		[dependencies, wizardState.updates]
-	);
+	const selectorItems = useMemo(() => {
+		// Filter out dependencies that have already been updated
+		return dependencies.filter((dep) => {
+			return !wizardState.updates.some(
+				(update) => update.dependency === dep.name
+			);
+		});
+	}, [dependencies, wizardState.updates]);
+
+	const goToNextStep = (dep, newDep = false) => {
+		setWizardState((prevState) => ({
+			...prevState,
+			dependency: dep,
+			new: newDep,
+			step: prevState.step + 1,
+			errorMessage: null,
+		}));
+	};
+
+	const handleSelect = async (value) => {
+		if (value.create) {
+			try {
+				updateLoading(true);
+				updateLoaderText(`Fetching data for ${value.name}`);
+
+				const registryData = await getRegistryData(value.name);
+
+				const dep = createDependency({
+					dependency: {
+						name: value.name,
+					},
+					registryData,
+					config: {
+						allowPrerelease,
+						allowDeprecated,
+					},
+				});
+
+				if (dep.notOnRegistry) {
+					setWizardState((prevState) => ({
+						...prevState,
+						dependency: null,
+						errorMessage: 'Dependency not found!',
+					}));
+				} else {
+					const formattedDep = formatDependency(dep);
+					goToNextStep(formattedDep, true);
+				}
+
+				updateLoading(false);
+				updateLoaderText('');
+			} catch (error) {
+				setError(error);
+			}
+		} else {
+			goToNextStep(value);
+		}
+	};
 
 	return (
 		<>
@@ -35,17 +95,7 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 							<Header wizardState={wizardState} />
 							<Selector
 								items={selectorItems}
-								onSelect={(value) => {
-									setWizardState((prevState) => ({
-										...prevState,
-										dependency: {
-											name: value.name,
-											new: !!value.create,
-										},
-										step: prevState.step + 1,
-										errorMessage: null,
-									}));
-								}}
+								onSelect={handleSelect}
 								isFocused={isFocused}
 								limit={8}
 								labelKey="name"
@@ -149,7 +199,11 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 													</Box>
 													<Box>
 														<Text>
-															{item.latestRange}
+															{
+																item
+																	.versionRange
+																	.latest
+															}
 														</Text>
 														<Text>)</Text>
 													</Box>
@@ -161,7 +215,7 @@ const DependencyStep = ({ dependencies, wizardState, setWizardState }) => {
 								inputHandler={({ key }, { item }) => {
 									if (key.tab) {
 										const installedVersions = Object.values(
-											item.apps
+											item.appVersions
 										)
 											.filter(Boolean)
 											.map((v) => v.installed)
@@ -223,6 +277,11 @@ DependencyStep.propTypes = {
 		updates: PropTypes.arrayOf(PropTypes.shape({})),
 	}).isRequired,
 	setWizardState: PropTypes.func.isRequired,
+	updateLoading: PropTypes.func.isRequired,
+	updateLoaderText: PropTypes.func.isRequired,
+	allowPrerelease: PropTypes.bool.isRequired,
+	allowDeprecated: PropTypes.bool.isRequired,
+	formatDependency: PropTypes.func.isRequired,
 };
 
 export default DependencyStep;

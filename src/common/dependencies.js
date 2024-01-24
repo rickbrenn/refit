@@ -19,6 +19,8 @@ const semverUpdateColors = {
 	patch: 'green',
 };
 
+const validWildcards = ['', '^', '~', '>', '<', '=', '>=', '<='];
+
 const wildcardRegex = /^(?<wildcard>[~^(>)(<)(=)(>=)(<=)]+)?(?<version>.+)/;
 
 const getDiffVersionParts = (current, upgrade, returnCurrent = false) => {
@@ -501,4 +503,5 @@ export {
 	sortDependencies,
 	filterDependencies,
 	depTypesList,
+	validWildcards,
 };

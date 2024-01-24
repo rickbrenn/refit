@@ -1,80 +1,33 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
-import LoaderBoundary from '../../ui/LoaderBoundary';
-import { useError } from '../../ui/ErrorBoundary';
-import { createDependency, getRegistryData } from '../../common/dependencies';
 import Header from './Header';
 import steps from './wizardSteps';
+import { validWildcards } from '../../common/dependencies';
 
-const VersionStep = ({
-	dependencies,
-	wizardState,
-	setWizardState,
-	packages,
-	isMonorepo,
-	allowPrerelease,
-	allowDeprecated,
-}) => {
-	const { setError } = useError();
-	const existingDependency = dependencies.find(
-		(d) => d.name === wizardState.dependency.name
-	);
-	const [depData, setDepData] = useState({
-		loading: !!wizardState.dependency.new,
-		dep: existingDependency,
-	});
+const VersionStep = ({ wizardState, setWizardState, packages, isMonorepo }) => {
+	const getDefaultWildcard = () => {
+		const { appVersions = {} } = wizardState.dependency || {};
+		const wildcards = Object.values(appVersions).map((a) => a.wildcard);
+		const uniqueWildcards = [...new Set(wildcards)];
 
-	const getNewDependency = useCallback(
-		async (name) => {
-			try {
-				setDepData((prevState) => ({
-					...prevState,
-					loading: true,
-				}));
-
-				const registryData = await getRegistryData(name);
-
-				const dep = createDependency({
-					dependency: {
-						name,
-					},
-					registryData,
-					config: {
-						allowPrerelease,
-						allowDeprecated,
-					},
-				});
-
-				if (dep.notOnRegistry) {
-					setWizardState((prevState) => ({
-						...prevState,
-						dependency: null,
-						step: prevState.step - 1,
-						errorMessage: 'Dependency not found!',
-					}));
-				} else {
-					setDepData({
-						loading: false,
-						dep,
-					});
-				}
-			} catch (error) {
-				setError(error);
-			}
-		},
-		[allowPrerelease, allowDeprecated, setWizardState, setError]
-	);
-
-	useEffect(() => {
-		if (wizardState.dependency.new) {
-			getNewDependency(wizardState.dependency.name);
+		if (uniqueWildcards.length) {
+			return uniqueWildcards[0];
 		}
-	}, [getNewDependency, wizardState.dependency]);
+
+		return wizardState.wildcard;
+	};
+
+	const [selectedWildcard, setSelectedWildcard] =
+		useState(getDefaultWildcard);
 
 	const versionOptions = useMemo(() => {
-		const { versions = [], distTags = {}, apps = {} } = depData.dep || {};
+		const {
+			versions = [],
+			distTags = {},
+			appVersions = {},
+		} = wizardState.dependency || {};
 
 		const sortedVersions = [...versions].reverse();
 
@@ -84,8 +37,8 @@ const VersionStep = ({
 			distTagOptions.push({
 				version,
 				distTag,
-				apps: Object.keys(apps).filter(
-					(app) => apps[app].wanted === version
+				apps: Object.keys(appVersions).filter(
+					(app) => appVersions[app].wanted === version
 				),
 				key: version + distTag,
 			});
@@ -97,8 +50,8 @@ const VersionStep = ({
 		const versionsToExclude = Object.values(distTags);
 		for (const version of sortedVersions) {
 			if (!versionsToExclude.includes(version)) {
-				const optionTypeArray = Object.keys(apps).some(
-					(app) => apps[app].wanted === version
+				const optionTypeArray = Object.keys(appVersions).some(
+					(app) => appVersions[app].wanted === version
 				)
 					? wantedVersions
 					: restOfOptions;
@@ -106,8 +59,8 @@ const VersionStep = ({
 				optionTypeArray.push({
 					version,
 					distTag: null,
-					apps: Object.keys(apps).filter(
-						(app) => apps[app].wanted === version
+					apps: Object.keys(appVersions).filter(
+						(app) => appVersions[app].wanted === version
 					),
 					key: version,
 				});
@@ -115,110 +68,149 @@ const VersionStep = ({
 		}
 
 		return [...distTagOptions, ...wantedVersions, ...restOfOptions];
-	}, [depData.dep]);
+	}, [wizardState.dependency]);
 
 	return (
 		<>
 			<Header wizardState={wizardState} />
-			<LoaderBoundary
-				loading={depData.loading}
-				text="Fetching dependency from registry"
-				debounceMs={500}
-			>
-				<Selector
-					items={versionOptions}
-					onSelect={(value) => {
-						let nextStep = steps.summary;
-						if (isMonorepo) {
-							nextStep = steps.packages;
-						} else if (wizardState.dependency.new) {
-							nextStep = steps.depTypes;
-						}
+			<Selector
+				items={versionOptions}
+				onSelect={(value) => {
+					let nextStep = steps.summary;
+					if (isMonorepo) {
+						nextStep = steps.packages;
+					} else if (wizardState.new) {
+						nextStep = steps.depTypes;
+					}
 
-						const defaultPackage = Object.keys(packages)[0];
-						const defaultDepType =
-							existingDependency?.apps?.[defaultPackage]?.type;
+					const defaultPackage = Object.keys(packages)[0];
+					const defaultDepType =
+						wizardState.dependency?.appVersions?.[defaultPackage]
+							?.type;
 
-						setWizardState((prevState) => ({
-							...prevState,
-							version: value.version,
-							step: nextStep,
-							...(nextStep === steps.depTypes && {
-								packages: [
-									{
-										name: defaultPackage,
-										type: defaultDepType,
-									},
-								],
-							}),
-							...(nextStep === steps.summary && {
-								updates: [
-									...prevState.updates,
-									{
-										dependency: prevState.dependency.name,
-										version: value.version,
-										packages: [
-											{
-												name: defaultPackage,
-												type: defaultDepType,
-											},
-										],
-									},
-								],
-							}),
-						}));
-					}}
-					limit={8}
-					labelKey="version"
-					title="Select a version below to install"
-					searchable
-					searchByKey="version"
-					itemKey="key"
-					renderItem={({ item, textColor }) => {
-						return (
+					setWizardState((prevState) => ({
+						...prevState,
+						version: value.version,
+						step: nextStep,
+						wildcard: selectedWildcard,
+						...(nextStep === steps.depTypes && {
+							packages: [
+								{
+									name: defaultPackage,
+									type: defaultDepType,
+								},
+							],
+						}),
+						...(nextStep === steps.summary && {
+							updates: [
+								...prevState.updates,
+								{
+									dependency: prevState.dependency,
+									version: value.version,
+									wildcard: selectedWildcard,
+									packages: [
+										{
+											name: defaultPackage,
+											type: defaultDepType,
+										},
+									],
+								},
+							],
+						}),
+					}));
+				}}
+				limit={8}
+				labelKey="version"
+				renderTitle={() => {
+					return (
+						<Box>
+							<Box marginRight="1">
+								<Text>Select a version below to install</Text>
+							</Box>
 							<Box>
+								<Text color="grey">(</Text>
+								<Text>
+									<Text color="magenta">◄</Text>{' '}
+									<Text color="magenta">►</Text>
+								</Text>
+								<Text color="grey">
+									{' to change wildcard)'}
+								</Text>
+							</Box>
+						</Box>
+					);
+				}}
+				searchable
+				searchByKey="version"
+				itemKey="key"
+				renderItem={({ item, textColor }) => {
+					return (
+						<Box>
+							<Box marginRight={1} flexShrink={0}>
+								<Text color={textColor}>
+									{selectedWildcard + item.version}
+								</Text>
+							</Box>
+
+							{item.distTag && (
 								<Box marginRight={1} flexShrink={0}>
-									<Text color={textColor}>
-										{item.version}
+									<Text color="green">{`#${item.distTag}`}</Text>
+								</Box>
+							)}
+							{item.apps.length > 0 && (
+								<Box>
+									<Text color="green">
+										{isMonorepo
+											? `(${item.apps.join(', ')})`
+											: '(installed)'}
 									</Text>
 								</Box>
-
-								{item.distTag && (
-									<Box marginRight={1} flexShrink={0}>
-										<Text color="green">{`#${item.distTag}`}</Text>
-									</Box>
-								)}
-								{item.apps.length > 0 && (
-									<Box>
-										<Text color="green">
-											{isMonorepo
-												? `(${item.apps.join(', ')})`
-												: '(installed)'}
-										</Text>
-									</Box>
-								)}
-							</Box>
+							)}
+						</Box>
+					);
+				}}
+				inputHandler={({ key }) => {
+					if (key.leftArrow || key.rightArrow) {
+						const currentWildcardIndex = validWildcards.findIndex(
+							(w) => w === selectedWildcard
 						);
-					}}
-				/>
-			</LoaderBoundary>
+
+						if (key.leftArrow) {
+							const nextIndex =
+								currentWildcardIndex === 0
+									? validWildcards.length - 1
+									: currentWildcardIndex - 1;
+
+							setSelectedWildcard(validWildcards[nextIndex]);
+						}
+
+						if (key.rightArrow) {
+							const nextIndex =
+								currentWildcardIndex ===
+								validWildcards.length - 1
+									? 0
+									: currentWildcardIndex + 1;
+
+							setSelectedWildcard(validWildcards[nextIndex]);
+						}
+					}
+				}}
+			/>
 		</>
 	);
 };
 
 VersionStep.propTypes = {
-	dependencies: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 	wizardState: PropTypes.shape({
 		dependency: PropTypes.shape({
-			name: PropTypes.string,
-			new: PropTypes.bool,
+			appVersions: PropTypes.shape({}),
 		}),
+		new: PropTypes.bool,
+		wildcard: PropTypes.string,
 	}).isRequired,
 	setWizardState: PropTypes.func.isRequired,
 	packages: PropTypes.shape({}).isRequired,
 	isMonorepo: PropTypes.bool.isRequired,
-	allowPrerelease: PropTypes.bool.isRequired,
-	allowDeprecated: PropTypes.bool.isRequired,
 };
 
 export default VersionStep;

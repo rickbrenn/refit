@@ -1,28 +1,19 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { CheckSelector } from '../../ui/Selector';
 import Header from './Header';
 import steps from './wizardSteps';
 
-const PackagesStep = ({
-	dependencies,
-	wizardState,
-	packages,
-	setWizardState,
-}) => {
-	const [hasValidationError, setHasValidationError] = useState(false);
-
+const PackagesStep = ({ wizardState, packages, setWizardState }) => {
 	const packageOptions = useMemo(() => {
-		const dep = dependencies.find(
-			(d) => d.name === wizardState.dependency.name
-		);
-		const { apps = {}, versionData = {} } = dep || {};
+		const { appVersions = {}, versionData = {} } =
+			wizardState.dependency || {};
 
 		const packageList = Object.keys(packages).sort();
 		const options = packageList
 			.map((name) => {
-				const { target, type } = apps[name] || {};
+				const { target, type } = appVersions[name] || {};
 				return {
 					name,
 					hasPackage: !!target,
@@ -43,7 +34,7 @@ const PackagesStep = ({
 				return a.name.localeCompare(b.name);
 			});
 
-		const installedApps = Object.keys(apps);
+		const installedApps = Object.keys(appVersions);
 		const defaultSelected = installedApps.map((app) =>
 			options.findIndex((opt) => opt.name === app)
 		);
@@ -52,19 +43,19 @@ const PackagesStep = ({
 			options,
 			defaultSelected,
 		};
-	}, [wizardState.dependency.name, dependencies, packages]);
+	}, [wizardState.dependency, packages]);
 
 	return (
 		<>
 			<Header wizardState={wizardState} />
-			{hasValidationError && (
-				<Text color="red">Please select at least one package</Text>
-			)}
 			<CheckSelector
 				items={packageOptions.options}
 				onSelect={(value) => {
 					if (!value || value?.length === 0) {
-						setHasValidationError(true);
+						setWizardState((prevState) => ({
+							...prevState,
+							errorMessage: 'Please select at least one package',
+						}));
 					} else {
 						const newDep = value.some((v) => !v.hasPackage);
 						const nextStep = newDep
@@ -78,13 +69,15 @@ const PackagesStep = ({
 							...prevState,
 							step: nextStep,
 							packages: packagesData,
+							errorMessage: null,
 							...(nextStep === steps.summary && {
 								updates: [
 									...prevState.updates,
 									{
-										dependency: prevState.dependency.name,
+										dependency: prevState.dependency,
 										version: prevState.version,
 										packages: packagesData,
+										wildcard: prevState.wildcard,
 									},
 								],
 							}),
@@ -142,11 +135,9 @@ const PackagesStep = ({
 };
 
 PackagesStep.propTypes = {
-	dependencies: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 	wizardState: PropTypes.shape({
 		dependency: PropTypes.shape({
 			name: PropTypes.string,
-			new: PropTypes.bool,
 		}),
 	}).isRequired,
 	setWizardState: PropTypes.func.isRequired,

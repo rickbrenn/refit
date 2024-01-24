@@ -25,23 +25,77 @@ import EditStep from './EditStep';
 import CompleteStep from './CompleteStep';
 
 const WizardCommand = ({ config }) => {
-	const { loading, updateLoading, loaderText, updateProgress } =
-		useDependencyLoader();
+	const {
+		loading,
+		updateLoading,
+		updateLoaderText,
+		loaderText,
+		updateProgress,
+	} = useDependencyLoader();
 	const { setError } = useError();
 
 	const [packages, setPackages] = useState({});
 	const [dependencies, setDependencies] = useState([]);
 
-	const [wizardState, setWizardState] = useState({
-		// making the step controlled since ink doesn't batch state updates
-		// and the states rendering separately causes flickering
+	// making the step controlled since ink doesn't batch state updates
+	// and the states rendering separately causes flickering
+	const wizardStateDefaults = {
 		step: 0,
 		updates: [],
+		wildcard: '^',
 		dependency: null,
+		new: false,
 		packages: null,
 		version: null,
 		errorMessage: null,
-	});
+	};
+
+	const [wizardState, setWizardState] = useState(wizardStateDefaults);
+
+	const formatDependency = useCallback((dep) => {
+		const {
+			color,
+			updateType,
+			wildcard,
+			midDot,
+			uncoloredText,
+			coloredText,
+		} = getDiffVersionParts(
+			dep.versionRange.target,
+			dep.versionRange.latest,
+			true
+		);
+
+		const appVersions = Object.fromEntries(
+			dep.apps.map((app) => [
+				app.name,
+				{
+					installed: dep.version.installed,
+					target: dep.versionRange.target,
+					wanted: dep.version.wanted,
+					wildcard,
+					type: app.type,
+				},
+			])
+		);
+
+		const versionData = {
+			[dep.versionRange.target]: {
+				color,
+				updateType,
+				wildcard,
+				midDot,
+				uncoloredText,
+				coloredText,
+			},
+		};
+
+		return {
+			...dep,
+			appVersions,
+			versionData,
+		};
+	}, []);
 
 	const fetchPackagesAndDependencies = useCallback(async () => {
 		const {
@@ -77,63 +131,20 @@ const WizardCommand = ({ config }) => {
 					({ name }) => name === item.name
 				);
 
-				const {
-					color,
-					updateType,
-					wildcard,
-					midDot,
-					uncoloredText,
-					coloredText,
-				} = getDiffVersionParts(
-					item.versionRange.target,
-					item.versionRange.latest,
-					true
-				);
-
-				const appVersions = Object.fromEntries(
-					item.apps.map((app) => [
-						app.name,
-						{
-							installed: item.version.installed,
-							target: item.versionRange.target,
-							wanted: item.version.wanted,
-							wildcard,
-							type: app.type,
-						},
-					])
-				);
-
-				const versionData = {
-					[item.versionRange.target]: {
-						color,
-						updateType,
-						wildcard,
-						midDot,
-						uncoloredText,
-						coloredText,
-					},
-				};
+				const formattedDep = formatDependency(item);
 
 				if (existingDepIndex > -1) {
-					acc[existingDepIndex].apps = {
-						...acc[existingDepIndex].apps,
-						...appVersions,
+					acc[existingDepIndex].appVersions = {
+						...acc[existingDepIndex].appVersions,
+						...formattedDep.appVersions,
 					};
 
 					acc[existingDepIndex].versionData = {
 						...acc[existingDepIndex].versionData,
-						...versionData,
+						...formattedDep.versionData,
 					};
 				} else {
-					acc.push({
-						name: item.name,
-						versions: item.versions,
-						distTags: item.distTags,
-						apps: appVersions,
-						upgradable: item.upgradable,
-						latestRange: item.versionRange.latest,
-						versionData,
-					});
+					acc.push(formattedDep);
 				}
 
 				return acc;
@@ -150,31 +161,25 @@ const WizardCommand = ({ config }) => {
 		} catch (error) {
 			setError(error);
 		}
-	}, [config, updateProgress, updateLoading, setError]);
+	}, [config, updateProgress, updateLoading, setError, formatDependency]);
 
 	const updateDependencies = async () => {
 		try {
 			const pkgsToUpdate = new Set();
 
 			for (const update of wizardState.updates) {
-				const dep = dependencies.find(
-					(d) => d.name === update.dependency
-				);
-
 				for (const {
 					name: pkgName,
 					type: pkgType,
 				} of update.packages) {
 					const pkg = packages[pkgName];
 					const depType = depTypesList[pkgType];
-					// TODO: add wildcard selection step?
-					const { wildcard } = dep?.apps?.[pkgName] || {};
-					const depWildcard = wildcard === undefined ? '^' : wildcard;
 					pkgsToUpdate.add(pkgName);
 					pkg.pkgJsonInstance.update({
 						[depType]: {
 							...pkg.pkgJsonInstance.content[depType],
-							[update.dependency]: depWildcard + update.version,
+							[update.dependency.name]:
+								update.wildcard + update.version,
 						},
 					});
 				}
@@ -213,18 +218,19 @@ const WizardCommand = ({ config }) => {
 							dependencies={dependencies}
 							wizardState={wizardState}
 							setWizardState={setWizardState}
+							updateLoading={updateLoading}
+							updateLoaderText={updateLoaderText}
+							allowPrerelease={config.prerelease}
+							allowDeprecated={config.deprecated}
+							formatDependency={formatDependency}
 						/>
 						<VersionStep
-							dependencies={dependencies}
 							wizardState={wizardState}
 							packages={packages}
 							setWizardState={setWizardState}
 							isMonorepo={!!config.workspaces?.length}
-							allowPrerelease={config.prerelease}
-							allowDeprecated={config.deprecated}
 						/>
 						<PackagesStep
-							dependencies={dependencies}
 							wizardState={wizardState}
 							packages={packages}
 							setWizardState={setWizardState}
@@ -237,12 +243,13 @@ const WizardCommand = ({ config }) => {
 							wizardState={wizardState}
 							setWizardState={setWizardState}
 							updateDependencies={updateDependencies}
+							wizardStateDefaults={wizardStateDefaults}
 						/>
 						<EditStep
 							wizardState={wizardState}
 							setWizardState={setWizardState}
 						/>
-						<CompleteStep />
+						<CompleteStep data={wizardState.updates} />
 					</Wizard>
 				</Box>
 			</UpToDateBoundary>

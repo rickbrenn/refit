@@ -31,8 +31,9 @@ const DependencyTypeStep = ({ wizardState, setWizardState }) => {
 				updates: [
 					...prevState.updates,
 					{
-						dependency: prevState.dependency.name,
+						dependency: prevState.dependency,
 						version: prevState.version,
+						wildcard: prevState.wildcard,
 						packages: currPackageState.map((pkg) => {
 							if (pkg.name === currPackage) {
 								return {
