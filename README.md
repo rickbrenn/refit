@@ -10,9 +10,9 @@ A CLI tool for reviewing, adding, updating, and viewing the changelog for depend
 
 ## Features
 
-**🛠️ Package Managers**: Works with `npm`, `yarn`, and `pnpm`.
-
 **🚀 Monorepo Support**: Manage all the dependencies in your monorepo with ease.
+
+**🛠️ Package Managers**: Works with `npm`, `yarn`, and `pnpm`.
 
 **🔥 Interactive**: Interactively bulk update dependencies or manage them individually in detail.
 
@@ -129,7 +129,7 @@ refit up package-name
 
 Interactive mode allows you to select multiple dependencies to update at once across all workspaces. It also provides the ability to view the changelog for each dependency before updating by pressing the `tab` key.
 
-<!-- ![interactive command example](docs/interactive.gif) -->
+![interactive command example](docs/interactiveUpdate.gif)
 
 ```bash
 refit up -i
