@@ -1,11 +1,49 @@
 {
 	"name": "refit",
 	"version": "1.0.0",
-	"description": "A CLI tool for easily managing node module updates.",
-	"type": "module",
+	"description": "A CLI tool for easily managing dependency updates 📦",
+	"author": "Rick Brenn <brenn.rick@gmail.com>",
+	"keywords": [
+		"npm",
+		"pnpm",
+		"yarn",
+		"refit",
+		"node",
+		"dependencies",
+		"modules",
+		"update",
+		"updates",
+		"upgrade",
+		"upgrades",
+		"updater",
+		"package.json",
+		"version",
+		"management",
+		"changelog",
+		"monorepo",
+		"wizard",
+		"interactive"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/rbdrenn/refit.git"
+	},
+	"homepage": "https://github.com/rbdrenn/refit",
+	"bugs": {
+		"url": "https://github.com/rbdrenn/refit/issues"
+	},
+	"license": "MIT",
 	"engines": {
 		"node": ">=18"
 	},
+	"type": "module",
+	"bin": {
+		"refit": "bin/cli.js"
+	},
+	"files": [
+		"bin",
+		"dist"
+	],
 	"scripts": {
 		"start": "./bin/cli.js",
 		"build": "NODE_ENV=production webpack",
@@ -14,15 +52,6 @@
 		"lint:fix": "npm run lint -- --fix",
 		"test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
 	},
-	"author": "",
-	"license": "ISC",
-	"bin": {
-		"refit": "./bin/cli.js"
-	},
-	"files": [
-		"bin",
-		"dist"
-	],
 	"dependencies": {
 		"@npmcli/arborist": "^7.3.0",
 		"@npmcli/map-workspaces": "^3.0.4",
