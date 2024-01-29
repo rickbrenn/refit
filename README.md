@@ -1,8 +1,8 @@
 # 📦 Refit - Dependency Manager
 
-[![npm](https://img.shields.io/npm/v/refit.svg)](https://www.npmjs.com/package/refit)
-[![npm](https://img.shields.io/npm/dt/refit.svg)](https://www.npmjs.com/package/refit)
-![GitHub](https://img.shields.io/github/license/bradennapier/refit.svg)
+<!-- [![npm](https://img.shields.io/npm/v/refit.svg)](https://www.npmjs.com/package/refit) -->
+<!-- [![npm](https://img.shields.io/npm/dt/refit.svg)](https://www.npmjs.com/package/refit) -->
+<!-- ![GitHub](https://img.shields.io/github/license/rickbrenn/refit.svg) -->
 
 A CLI tool for reviewing, adding, updating, and viewing the changelog for dependencies in your Node.js project.
 
@@ -20,7 +20,7 @@ A CLI tool for reviewing, adding, updating, and viewing the changelog for depend
 
 **📜 Changelogs**: View changelogs for dependencies, even during interactive mode, so you never have to leave your terminal making dependency updates more efficient.
 
-## Installation
+<!-- ## Installation
 
 ```bash
 npm install -g refit
@@ -33,7 +33,7 @@ npx refit
 ```
 
 > [!NOTE]  
-> Requires Node.js 18+
+> Requires Node.js 18+ -->
 
 ## List
 
