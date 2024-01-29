@@ -6,7 +6,7 @@
 
 A CLI tool for reviewing, adding, updating, and viewing the changelog for dependencies in your Node.js project.
 
-![list command example](docs/list.gif)
+![refit example](docs/cover.gif)
 
 ## Features
 
