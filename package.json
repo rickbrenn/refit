@@ -26,11 +26,11 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/rbdrenn/refit.git"
+		"url": "https://github.com/rickbrenn/refit.git"
 	},
-	"homepage": "https://github.com/rbdrenn/refit",
+	"homepage": "https://github.com/rickbrenn/refit",
 	"bugs": {
-		"url": "https://github.com/rbdrenn/refit/issues"
+		"url": "https://github.com/rickbrenn/refit/issues"
 	},
 	"license": "MIT",
 	"engines": {
