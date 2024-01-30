@@ -1,7 +1,7 @@
 Output docs/cover.gif
 
-Set Height 1400
-Set Width 1000
+Set Height 480
+Set Width 1400
 
 Source docs/vhs/core.tape
 
@@ -21,14 +21,8 @@ Space
 Sleep 500ms
 
 Down
-Sleep 2s
+Sleep 500ms
 
-Tab
-Sleep 5s
-Right@3 3
-Sleep 1s
-Tab
-Sleep 1s
 Space
 
 Sleep 2s
