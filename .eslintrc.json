@@ -40,6 +40,12 @@
 			1,
 			{ "namedComponents": "arrow-function" }
 		],
+		"react/require-default-props": [
+			"error",
+			{
+				"functions": "defaultArguments"
+			}
+		],
 		"prefer-arrow-functions/prefer-arrow-functions": [
 			"warn",
 			{
@@ -62,9 +68,12 @@
 
 		// needed since ink does not have a "main" entry in package.json
 		// https://github.com/import-js/eslint-plugin-import/issues/2132
-		"node/no-missing-import": ["error", {
-            "allowModules": ["ink", "ink-text-input"]
-        }],
+		"node/no-missing-import": [
+			"error",
+			{
+				"allowModules": ["ink", "ink-text-input"]
+			}
+		],
 		"import/no-unresolved": [2, { "ignore": ["ink"] }]
 	}
 }

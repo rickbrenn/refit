@@ -28,14 +28,14 @@ const ChangelogViewer = ({
 	url,
 	onExit,
 	data,
-	height,
-	width,
-	baseIndex,
-	isFocused,
-	exitText,
-	exitKey,
-	exitKeyLabel,
-	showExitOnFallback,
+	height = undefined,
+	width = undefined,
+	baseIndex = 0,
+	isFocused = true,
+	exitText = 'exit',
+	exitKey = undefined,
+	exitKeyLabel = 'q',
+	showExitOnFallback = false,
 }) => {
 	const hasData = data.length > 0;
 	const shouldFocus = isFocused && (hasData || showExitOnFallback);
@@ -293,17 +293,6 @@ ChangelogViewer.propTypes = {
 	exitKey: PropTypes.func,
 	exitKeyLabel: PropTypes.string,
 	showExitOnFallback: PropTypes.bool,
-};
-
-ChangelogViewer.defaultProps = {
-	height: undefined,
-	width: undefined,
-	exitText: 'exit',
-	baseIndex: 0,
-	isFocused: true,
-	exitKey: undefined,
-	exitKeyLabel: 'q',
-	showExitOnFallback: false,
 };
 
 export default ChangelogViewer;

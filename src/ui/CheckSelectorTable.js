@@ -4,19 +4,21 @@ import { Text, Box } from 'ink';
 import { getColumnsWidth } from './Table';
 import CheckSelector from './Selector/CheckSelector';
 
+const defaultDefaultSelected = [];
+
 const CheckSelectorTable = ({
 	data,
 	columns,
-	columnGap,
-	borderColor,
-	maxColumnWidths,
+	columnGap = 4,
+	borderColor = 'blue',
+	maxColumnWidths = undefined,
 	onSelect,
-	limit,
-	labelKey,
-	defaultSelected,
-	itemKey,
-	inputHandler,
-	isFocused,
+	limit = 0,
+	labelKey = 'label',
+	defaultSelected = defaultDefaultSelected,
+	itemKey = undefined,
+	inputHandler = undefined,
+	isFocused = true,
 }) => {
 	const columnWidths = getColumnsWidth({
 		data,
@@ -120,18 +122,6 @@ CheckSelectorTable.propTypes = {
 	itemKey: PropTypes.string,
 	inputHandler: PropTypes.func,
 	isFocused: PropTypes.bool,
-};
-
-CheckSelectorTable.defaultProps = {
-	borderColor: 'blue',
-	maxColumnWidths: null,
-	columnGap: 4,
-	limit: 0,
-	labelKey: 'label',
-	defaultSelected: [],
-	itemKey: null,
-	inputHandler: undefined,
-	isFocused: true,
 };
 
 export default CheckSelectorTable;

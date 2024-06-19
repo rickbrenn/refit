@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Loader from './Loader';
 
-const LoaderBoundary = ({ loading, text, children, debounceMs }) => {
+const LoaderBoundary = ({ loading, text = '', children, debounceMs = 0 }) => {
 	const [showLoader, setShowLoader] = useState(!debounceMs);
 	const timeoutRef = useRef();
 
@@ -31,11 +31,6 @@ LoaderBoundary.propTypes = {
 	text: PropTypes.string,
 	// Don't show loader until this time has passed. Prevents flickering if loading is fast.
 	debounceMs: PropTypes.number,
-};
-
-LoaderBoundary.defaultProps = {
-	text: '',
-	debounceMs: 0,
 };
 
 export default LoaderBoundary;

@@ -38,7 +38,13 @@ const getColumnsWidth = ({ data, columns, columnGap, maxColumnWidths }) => {
 	}, {});
 };
 
-const Table = ({ data, columns, columnGap, borderColor, maxColumnWidths }) => {
+const Table = ({
+	data,
+	columns,
+	columnGap = 4,
+	borderColor = 'blue',
+	maxColumnWidths = null,
+}) => {
 	const { width: terminalWidth } = useTerminalSize();
 	const columnWidths = getColumnsWidth({
 		data,
@@ -104,12 +110,6 @@ Table.propTypes = {
 	borderColor: PropTypes.string,
 	maxColumnWidths: PropTypes.shape({}),
 	columnGap: PropTypes.number,
-};
-
-Table.defaultProps = {
-	borderColor: 'blue',
-	maxColumnWidths: null,
-	columnGap: 4,
 };
 
 export default Table;

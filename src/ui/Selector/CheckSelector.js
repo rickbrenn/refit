@@ -4,22 +4,24 @@ import { useInput } from 'ink';
 import List from './common/List';
 import useListView from './common/useListView';
 
+const defaultDefaultSelected = [];
+
 const CheckSelector = ({
 	items,
 	onSelect,
-	limit,
-	labelKey,
-	title,
-	renderTitle,
-	// searchable,
-	// searchByKey,
-	renderItem,
-	renderHighlighter,
-	renderSelector,
-	defaultSelected,
-	itemKey,
-	inputHandler,
-	isFocused,
+	limit = 0,
+	labelKey = 'label',
+	title = '',
+	renderTitle = null,
+	// searchable = false,
+	// searchByKey = 'label',
+	renderItem = null,
+	renderHighlighter = null,
+	renderSelector = null,
+	defaultSelected = defaultDefaultSelected,
+	itemKey = null,
+	inputHandler = null,
+	isFocused = true,
 }) => {
 	// const { searchResults, searchComponent } = useSearch({
 	// 	items,
@@ -118,22 +120,6 @@ CheckSelector.propTypes = {
 	itemKey: PropTypes.string,
 	inputHandler: PropTypes.func,
 	isFocused: PropTypes.bool,
-};
-
-CheckSelector.defaultProps = {
-	limit: 0,
-	labelKey: 'label',
-	title: '',
-	renderTitle: null,
-	// searchable: false,
-	// searchByKey: 'label',
-	renderItem: null,
-	renderHighlighter: null,
-	renderSelector: null,
-	defaultSelected: [],
-	itemKey: null,
-	inputHandler: null,
-	isFocused: true,
 };
 
 export default CheckSelector;

@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 const WizardContext = createContext();
 const useWizard = () => useContext(WizardContext);
 
-const Wizard = ({ controlledStep, children }) => {
+const Wizard = ({ controlledStep = null, children }) => {
 	const [step, setStep] = useState(0);
 
 	const values = useMemo(() => {
@@ -42,10 +42,6 @@ const Wizard = ({ controlledStep, children }) => {
 Wizard.propTypes = {
 	controlledStep: PropTypes.number,
 	children: PropTypes.node.isRequired,
-};
-
-Wizard.defaultProps = {
-	controlledStep: null,
 };
 
 export { Wizard, useWizard };

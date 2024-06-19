@@ -8,15 +8,15 @@ import { useError } from '../ErrorBoundary';
 
 const Changelog = ({
 	name,
-	version,
-	url,
-	full,
-	isFocused,
+	version = undefined,
+	url = undefined,
+	full = false,
+	isFocused = true,
 	onExit,
-	exitKey,
-	exitKeyLabel,
-	exitText,
-	showExitOnFallback,
+	exitKey = undefined,
+	exitKeyLabel = undefined,
+	exitText = undefined,
+	showExitOnFallback = false,
 }) => {
 	const { loading, updateLoading, loaderText, updateLoaderText } =
 		useDependencyLoader();
@@ -72,17 +72,6 @@ Changelog.propTypes = {
 	exitKeyLabel: PropTypes.string,
 	exitText: PropTypes.string,
 	showExitOnFallback: PropTypes.bool,
-};
-
-Changelog.defaultProps = {
-	url: undefined,
-	version: undefined,
-	isFocused: true,
-	full: false,
-	exitKey: undefined,
-	exitKeyLabel: undefined,
-	exitText: undefined,
-	showExitOnFallback: false,
 };
 
 export default Changelog;

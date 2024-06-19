@@ -2,7 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 
-const Loader = ({ frames, interval, text, loaderColor, textColor }) => {
+const defaultFrames = ['__🚚', '_🚚_', '🚚__'];
+
+const Loader = ({
+	frames = defaultFrames,
+	interval = 180,
+	text = 'loading..',
+	loaderColor = 'yellow',
+	textColor = undefined,
+}) => {
 	const [frame, setFrame] = useState(0);
 	const timer = useRef();
 
@@ -37,14 +45,6 @@ Loader.propTypes = {
 	text: PropTypes.string,
 	loaderColor: PropTypes.string,
 	textColor: PropTypes.string,
-};
-
-Loader.defaultProps = {
-	frames: ['__🚚', '_🚚_', '🚚__'],
-	interval: 180,
-	text: 'loading..',
-	loaderColor: 'yellow',
-	textColor: undefined,
 };
 
 export default Loader;

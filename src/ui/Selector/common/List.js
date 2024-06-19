@@ -3,22 +3,25 @@ import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { getItemName } from './utils';
 
+const defaultSelectedIndexes = [];
+const defaultCanScroll = { up: false, down: false };
+
 const List = ({
-	title,
-	renderTitle,
-	searchComponent,
+	title = '',
+	renderTitle = null,
+	searchComponent = null,
 	items,
 	getIndex,
 	highlightedIndex,
-	labelKey,
-	selectedIndexes,
-	renderItem,
-	selectable,
-	creatable,
-	renderHighlighter,
-	renderSelector,
-	itemKey,
-	canScroll,
+	labelKey = 'label',
+	selectedIndexes = defaultSelectedIndexes,
+	renderItem = null,
+	selectable = false,
+	creatable = false,
+	renderHighlighter = null,
+	renderSelector = null,
+	itemKey = null,
+	canScroll = defaultCanScroll,
 }) => {
 	const isSelected = (index) => selectable && selectedIndexes.includes(index);
 
@@ -129,24 +132,6 @@ List.propTypes = {
 		up: PropTypes.bool,
 		down: PropTypes.bool,
 	}),
-};
-
-List.defaultProps = {
-	labelKey: 'label',
-	title: '',
-	renderTitle: null,
-	renderItem: null,
-	searchComponent: null,
-	selectedIndexes: [],
-	selectable: false,
-	creatable: false,
-	renderHighlighter: null,
-	renderSelector: null,
-	itemKey: null,
-	canScroll: {
-		up: false,
-		down: false,
-	},
 };
 
 export default List;

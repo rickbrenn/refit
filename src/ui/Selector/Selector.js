@@ -8,19 +8,19 @@ import useSearch from './common/useSearch';
 const Selector = ({
 	items,
 	onSelect,
-	limit,
-	labelKey,
-	title,
-	renderTitle,
-	searchable,
-	searchByKey,
-	creatable,
-	renderItem,
-	renderHighlighter,
-	renderSelector,
-	inputHandler,
-	itemKey,
-	isFocused,
+	limit = 0,
+	labelKey = 'label',
+	title = '',
+	renderTitle = null,
+	searchable = false,
+	searchByKey = 'label',
+	creatable = false,
+	renderItem = null,
+	renderHighlighter = null,
+	renderSelector = null,
+	inputHandler = null,
+	itemKey = null,
+	isFocused = true,
 }) => {
 	const { searchResults, searchComponent } = useSearch({
 		items,
@@ -96,22 +96,6 @@ Selector.propTypes = {
 	inputHandler: PropTypes.func,
 	itemKey: PropTypes.string,
 	isFocused: PropTypes.bool,
-};
-
-Selector.defaultProps = {
-	limit: 0,
-	labelKey: 'label',
-	title: '',
-	renderTitle: null,
-	searchable: false,
-	searchByKey: 'label',
-	creatable: false,
-	renderItem: null,
-	renderHighlighter: null,
-	renderSelector: null,
-	inputHandler: null,
-	itemKey: null,
-	isFocused: true,
 };
 
 export default Selector;
