@@ -71,9 +71,9 @@
 		"node/no-missing-import": [
 			"error",
 			{
-				"allowModules": ["ink", "ink-text-input"]
+				"allowModules": ["ink", "ink-text-input", "@octokit/core"]
 			}
 		],
-		"import/no-unresolved": [2, { "ignore": ["ink"] }]
+		"import/no-unresolved": [2, { "ignore": ["ink", "@octokit/core"] }]
 	}
 }
