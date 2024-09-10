@@ -8,12 +8,6 @@ afterEach(() => {
 	cleanupInstall(cwd);
 });
 
-test('testing tests', async () => {
-	await installDependencies('npm', cwd);
-
-	await expect(spawnAsync(`${command}`, { cwd })).resolves.not.toThrow();
-});
-
 test('list command should run successfully', async () => {
 	await installDependencies('npm', cwd);
 

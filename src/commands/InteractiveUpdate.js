@@ -9,6 +9,7 @@ import Table from '../ui/Table';
 import Static from '../ui/Static';
 import CheckSelectorTable from '../ui/CheckSelectorTable';
 import UpToDateBoundary from '../ui/UpToDateBoundary';
+import TestBoundary from '../ui/TestBoundary';
 import LoaderBoundary from '../ui/LoaderBoundary';
 import useDependencyLoader from '../ui/useDependencyLoader';
 import FocusTarget from '../ui/FocusTarget';
@@ -113,109 +114,115 @@ const InteractiveUpdate = ({ config }) => {
 	}
 
 	return (
-		<LoaderBoundary loading={loading} text={loaderText}>
-			<UpToDateBoundary enabled={!dependencies.length}>
-				{step === 0 && (
-					<>
-						<FocusTarget
-							active={!changelog.open}
-							id="selector"
-							autoFocus
-						>
-							{(isFocused) => {
-								return (
-									<Box flexDirection="column" marginTop={1}>
-										<Box>
-											<Box marginRight="1">
-												<Text>
-													Select a package below
-												</Text>
-											</Box>
+		<TestBoundary shouldStop={!loading}>
+			<LoaderBoundary loading={loading} text={loaderText}>
+				<UpToDateBoundary enabled={!dependencies.length}>
+					{step === 0 && (
+						<>
+							<FocusTarget
+								active={!changelog.open}
+								id="selector"
+								autoFocus
+							>
+								{(isFocused) => {
+									return (
+										<Box
+											flexDirection="column"
+											marginTop={1}
+										>
 											<Box>
-												<Text color="grey">(</Text>
-												<Text color="magenta">
-													{'<space>'}
-												</Text>
-												<Text color="grey">
-													{' to select, '}
-												</Text>
-												<Text color="magenta">
-													{'<a>'}
-												</Text>
-												<Text color="grey">
-													{' to select all, '}
-												</Text>
-												<Text color="magenta">
-													{'<tab>'}
-												</Text>
-												<Text color="grey">
-													{' to view changelog)'}
-												</Text>
+												<Box marginRight="1">
+													<Text>
+														Select a package below
+													</Text>
+												</Box>
+												<Box>
+													<Text color="grey">(</Text>
+													<Text color="magenta">
+														{'<space>'}
+													</Text>
+													<Text color="grey">
+														{' to select, '}
+													</Text>
+													<Text color="magenta">
+														{'<a>'}
+													</Text>
+													<Text color="grey">
+														{' to select all, '}
+													</Text>
+													<Text color="magenta">
+														{'<tab>'}
+													</Text>
+													<Text color="grey">
+														{' to view changelog)'}
+													</Text>
+												</Box>
 											</Box>
+											<CheckSelectorTable
+												columns={listColumns}
+												data={dependencies}
+												onSelect={handleSelect}
+												itemKey="key"
+												labelKey="name"
+												limit={height - 6}
+												inputHandler={(
+													{ key },
+													{ item }
+												) => {
+													if (key.tab) {
+														setChangelog({
+															open: true,
+															name: item.name,
+															version:
+																item.installed,
+														});
+														focus('changelog');
+													}
+												}}
+												isFocused={isFocused}
+											/>
 										</Box>
-										<CheckSelectorTable
-											columns={listColumns}
-											data={dependencies}
-											onSelect={handleSelect}
-											itemKey="key"
-											labelKey="name"
-											limit={height - 6}
-											inputHandler={(
-												{ key },
-												{ item }
-											) => {
-												if (key.tab) {
-													setChangelog({
-														open: true,
-														name: item.name,
-														version: item.installed,
-													});
-													focus('changelog');
-												}
+									);
+								}}
+							</FocusTarget>
+							<FocusTarget
+								active={changelog.open}
+								id="changelog"
+								keepRendered={false}
+							>
+								{(isFocused) => {
+									return (
+										<Changelog
+											open={changelog.open}
+											name={changelog.name}
+											version={changelog.version}
+											onExit={() => {
+												setChangelog({
+													open: false,
+													name: null,
+													version: null,
+												});
+												focus('selector');
 											}}
+											exitKey={(input, key) => key.tab}
+											exitKeyLabel="tab"
+											exitText="back"
 											isFocused={isFocused}
+											showExitOnFallback
 										/>
-									</Box>
-								);
-							}}
-						</FocusTarget>
-						<FocusTarget
-							active={changelog.open}
-							id="changelog"
-							keepRendered={false}
-						>
-							{(isFocused) => {
-								return (
-									<Changelog
-										open={changelog.open}
-										name={changelog.name}
-										version={changelog.version}
-										onExit={() => {
-											setChangelog({
-												open: false,
-												name: null,
-												version: null,
-											});
-											focus('selector');
-										}}
-										exitKey={(input, key) => key.tab}
-										exitKeyLabel="tab"
-										exitText="back"
-										isFocused={isFocused}
-										showExitOnFallback
-									/>
-								);
-							}}
-						</FocusTarget>
-					</>
-				)}
-				{step === 1 && (
-					<Static>
-						<Table data={updates} columns={updateColumns} />
-					</Static>
-				)}
-			</UpToDateBoundary>
-		</LoaderBoundary>
+									);
+								}}
+							</FocusTarget>
+						</>
+					)}
+					{step === 1 && (
+						<Static>
+							<Table data={updates} columns={updateColumns} />
+						</Static>
+					)}
+				</UpToDateBoundary>
+			</LoaderBoundary>
+		</TestBoundary>
 	);
 };
 

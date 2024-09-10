@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import ChangelogViewer from './ChangelogViewer';
+import TestBoundary from '../TestBoundary';
 import LoaderBoundary from '../LoaderBoundary';
 import useDependencyLoader from '../useDependencyLoader';
 import { getChangelog } from '../../common/changelog';
@@ -43,21 +44,23 @@ const Changelog = ({
 	}, [startLoader]);
 
 	return (
-		<LoaderBoundary loading={loading} text={loaderText}>
-			<ChangelogViewer
-				isFocused={isFocused}
-				name={name}
-				url={changelog?.url}
-				data={changelog?.data}
-				height={30}
-				width={80}
-				onExit={onExit}
-				exitKey={exitKey}
-				exitKeyLabel={exitKeyLabel}
-				exitText={exitText}
-				showExitOnFallback={showExitOnFallback}
-			/>
-		</LoaderBoundary>
+		<TestBoundary shouldStop={!loading}>
+			<LoaderBoundary loading={loading} text={loaderText}>
+				<ChangelogViewer
+					isFocused={isFocused}
+					name={name}
+					url={changelog?.url}
+					data={changelog?.data}
+					height={30}
+					width={80}
+					onExit={onExit}
+					exitKey={exitKey}
+					exitKeyLabel={exitKeyLabel}
+					exitText={exitText}
+					showExitOnFallback={showExitOnFallback}
+				/>
+			</LoaderBoundary>
+		</TestBoundary>
 	);
 };
 

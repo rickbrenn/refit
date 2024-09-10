@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Text } from 'ink';
 
+import TestBoundary from '../../ui/TestBoundary';
 import LoaderBoundary from '../../ui/LoaderBoundary';
 import useDependencyLoader from '../../ui/useDependencyLoader';
 import UpToDateBoundary from '../../ui/UpToDateBoundary';
@@ -203,57 +204,59 @@ const WizardCommand = ({ config }) => {
 	}, [fetchPackagesAndDependencies]);
 
 	return (
-		<LoaderBoundary loading={loading} text={loaderText}>
-			<UpToDateBoundary enabled={!dependencies.length}>
-				{wizardState.errorMessage && (
-					<Box flexDirection="column" marginTop={1}>
-						<Text bold color="red">
-							{wizardState.errorMessage}
-						</Text>
+		<TestBoundary shouldStop={!loading}>
+			<LoaderBoundary loading={loading} text={loaderText}>
+				<UpToDateBoundary enabled={!dependencies.length}>
+					{wizardState.errorMessage && (
+						<Box flexDirection="column" marginTop={1}>
+							<Text bold color="red">
+								{wizardState.errorMessage}
+							</Text>
+						</Box>
+					)}
+					<Box flexDirection="column" marginTop={1} marginBottom={1}>
+						<Wizard controlledStep={wizardState.step}>
+							<DependencyStep
+								dependencies={dependencies}
+								wizardState={wizardState}
+								setWizardState={setWizardState}
+								updateLoading={updateLoading}
+								updateLoaderText={updateLoaderText}
+								allowPrerelease={config.prerelease}
+								allowDeprecated={config.deprecated}
+								formatDependency={formatDependency}
+							/>
+							<VersionStep
+								wizardState={wizardState}
+								packages={packages}
+								setWizardState={setWizardState}
+								isMonorepo={!!config.workspaces?.length}
+							/>
+							<PackagesStep
+								wizardState={wizardState}
+								packages={packages}
+								setWizardState={setWizardState}
+							/>
+							<DependencyTypeStep
+								wizardState={wizardState}
+								setWizardState={setWizardState}
+							/>
+							<SummaryStep
+								wizardState={wizardState}
+								setWizardState={setWizardState}
+								updateDependencies={updateDependencies}
+								wizardStateDefaults={wizardStateDefaults}
+							/>
+							<EditStep
+								wizardState={wizardState}
+								setWizardState={setWizardState}
+							/>
+							<CompleteStep data={wizardState.updates} />
+						</Wizard>
 					</Box>
-				)}
-				<Box flexDirection="column" marginTop={1} marginBottom={1}>
-					<Wizard controlledStep={wizardState.step}>
-						<DependencyStep
-							dependencies={dependencies}
-							wizardState={wizardState}
-							setWizardState={setWizardState}
-							updateLoading={updateLoading}
-							updateLoaderText={updateLoaderText}
-							allowPrerelease={config.prerelease}
-							allowDeprecated={config.deprecated}
-							formatDependency={formatDependency}
-						/>
-						<VersionStep
-							wizardState={wizardState}
-							packages={packages}
-							setWizardState={setWizardState}
-							isMonorepo={!!config.workspaces?.length}
-						/>
-						<PackagesStep
-							wizardState={wizardState}
-							packages={packages}
-							setWizardState={setWizardState}
-						/>
-						<DependencyTypeStep
-							wizardState={wizardState}
-							setWizardState={setWizardState}
-						/>
-						<SummaryStep
-							wizardState={wizardState}
-							setWizardState={setWizardState}
-							updateDependencies={updateDependencies}
-							wizardStateDefaults={wizardStateDefaults}
-						/>
-						<EditStep
-							wizardState={wizardState}
-							setWizardState={setWizardState}
-						/>
-						<CompleteStep data={wizardState.updates} />
-					</Wizard>
-				</Box>
-			</UpToDateBoundary>
-		</LoaderBoundary>
+				</UpToDateBoundary>
+			</LoaderBoundary>
+		</TestBoundary>
 	);
 };
 
