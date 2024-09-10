@@ -16,7 +16,13 @@ const spawnAsync = async (command, spawnOptions) => {
 			stderr.push(data.toString());
 		});
 
-		childProcess.on('close', () => {
+		childProcess.on('close', (code) => {
+			// handle process that exits with an error but doesn't write to stderr
+			// this app uses a custom error boundary that writes to stdout (maybe that should be changed)
+			if (code !== 0 && !stderr.length) {
+				reject(stdout.join(''));
+			}
+
 			if (stderr.length) {
 				reject(stderr.join(''));
 			} else {
