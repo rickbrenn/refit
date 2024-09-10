@@ -124,8 +124,15 @@ const getGitHubReleases = async ({ user, project, version }) => {
 
 		for (const release of response.data) {
 			const stringsToTest = [release.tag_name, release.name];
-			const semverString = stringsToTest.find((s) => semverRegex.test(s));
-			const currVersion = semverString.match(semverRegex)[0];
+			let currVersion;
+
+			for (const s of stringsToTest) {
+				if (!currVersion) {
+					currVersion =
+						s.match(semverRegex)?.[0] ||
+						semver.coerce(s, { includePrerelease: true })?.raw;
+				}
+			}
 
 			if (version && semver.gte(version, currVersion)) {
 				atMinVersion = true;
