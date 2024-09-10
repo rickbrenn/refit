@@ -72,7 +72,12 @@ const PackagesStep = ({ wizardState, packages, setWizardState }) => {
 							errorMessage: null,
 							...(nextStep === steps.summary && {
 								updates: [
-									...prevState.updates,
+									// Remove any existing updates for this dependency
+									...prevState.updates.filter(
+										(u) =>
+											u.dependency.name !==
+											prevState.dependency.name
+									),
 									{
 										dependency: prevState.dependency,
 										version: prevState.version,

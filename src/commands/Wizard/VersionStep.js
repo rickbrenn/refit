@@ -103,7 +103,12 @@ const VersionStep = ({ wizardState, setWizardState, packages, isMonorepo }) => {
 						}),
 						...(nextStep === steps.summary && {
 							updates: [
-								...prevState.updates,
+								// Remove any existing updates for this dependency
+								...prevState.updates.filter(
+									(u) =>
+										u.dependency.name !==
+										prevState.dependency.name
+								),
 								{
 									dependency: prevState.dependency,
 									version: value.version,

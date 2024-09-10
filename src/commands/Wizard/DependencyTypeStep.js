@@ -29,7 +29,10 @@ const DependencyTypeStep = ({ wizardState, setWizardState }) => {
 				...prevState,
 				step: prevState.step + 1,
 				updates: [
-					...prevState.updates,
+					// Remove any existing updates for this dependency
+					...prevState.updates.filter(
+						(u) => u.dependency.name !== prevState.dependency.name
+					),
 					{
 						dependency: prevState.dependency,
 						version: prevState.version,
