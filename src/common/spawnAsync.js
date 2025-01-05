@@ -1,9 +1,9 @@
 import { spawn } from 'child_process';
 
 // spawn a command and return results in a promise
-const spawnAsync = async (command, spawnOptions) => {
+const spawnAsync = async (command, spawnOptions = {}) => {
 	const [cmd, ...args] = command.split(' ');
-	const childProcess = spawn(cmd, args, spawnOptions);
+	const childProcess = spawn(cmd, args, { ...spawnOptions, shell: true });
 
 	const stdout = [];
 	const stderr = [];
