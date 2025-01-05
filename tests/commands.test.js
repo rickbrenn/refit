@@ -4,8 +4,8 @@ import { cleanupInstall, installDependencies } from './common';
 const cwd = 'tests/testDirs/commands/npmBasic';
 const command = 'node ../../../../bin/cli.js';
 
-afterEach(() => {
-	cleanupInstall(cwd);
+afterEach(async () => {
+	await cleanupInstall(cwd);
 });
 
 test('list command should run successfully', async () => {

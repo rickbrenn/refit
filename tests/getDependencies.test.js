@@ -51,7 +51,7 @@ describe('npm', () => {
 		expect(chalkData).toHaveProperty('versionRange.wanted', '5.3.0');
 		expect(chalkData).toHaveProperty('version.wanted', '5.3.0');
 
-		cleanupInstall(cwd);
+		await cleanupInstall(cwd);
 		pacote.packument.mockClear();
 	});
 
@@ -73,7 +73,7 @@ describe('npm', () => {
 		expect(chalkData).toHaveProperty('version.wanted', '4.1.2');
 		expect(chalkData).toHaveProperty('version.latest', '5.3.0');
 
-		cleanupInstall(cwd);
+		await cleanupInstall(cwd);
 		pacote.packument.mockClear();
 	});
 
@@ -120,7 +120,7 @@ describe('npm', () => {
 		expect(markedData).toHaveProperty('version.wanted', '11.1.0');
 		expect(markedData).toHaveProperty('version.latest', '11.1.0');
 
-		cleanupInstall(cwd);
+		await cleanupInstall(cwd);
 		pacote.packument.mockClear();
 	});
 
@@ -208,7 +208,7 @@ describe('npm', () => {
 		expect(markedData).toHaveProperty('version.latest', '11.1.0');
 		expect(markedData).toHaveProperty(['apps', 0, 'name'], 'package-b');
 
-		cleanupInstall(cwd);
+		await cleanupInstall(cwd);
 		pacote.packument.mockClear();
 	});
 });
@@ -302,7 +302,7 @@ describe('pnpm', () => {
 			'pnpm-package-b'
 		);
 
-		cleanupInstall(cwd);
+		await cleanupInstall(cwd);
 		pacote.packument.mockClear();
 	});
 });
@@ -396,7 +396,7 @@ describe('yarn', () => {
 			'yarn-package-b'
 		);
 
-		cleanupInstall(cwd);
+		await cleanupInstall(cwd);
 		fs.openSync(path.join(cwd, 'yarn.lock'), 'w');
 		pacote.packument.mockClear();
 	});
