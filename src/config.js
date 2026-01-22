@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from 'ink';
 import packageManagers, { getPackageManager } from './common/packageManagers';
 import { readJsonFile } from './common/filesystem';
@@ -343,7 +342,7 @@ const withConfig = async (argv, yargsInstance) => {
 		appConfig[name] = val;
 	}
 
-	// eslint-disable-next-line no-param-reassign
+	// eslint-disable-next-line require-atomic-updates
 	argv.appConfig = appConfig;
 };
 

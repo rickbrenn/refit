@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { cleanupInstall } from './common';
 
 const {
@@ -9,9 +9,8 @@ const {
 	mockInkData,
 	mockMarkedData,
 } = await import('./mocks/pacote');
-const { default: getDependencies } = await import(
-	'../src/common/getDependencies'
-);
+const { default: getDependencies } =
+	await import('../src/common/getDependencies');
 
 const config = {
 	rootPath: '.',

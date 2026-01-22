@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useCallback } from 'react';
 import { useStdout } from 'ink';
 
-const enterAltScreenCommand = '\x1b[?1049h';
-const leaveAltScreenCommand = '\x1b[?1049l';
+const enterAltScreenCommand = '\u001B[?1049h';
+const leaveAltScreenCommand = '\u001B[?1049l';
 
 const useAltScreenBuffer = () => {
 	const { write } = useStdout();

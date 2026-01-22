@@ -1,3 +1,3 @@
 export default {
-	testTimeout: 10000,
+	testTimeout: 10_000,
 };

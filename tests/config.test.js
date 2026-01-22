@@ -27,9 +27,8 @@ jest.unstable_mockModule('../src/common/packageManagers', () => ({
 
 const { getPackageManager } = await import('../src/common/packageManagers');
 const { readJsonFile } = await import('../src/common/filesystem');
-const { configOptions, cliCommands, withConfig } = await import(
-	'../src/config'
-);
+const { configOptions, cliCommands, withConfig } =
+	await import('../src/config');
 
 test('should not have duplicate config names', () => {
 	const names = configOptions.map((option) => option.name);

@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { getColumnsWidth } from './Table';
@@ -92,12 +91,13 @@ const CheckSelectorTable = ({
 										)}
 									</Box>
 								))}
-								{(canScroll.up || canScroll.down) &&
-									renderPagination({
-										viewIndex,
-										canScroll,
-										total: items.length,
-									})}
+								{canScroll.up || canScroll.down
+									? renderPagination({
+											viewIndex,
+											canScroll,
+											total: items.length,
+										})
+									: null}
 							</Box>
 						);
 					}}

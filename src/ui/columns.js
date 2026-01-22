@@ -1,4 +1,3 @@
-import React from 'react';
 import { Text } from 'ink';
 import NameColumn from './NameColumn';
 import UpgradeColumn from './UpgradeColumn';

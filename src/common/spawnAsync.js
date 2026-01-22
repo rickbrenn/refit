@@ -1,9 +1,9 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 
 // spawn a command and return results in a promise
 const spawnAsync = async (command, spawnOptions = {}) => {
-	const [cmd, ...args] = command.split(' ');
-	const childProcess = spawn(cmd, args, { ...spawnOptions, shell: true });
+	// Pass entire command to shell - shell handles parsing
+	const childProcess = spawn(command, [], { ...spawnOptions, shell: true });
 
 	const stdout = [];
 	const stderr = [];
@@ -17,14 +17,10 @@ const spawnAsync = async (command, spawnOptions = {}) => {
 		});
 
 		childProcess.on('close', (code) => {
-			// handle process that exits with an error but doesn't write to stderr
-			// this app uses a custom error boundary that writes to stdout (maybe that should be changed)
-			if (code !== 0 && !stderr.length) {
-				reject(stdout.join(''));
-			}
-
-			if (stderr.length) {
-				reject(stderr.join(''));
+			if (code !== 0) {
+				// Prefer stderr for error message, fall back to stdout
+				// (this app uses a custom error boundary that writes to stdout)
+				reject(stderr.length ? stderr.join('') : stdout.join(''));
 			} else {
 				resolve(stdout.join(''));
 			}

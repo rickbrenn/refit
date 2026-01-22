@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 const getDepsFromDirNames = (path, dirRegex) => {
 	let dirList;
@@ -18,11 +18,9 @@ const getDepsFromDirNames = (path, dirRegex) => {
 				const existingDep = installedDeps[name];
 
 				if (existingDep) {
-					if (Array.isArray(existingDep)) {
-						installedDeps[name] = [...existingDep, version];
-					} else {
-						installedDeps[name] = [existingDep, version];
-					}
+					installedDeps[name] = Array.isArray(existingDep)
+						? [...existingDep, version]
+						: [existingDep, version];
 				} else {
 					installedDeps[name] = version;
 				}
@@ -33,5 +31,5 @@ const getDepsFromDirNames = (path, dirRegex) => {
 	return installedDeps;
 };
 
-// eslint-disable-next-line import/prefer-default-export
+// eslint-disable-next-line import-x/prefer-default-export
 export { getDepsFromDirNames };

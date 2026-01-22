@@ -1,4 +1,3 @@
-import React from 'react';
 import { Text, Box } from 'ink';
 import PropTypes from 'prop-types';
 import useTerminalSize from './useTerminalSize';
@@ -14,7 +13,7 @@ const getColumnsMinMax = ({ data, columns }) => {
 			const prevWidth = acc[dataKey] || 0;
 			const currWidth = curr[dataKey]?.length || 0;
 
-			acc[dataKey] = currWidth > prevWidth ? currWidth : prevWidth;
+			acc[dataKey] = Math.max(currWidth, prevWidth);
 		});
 
 		return acc;

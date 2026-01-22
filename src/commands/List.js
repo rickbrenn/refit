@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Text } from 'ink';
 import { getListColumns } from '../ui/columns';
@@ -33,6 +33,23 @@ const errors = [
 		message: 'dependencies that are deprecated',
 	},
 ];
+
+const groupDependenciesByPackage = (deps) => {
+	const groupedDependencies = deps.reduce((acc, curr) => {
+		const { original } = curr;
+
+		original.apps.forEach((app) => {
+			if (!acc[app.name]) {
+				acc[app.name] = [];
+			}
+			acc[app.name].push(curr);
+		});
+
+		return acc;
+	}, {});
+
+	return Object.entries(groupedDependencies);
+};
 
 const List = ({ config }) => {
 	const [dependencies, setDependencies] = useState([]);
@@ -114,23 +131,6 @@ const List = ({ config }) => {
 		});
 	}, [config, dependencies, columnWidths]);
 
-	const groupDependenciesByPackage = (deps) => {
-		const groupedDependencies = deps.reduce((acc, curr) => {
-			const { original } = curr;
-
-			original.apps.forEach((app) => {
-				if (!acc[app.name]) {
-					acc[app.name] = [];
-				}
-				acc[app.name].push(curr);
-			});
-
-			return acc;
-		}, {});
-
-		return Object.entries(groupedDependencies);
-	};
-
 	if (errorMessage) {
 		return (
 			<Box flexDirection="column">
@@ -145,12 +145,12 @@ const List = ({ config }) => {
 		<LoaderBoundary loading={loading} text={loaderText}>
 			<UpToDateBoundary enabled={!dependencies.length}>
 				<Static>
-					{config.global && (
+					{config.global ? (
 						<Box marginTop={1}>
 							<Text>globally installed with </Text>
 							<Text color="blue">{config.packageManager}</Text>
 						</Box>
-					)}
+					) : null}
 
 					{config.groupByPackage ? (
 						groupDependenciesByPackage(dependencyTableData).map(

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Text, Box } from 'ink';
 import TextInput from 'ink-text-input';
 import { getItemName } from './utils';

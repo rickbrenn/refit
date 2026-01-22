@@ -1,7 +1,8 @@
 import pacote from 'pacote';
 import semver from 'semver';
 import dayjs from 'dayjs';
-// eslint-disable-next-line node/file-extension-in-import
+
+// eslint-disable-next-line import-x/extensions
 import relativeTime from 'dayjs/plugin/relativeTime.js';
 
 dayjs.extend(relativeTime);
@@ -21,7 +22,7 @@ const semverUpdateColors = {
 
 const validWildcards = ['', '^', '~', '>', '<', '=', '>=', '<='];
 
-const wildcardRegex = /^(?<wildcard>[~^(>)(<)(=)(>=)(<=)]+)?(?<version>.+)/;
+const wildcardRegex = /^(?<wildcard>[()<=>^~]+)?(?<version>.+)/;
 
 const getDiffVersionParts = (current, upgrade, returnCurrent = false) => {
 	const currentMatches = wildcardRegex.exec(current);
@@ -467,9 +468,7 @@ const mapDataToRows = (pkgs, config) => {
 
 		const depTypes = new Set(p.apps.map((app) => app.type));
 		const typeText =
-			depTypes.size > 1
-				? `${depTypes.size} Types`
-				: Array.from(depTypes)[0];
+			depTypes.size > 1 ? `${depTypes.size} Types` : [...depTypes][0];
 
 		const lastPublishedAtText = p.lastPublishedAt
 			? dayjs().to(dayjs(p.lastPublishedAt))

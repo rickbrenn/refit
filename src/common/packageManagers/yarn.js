@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { getDepsFromDirNames } from './common';
 import { readJsonFile } from '../filesystem';
 

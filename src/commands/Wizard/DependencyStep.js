@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, useFocusManager } from 'ink';
 import semver from 'semver';
@@ -186,7 +186,7 @@ const DependencyStep = ({
 													{item.name}
 												</Text>
 											</Box>
-											{item.upgradable && (
+											{item.upgradable ? (
 												<Box>
 													<Box marginRight={1}>
 														<Text>(</Text>
@@ -208,7 +208,7 @@ const DependencyStep = ({
 														<Text>)</Text>
 													</Box>
 												</Box>
-											)}
+											) : null}
 										</Box>
 									);
 								}}
@@ -226,10 +226,7 @@ const DependencyStep = ({
 										setChangelog({
 											open: true,
 											name: item.name,
-											version:
-												installedVersions[
-													installedVersions.length - 1
-												],
+											version: installedVersions.at(-1),
 										});
 										focus('changelog');
 									}

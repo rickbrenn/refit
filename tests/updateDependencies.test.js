@@ -1,9 +1,8 @@
 import PackageJson from '@npmcli/package-json';
 
 const { default: pacote, mockChalkData } = await import('./mocks/pacote');
-const { default: updateDependencies } = await import(
-	'../src/common/updateDependencies'
-);
+const { default: updateDependencies } =
+	await import('../src/common/updateDependencies');
 
 const config = {
 	rootPath: '.',

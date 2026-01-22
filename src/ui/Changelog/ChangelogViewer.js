@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Text, useInput } from 'ink';
 import open from 'open';
@@ -135,12 +135,12 @@ const ChangelogViewer = ({
 		return (
 			<Box flexDirection="column" marginTop={1}>
 				<Text color="blue">No changelog data to display</Text>
-				{showExitOnFallback && (
+				{showExitOnFallback ? (
 					<Box marginTop={1}>
 						<Text color="magenta">{`<${exitKeyLabel}>`}</Text>
 						<Text color="grey">{` ${exitText}`}</Text>
 					</Box>
-				)}
+				) : null}
 			</Box>
 		);
 	}
@@ -194,7 +194,7 @@ const ChangelogViewer = ({
 					<Text bold>|</Text>
 					<Box gap={2}>
 						{displayIndexes.map((index) => {
-							const parsedIndex = parseInt(index, 10);
+							const parsedIndex = Number.parseInt(index);
 							const version = data[parsedIndex];
 							const isActive = parsedIndex === currentIndex;
 

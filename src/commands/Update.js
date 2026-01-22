@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Text } from 'ink';
 import updateDependencies from '../common/updateDependencies';

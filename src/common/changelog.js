@@ -7,7 +7,7 @@ import { getRegistryData, parseGitHubUrl } from './dependencies';
 const validChangelogFiles = ['changelog.md', 'history.md'];
 
 const semverRegex =
-	/(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?/;
+	/(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][\dA-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][\dA-Za-z-]*))*))?(?:\+([\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*))?/;
 
 const marked = new Marked(markedTerminal());
 const octokit = new Octokit({ userAgent: 'refit' });
@@ -28,6 +28,8 @@ const parsePaginationHeader = (header) => {
 
 	return linkObj;
 };
+
+const isVersionToken = (t) => t.type === 'heading' && semverRegex.test(t.text);
 
 const getGitHubChangelog = async ({ user, project, version }) => {
 	const versions = [];
@@ -63,9 +65,6 @@ const getGitHubChangelog = async ({ user, project, version }) => {
 	const changelog = Buffer.from(data.content, 'base64').toString('utf8');
 
 	const tokens = marked.lexer(changelog);
-
-	const isVersionToken = (t) =>
-		t.type === 'heading' && semverRegex.test(t.text);
 
 	let atMinVersion = false;
 	for (const [currIndex, token] of tokens.entries()) {

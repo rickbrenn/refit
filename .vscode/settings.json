@@ -1,5 +1,0 @@
-{
-	"typescript.validate.enable": false,
-	"javascript.validate.enable": false,
-	"jestrunner.jestCommand": "NODE_OPTIONS=--experimental-vm-modules npx jest"
-}

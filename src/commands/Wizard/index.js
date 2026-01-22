@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Text } from 'ink';
 
@@ -186,7 +186,7 @@ const WizardCommand = ({ config }) => {
 				}
 			}
 
-			const pkgListArray = Array.from(pkgsToUpdate);
+			const pkgListArray = [...pkgsToUpdate];
 
 			await Promise.all(
 				pkgListArray.map(async (pkgName) => {
@@ -207,13 +207,13 @@ const WizardCommand = ({ config }) => {
 		<TestBoundary shouldStop={!loading}>
 			<LoaderBoundary loading={loading} text={loaderText}>
 				<UpToDateBoundary enabled={!dependencies.length}>
-					{wizardState.errorMessage && (
+					{wizardState.errorMessage ? (
 						<Box flexDirection="column" marginTop={1}>
 							<Text bold color="red">
 								{wizardState.errorMessage}
 							</Text>
 						</Box>
-					)}
+					) : null}
 					<Box flexDirection="column" marginTop={1} marginBottom={1}>
 						<Wizard controlledStep={wizardState.step}>
 							<DependencyStep

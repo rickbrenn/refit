@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
@@ -157,11 +157,11 @@ const VersionStep = ({ wizardState, setWizardState, packages, isMonorepo }) => {
 								</Text>
 							</Box>
 
-							{item.distTag && (
+							{item.distTag ? (
 								<Box marginRight={1} flexShrink={0}>
 									<Text color="green">{`#${item.distTag}`}</Text>
 								</Box>
-							)}
+							) : null}
 							{item.apps.length > 0 && (
 								<Box>
 									<Text color="green">
@@ -176,9 +176,8 @@ const VersionStep = ({ wizardState, setWizardState, packages, isMonorepo }) => {
 				}}
 				inputHandler={({ key }) => {
 					if (key.leftArrow || key.rightArrow) {
-						const currentWildcardIndex = validWildcards.findIndex(
-							(w) => w === selectedWildcard
-						);
+						const currentWildcardIndex =
+							validWildcards.indexOf(selectedWildcard);
 
 						if (key.leftArrow) {
 							const nextIndex =

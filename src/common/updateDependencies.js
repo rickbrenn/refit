@@ -57,7 +57,7 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		}
 	}
 
-	const pkgListArray = Array.from(pkgsToUpdate);
+	const pkgListArray = [...pkgsToUpdate];
 
 	await Promise.all(
 		pkgListArray.map(async (pkgName) => {

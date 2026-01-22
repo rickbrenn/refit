@@ -1,10 +1,4 @@
-import React, {
-	createContext,
-	useContext,
-	useMemo,
-	useState,
-	Children,
-} from 'react';
+import { createContext, useContext, useMemo, useState, Children } from 'react';
 import PropTypes from 'prop-types';
 
 const WizardContext = createContext();
@@ -19,7 +13,7 @@ const Wizard = ({ controlledStep = null, children }) => {
 			goToPreviousStep: () => setStep((prevState) => prevState - 1),
 			goToStep: (newStep) => {
 				if (typeof newStep !== 'number') {
-					throw new Error('Step number must be a number');
+					throw new TypeError('Step number must be a number');
 				}
 
 				setStep(newStep);

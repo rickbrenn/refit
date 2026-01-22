@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { getItemName } from './utils';
@@ -90,7 +90,7 @@ const List = ({
 						highlightComp = renderHighlighter(item, highlighted);
 					}
 
-					let selectorComp = <Text>{selected ? '◉' : '◯'}</Text>;
+					let selectorComp = <Text>{selected ? '◉ ' : '◯ '}</Text>;
 
 					if (renderSelector) {
 						selectorComp = renderSelector(item, selected);
@@ -99,9 +99,7 @@ const List = ({
 					return (
 						<Box key={key}>
 							<Box marginRight={1}>{highlightComp}</Box>
-							{selectable && (
-								<Box marginRight={1}>{selectorComp}</Box>
-							)}
+							{selectable ? <>{selectorComp}</> : null}
 							{itemComp}
 						</Box>
 					);

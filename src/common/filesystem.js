@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import ryf from 'read-yaml-file';
 
 const readJsonFile = async (filePath) => {

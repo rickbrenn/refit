@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box, useFocusManager } from 'ink';
 import getDependencies from '../common/getDependencies';
@@ -87,7 +87,7 @@ const InteractiveUpdate = ({ config }) => {
 			}
 		}
 
-		const pkgListArray = Array.from(pkgsToUpdate);
+		const pkgListArray = [...pkgsToUpdate];
 
 		await Promise.all(
 			pkgListArray.map(async (pkgName) => {

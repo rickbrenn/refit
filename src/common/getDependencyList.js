@@ -45,7 +45,7 @@ const getDependencyList = async ({
 	} else {
 		const hoistedDeps = await pm.packageManager.getInstalledDeps(rootPath);
 
-		let filteredPackages = Array.from(packageList.values());
+		let filteredPackages = [...packageList.values()];
 
 		if (filterByPackages?.length) {
 			filteredPackages = filterByPackages.reduce((acc, pkgName) => {

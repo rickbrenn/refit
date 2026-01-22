@@ -7,7 +7,7 @@ const useDependencyLoader = () => {
 	const updateProgress = useCallback(
 		({ progressCurrent, progressMax, name }) => {
 			const percentComplete = (progressCurrent * 100) / progressMax;
-			const fixedPercent = percentComplete.toFixed();
+			const fixedPercent = percentComplete.toFixed(0);
 			setLoaderText(`Delivering packages | ${fixedPercent}% | ${name}`);
 		},
 		[]

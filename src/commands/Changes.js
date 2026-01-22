@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useApp } from 'ink';
 import semver from 'semver';

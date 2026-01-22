@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Text, Box } from 'ink';
 import { CheckSelector } from '../../ui/Selector';
@@ -122,7 +122,7 @@ const PackagesStep = ({ wizardState, packages, setWizardState }) => {
 							<Box marginRight={1} flexShrink={0}>
 								<Text color={textColor}>{item.name}</Text>
 							</Box>
-							{item.hasPackage && (
+							{item.hasPackage ? (
 								<Box marginRight={1}>
 									<Text>
 										({wildcard + uncoloredText + midDot}
@@ -130,7 +130,7 @@ const PackagesStep = ({ wizardState, packages, setWizardState }) => {
 										)
 									</Text>
 								</Box>
-							)}
+							) : null}
 						</Box>
 					);
 				}}
