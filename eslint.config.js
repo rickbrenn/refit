@@ -4,8 +4,8 @@ import eslintPluginPreferArrowFunctions from 'eslint-plugin-prefer-arrow-functio
 
 export default defineZenoConfig(
 	{
-		react: true,
-		reactDirs: ['src'],
+		reactIncludes: ['src'],
+		reactCompiler: 'warn',
 		webpackConfig: './webpack.config.js',
 		additionalDevDependencies: ['tests/**'],
 	},

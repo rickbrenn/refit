@@ -342,7 +342,6 @@ const withConfig = async (argv, yargsInstance) => {
 		appConfig[name] = val;
 	}
 
-	// eslint-disable-next-line require-atomic-updates
 	argv.appConfig = appConfig;
 };
 

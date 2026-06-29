@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import ryf from 'read-yaml-file';
+import { readYamlFile as readYaml } from 'read-yaml-file';
 
 const readJsonFile = async (filePath) => {
 	try {
@@ -12,7 +12,7 @@ const readJsonFile = async (filePath) => {
 
 const readYamlFile = async (filePath) => {
 	try {
-		return await ryf(filePath);
+		return await readYaml(filePath);
 	} catch (error) {
 		return undefined;
 	}
