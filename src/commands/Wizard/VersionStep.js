@@ -1,10 +1,14 @@
 import { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
+import dayjs from 'dayjs';
 import { Text, Box } from 'ink';
 import { Selector } from '../../ui/Selector';
 import Header from './Header';
 import steps from './wizardSteps';
-import { validWildcards } from '../../common/dependencies';
+import {
+	validWildcards,
+	versionMeetsMinReleaseAge,
+} from '../../common/dependencies';
 
 const VersionStep = ({ wizardState, setWizardState, packages, isMonorepo }) => {
 	const getDefaultWildcard = () => {
@@ -24,10 +28,30 @@ const VersionStep = ({ wizardState, setWizardState, packages, isMonorepo }) => {
 
 	const versionOptions = useMemo(() => {
 		const {
+			name,
 			versions = [],
 			distTags = {},
 			appVersions = {},
+			versionTimes = {},
+			minReleaseAge = 0,
+			minReleaseAgeExclude = [],
 		} = wizardState.dependency || {};
+
+		const now = Date.now();
+
+		const getMinAgeInfo = (version) => {
+			const publishedAt = versionTimes[version];
+			const meetsMinAge = versionMeetsMinReleaseAge({
+				name,
+				version,
+				publishedAt,
+				minReleaseAge,
+				minReleaseAgeExclude,
+				now,
+			});
+
+			return { meetsMinAge, publishedAt };
+		};
 
 		const sortedVersions = [...versions].reverse();
 
@@ -41,6 +65,7 @@ const VersionStep = ({ wizardState, setWizardState, packages, isMonorepo }) => {
 					(app) => appVersions[app].wanted === version
 				),
 				key: version + distTag,
+				...getMinAgeInfo(version),
 			});
 		}
 
@@ -63,6 +88,7 @@ const VersionStep = ({ wizardState, setWizardState, packages, isMonorepo }) => {
 						(app) => appVersions[app].wanted === version
 					),
 					key: version,
+					...getMinAgeInfo(version),
 				});
 			}
 		}
@@ -149,10 +175,15 @@ const VersionStep = ({ wizardState, setWizardState, packages, isMonorepo }) => {
 				searchByKey="version"
 				itemKey="key"
 				renderItem={({ item, textColor }) => {
+					const heldBack = item.meetsMinAge === false;
+
 					return (
 						<Box>
 							<Box marginRight={1} flexShrink={0}>
-								<Text color={textColor}>
+								<Text
+									color={heldBack ? 'grey' : textColor}
+									dimColor={heldBack}
+								>
 									{selectedWildcard + item.version}
 								</Text>
 							</Box>
@@ -163,11 +194,22 @@ const VersionStep = ({ wizardState, setWizardState, packages, isMonorepo }) => {
 								</Box>
 							) : null}
 							{item.apps.length > 0 && (
-								<Box>
+								<Box marginRight={1} flexShrink={0}>
 									<Text color="green">
 										{isMonorepo
 											? `(${item.apps.join(', ')})`
 											: '(installed)'}
+									</Text>
+								</Box>
+							)}
+							{heldBack && (
+								<Box flexShrink={0}>
+									<Text color="yellow" dimColor>
+										{item.publishedAt
+											? `(held back: ${dayjs().to(
+													dayjs(item.publishedAt)
+												)})`
+											: '(held back)'}
 									</Text>
 								</Box>
 							)}

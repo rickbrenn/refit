@@ -13,6 +13,51 @@ const getWorkspaces = async () => {
 	return yamlContent?.packages;
 };
 
+// pnpm v11 turns on supply-chain protection by default, delaying installs of
+// recently published versions. v10 and below default to no delay.
+const PNPM_V11_DEFAULT_MIN_RELEASE_AGE = 1440;
+
+const getPnpmMajorVersion = async () => {
+	const pnpmCmd = getPnpmCommand();
+
+	try {
+		const result = await spawnAsync(`${pnpmCmd} --version`);
+		const parsed = semver.valid(semver.coerce(result.trim()));
+		return parsed ? semver.major(parsed) : undefined;
+	} catch (error) {
+		return undefined;
+	}
+};
+
+// read pnpm's minimumReleaseAge settings, falling back to pnpm's own version
+// defaults when the setting is not explicitly configured
+const getReleaseAgeConfig = async () => {
+	const yamlContent = await readYamlFile('pnpm-workspace.yaml');
+
+	const excludeRaw = yamlContent?.minimumReleaseAgeExclude;
+	const minimumReleaseAgeExclude = Array.isArray(excludeRaw)
+		? excludeRaw
+		: [];
+
+	const configuredAge = yamlContent?.minimumReleaseAge;
+
+	if (typeof configuredAge === 'number') {
+		return {
+			minimumReleaseAge: configuredAge,
+			minimumReleaseAgeExclude,
+		};
+	}
+
+	const majorVersion = await getPnpmMajorVersion();
+	const minimumReleaseAge =
+		majorVersion >= 11 ? PNPM_V11_DEFAULT_MIN_RELEASE_AGE : 0;
+
+	return {
+		minimumReleaseAge,
+		minimumReleaseAgeExclude,
+	};
+};
+
 const ignoredVersionPrefixes = ['link:', 'workspace:', 'file:', 'portal:'];
 
 const normalizePnpmVersion = (version) => {
@@ -136,4 +181,4 @@ const getGlobalDeps = async () => {
 	return parsePnpmDeps(result, { globalFallback: true });
 };
 
-export { getInstalledDeps, getGlobalDeps, getWorkspaces };
+export { getInstalledDeps, getGlobalDeps, getWorkspaces, getReleaseAgeConfig };

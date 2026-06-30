@@ -43,4 +43,9 @@ const getGlobalDeps = async () => {
 	return globalDeps;
 };
 
-export { getInstalledDeps, getGlobalDeps, getWorkspaces };
+// npm has no built-in minimum release age concept
+const getReleaseAgeConfig = async () => {
+	return { minimumReleaseAge: 0, minimumReleaseAgeExclude: [] };
+};
+
+export { getInstalledDeps, getGlobalDeps, getWorkspaces, getReleaseAgeConfig };

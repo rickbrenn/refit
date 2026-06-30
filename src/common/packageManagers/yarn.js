@@ -20,4 +20,9 @@ const getGlobalDeps = async () => {
 	throw error;
 };
 
-export { getInstalledDeps, getGlobalDeps, getWorkspaces };
+// yarn has no built-in minimum release age concept
+const getReleaseAgeConfig = async () => {
+	return { minimumReleaseAge: 0, minimumReleaseAgeExclude: [] };
+};
+
+export { getInstalledDeps, getGlobalDeps, getWorkspaces, getReleaseAgeConfig };

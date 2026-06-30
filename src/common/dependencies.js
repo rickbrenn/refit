@@ -117,6 +117,84 @@ const parseGitHubUrl = (url) => {
 	};
 };
 
+// match a package name against a minimumReleaseAgeExclude pattern, supporting
+// simple globs like "@myorg/*"
+const minAgeExcludeMatchesName = (pattern, name) => {
+	if (pattern.includes('*')) {
+		const escaped = pattern
+			.split('*')
+			.map((part) => part.replace(/[$()+.?[\\\]^{|}]/g, '\\$&'))
+			.join('.*');
+
+		return new RegExp(`^${escaped}$`).test(name);
+	}
+
+	return pattern === name;
+};
+
+// determine if a package version is exempt from the minimum release age check.
+// entries can be a plain name, a glob (e.g. "@myorg/*"), or "name@versionRange"
+const isExcludedFromMinAge = (name, version, excludeList = []) => {
+	for (const entry of excludeList) {
+		if (typeof entry !== 'string') {
+			continue;
+		}
+
+		// find the separator between name and version range, ignoring the
+		// leading '@' of scoped package names
+		const separatorIndex = entry.lastIndexOf('@');
+		const hasVersion = separatorIndex > 0;
+
+		const namePart = hasVersion ? entry.slice(0, separatorIndex) : entry;
+		const versionPart = hasVersion
+			? entry.slice(separatorIndex + 1).trim()
+			: '';
+
+		if (!minAgeExcludeMatchesName(namePart, name)) {
+			continue;
+		}
+
+		// a name-only (or glob) entry excludes all versions of the package
+		if (!versionPart) {
+			return true;
+		}
+
+		if (version && semver.satisfies(version, versionPart)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+// determine if a package version is old enough to satisfy a minimum release age
+// (in minutes). versions that are excluded or have no publish time are allowed,
+// mirroring pnpm's minimumReleaseAge / minimumReleaseAgeIgnoreMissingTime
+const versionMeetsMinReleaseAge = ({
+	name,
+	version,
+	publishedAt,
+	minReleaseAge = 0,
+	minReleaseAgeExclude = [],
+	now = Date.now(),
+}) => {
+	const minReleaseAgeMs = (minReleaseAge || 0) * 60 * 1000;
+
+	if (minReleaseAgeMs <= 0) {
+		return true;
+	}
+
+	if (isExcludedFromMinAge(name, version, minReleaseAgeExclude)) {
+		return true;
+	}
+
+	if (!publishedAt) {
+		return true;
+	}
+
+	return now - new Date(publishedAt).getTime() >= minReleaseAgeMs;
+};
+
 const createDependencyObject = ({
 	name = '',
 	apps = [],
@@ -150,6 +228,12 @@ const createDependencyObject = ({
 	versions = [],
 	distTags = {},
 	lastPublishedAt = '',
+	newestVersion = '',
+	newestPublishedAt = '',
+	heldBackByMinAge = false,
+	versionTimes = {},
+	minReleaseAge = 0,
+	minReleaseAgeExclude = [],
 	url = '',
 }) => ({
 	name,
@@ -173,6 +257,12 @@ const createDependencyObject = ({
 	versions,
 	distTags,
 	lastPublishedAt,
+	newestVersion,
+	newestPublishedAt,
+	heldBackByMinAge,
+	versionTimes,
+	minReleaseAge,
+	minReleaseAgeExclude,
 	url,
 });
 
@@ -186,7 +276,13 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 		internal,
 		multipleTargets,
 	} = dependency;
-	const { allowPrerelease, allowDeprecated, updateTo } = config;
+	const {
+		allowPrerelease,
+		allowDeprecated,
+		updateTo,
+		minReleaseAge = 0,
+		minReleaseAgeExclude = [],
+	} = config;
 
 	if (internal) {
 		return createDependencyObject({
@@ -262,13 +358,43 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 			includePrerelease,
 		}) || '';
 
+	// determine if a version is old enough to be installed under the configured
+	// minimum release age (mirrors pnpm's minimumReleaseAge behavior)
+	const now = Date.now();
+	const versionTimes = registryData?.time || {};
+
+	const meetsMinReleaseAge = (version) =>
+		versionMeetsMinReleaseAge({
+			name,
+			version,
+			publishedAt: versionTimes[version],
+			minReleaseAge,
+			minReleaseAgeExclude,
+			now,
+		});
+
 	// will use the latest distTag if there are no valid versions. This is in the case
 	// that a package only has prerelease versions but they are filtered out
-	const latestVersion =
+	const newestVersion =
 		semver.maxSatisfying(validVersions, `>=${wantedVersion}`, {
 			// set to true here because they are filtered out or allowed already
 			includePrerelease: true,
 		}) || distTags.latest;
+
+	// the recommended version is the newest one old enough to satisfy the
+	// minimum release age, falling back to the newest version when none qualify
+	const ageEligibleVersions = validVersions.filter(meetsMinReleaseAge);
+	const latestVersion =
+		semver.maxSatisfying(ageEligibleVersions, `>=${wantedVersion}`, {
+			includePrerelease: true,
+		}) || newestVersion;
+
+	const heldBackByMinAge = Boolean(
+		minReleaseAge > 0 &&
+		newestVersion &&
+		latestVersion &&
+		newestVersion !== latestVersion
+	);
 
 	const wantedRange = wantedVersion ? currentWildcard + wantedVersion : '';
 	const latestRange = latestVersion ? currentWildcard + latestVersion : '';
@@ -294,7 +420,8 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 	const { color, updateType, wildcard, midDot, uncoloredText, coloredText } =
 		getDiffVersionParts(parsedTargetRange, upgradeVersion);
 
-	const lastPublishedAt = registryData?.time?.[latestVersion] || '';
+	const lastPublishedAt = versionTimes[latestVersion] || '';
+	const newestPublishedAt = versionTimes[newestVersion] || '';
 	const url = registryData?.repository?.url || '';
 
 	return createDependencyObject({
@@ -330,6 +457,12 @@ const createDependency = ({ dependency, registryData = {}, config = {} }) => {
 		versions,
 		distTags,
 		lastPublishedAt,
+		newestVersion,
+		newestPublishedAt,
+		heldBackByMinAge,
+		versionTimes,
+		minReleaseAge,
+		minReleaseAgeExclude,
 		url,
 	});
 };
@@ -474,6 +607,17 @@ const mapDataToRows = (pkgs, config) => {
 			? dayjs().to(dayjs(p.lastPublishedAt))
 			: '';
 
+		// surface a newer version that is being withheld by the minimum release
+		// age, along with how recently it was published
+		const heldBackText =
+			p.heldBackByMinAge && p.newestVersion
+				? `${p.newestVersion}${
+						p.newestPublishedAt
+							? ` (${dayjs().to(dayjs(p.newestPublishedAt))})`
+							: ''
+					}`
+				: '';
+
 		return {
 			name: p.name || '',
 			target: p.versionRange.target || '',
@@ -486,6 +630,7 @@ const mapDataToRows = (pkgs, config) => {
 			in: appsText || '',
 			color: p.color,
 			lastPublishedAt: lastPublishedAtText,
+			heldBack: heldBackText,
 			original: p,
 			key: p.name + p.versionRange.target + p.version.installed,
 		};
@@ -503,4 +648,5 @@ export {
 	filterDependencies,
 	depTypesList,
 	validWildcards,
+	versionMeetsMinReleaseAge,
 };

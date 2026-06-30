@@ -50,6 +50,12 @@ const getListColumns = ({ verbose, workspaces, global }, showColor = true) => {
 			show: verbose,
 		},
 		{
+			name: 'Held Back',
+			accessor: 'heldBack',
+			show: verbose,
+			wrap: 'truncate',
+		},
+		{
 			name: 'Type',
 			accessor: 'type',
 			show: verbose,

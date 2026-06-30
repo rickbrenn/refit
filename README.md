@@ -68,6 +68,8 @@ refit --workspace workspace-name
 | `--depTypes` , `-d`       | array [`dev`, `prod`, `optional`] |         | filter by dependency type                       |
 | `--global` , `-g`         | boolean                           | false   | check global node modules instead of local ones |
 | `--groupByPackage` , `-G` | boolean                           | false   | list dependencies grouped by package            |
+| `--minReleaseAge` , `--age` | number                          | 0\*     | minimum age in minutes a release must be before updating to it |
+| `--minReleaseAgeExclude`  | array                             |         | package name patterns excluded from the minimum release age check |
 | `--noIssues` , `-n`       | boolean                           | false   | hide issues section from list output            |
 | `--prerelease`            | boolean                           | false   | allow updating to prerelease versions           |
 | `--sort`                  | string [`name`, `date`, `type`]   | type    | sort dependencies                               |
@@ -91,6 +93,20 @@ The list command will also display warnings and errors found with your dependenc
 -   Dependencies that require an install
     -   a dependency could require install because the `node_modules` directory is missing
     -   changes were pulled down from the remote that include dependency updates and `npm install` hasn't been ran yet to sync up the local node modules
+
+### Minimum Release Age
+
+By default refit recommends the newest available version regardless of how recently it was published. The `minReleaseAge` option (in minutes) makes refit instead recommend the newest version that is at least that old, which is useful for avoiding freshly published versions that may contain bugs or supply chain issues.
+
+\*When using pnpm, the default is read from your `pnpm-workspace.yaml`:
+
+-   an explicit [`minimumReleaseAge`](https://pnpm.io/settings#minimumreleaseage) is used as-is
+-   if it isn't set, refit mirrors pnpm's own defaults (`1440` / one day for pnpm v11+, `0` for older versions)
+-   [`minimumReleaseAgeExclude`](https://pnpm.io/settings#minimumreleaseageexclude) is also picked up as the default for `minReleaseAgeExclude`
+
+npm and yarn have no built-in equivalent, so they default to `0`. Any package manager can still opt in via the `--minReleaseAge` flag or the `.refitrc.json` configuration file.
+
+`minReleaseAgeExclude` accepts package names, globs (e.g. `@myorg/*`), and version ranges (e.g. `webpack@4 || 5`) that are exempt from the age check.
 
 ## Update
 
@@ -120,6 +136,8 @@ refit up package-name
 | `--deprecated`         | boolean                           | false   | allow updating to deprecated versions  |
 | `--depTypes` , `-d`    | array [`dev`, `prod`, `optional`] |         | filter by dependency type              |
 | `--interactive` , `-i` | boolean                           | false   | interactively bulk update dependencies |
+| `--minReleaseAge` , `--age` | number                       | 0\*     | minimum age in minutes a release must be before updating to it |
+| `--minReleaseAgeExclude` | array                           |         | package name patterns excluded from the minimum release age check |
 | `--prerelease`         | boolean                           | false   | allow updating to prerelease versions  |
 | `--updateTo` , `-to`   | string [`latest`, `wanted`]       | latest  | update dependencies to semver type     |
 | `--semver` , `-s`      | array [`major`, `minor`, `patch`] |         | filter by update type                  |
@@ -152,6 +170,8 @@ refit w [options]
 | -------------------- | --------------------------------- | ------- | ------------------------------------- |
 | `--deprecated`       | boolean                           | false   | allow updating to deprecated versions |
 | `--depTypes` , `-d`  | array [`dev`, `prod`, `optional`] |         | filter by dependency type             |
+| `--minReleaseAge` , `--age` | number                     | 0\*     | minimum age in minutes a release must be before updating to it |
+| `--minReleaseAgeExclude` | array                         |         | package name patterns excluded from the minimum release age check |
 | `--prerelease`       | boolean                           | false   | allow updating to prerelease versions |
 | `--workspace` , `-w` | array                             |         | filter dependencies by workspace      |
 
@@ -209,6 +229,8 @@ Example `.refitrc.json`:
 	"packageManager": "npm",
 	"depTypes": ["prod", "dev"],
 	"semver": ["major", "minor", "patch"],
-	"deprecated": false
+	"deprecated": false,
+	"minReleaseAge": 1440,
+	"minReleaseAgeExclude": ["@myorg/*"]
 }
 ```

@@ -19,6 +19,8 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		noIssues,
 		global,
 		updateTo,
+		minReleaseAge,
+		minReleaseAgeExclude,
 	} = config;
 
 	const packageList = global
@@ -37,13 +39,16 @@ const getDependencies = async (config, onDepenencyProcessed) => {
 		updateProgress: onDepenencyProcessed,
 		sortBy: sort,
 		packumentOptions: {
-			fullMetadata: verbose,
+			// publish times (needed for the age filter) require full metadata
+			fullMetadata: verbose || minReleaseAge > 0,
 		},
 		allowPrerelease: prerelease,
 		allowDeprecated: deprecated,
 		packageManager,
 		global,
 		updateTo,
+		minReleaseAge,
+		minReleaseAgeExclude,
 	});
 
 	return filterDependencies(dependencyList, { all, semver, noIssues });

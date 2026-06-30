@@ -15,6 +15,8 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		packageManager,
 		prerelease,
 		deprecated,
+		minReleaseAge,
+		minReleaseAgeExclude,
 	} = config;
 
 	const packageList = await getPackages({
@@ -30,10 +32,16 @@ const updateDependencies = async (config, onDepenencyProcessed) => {
 		filterByDepTypes: depTypes,
 		updateProgress: onDepenencyProcessed,
 		sortBy: sort,
+		packumentOptions: {
+			// publish times (needed for the age filter) require full metadata
+			fullMetadata: minReleaseAge > 0,
+		},
 		allowPrerelease: prerelease,
 		allowDeprecated: deprecated,
 		packageManager,
 		updateTo,
+		minReleaseAge,
+		minReleaseAgeExclude,
 	});
 
 	const depsToUpdate = dependencyList.filter((dep) => {

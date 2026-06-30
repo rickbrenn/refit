@@ -180,6 +180,39 @@ const configOptions = [
 		yargsCommmands: ['update'],
 	},
 	{
+		name: 'minReleaseAge',
+		options: {
+			alias: 'age',
+			describe:
+				'minimum age in minutes a release must be before updating to it',
+			type: 'number',
+			default: 0,
+		},
+		getDefault: async ({ packageManager: pm }) => {
+			const releaseAgeConfig =
+				await pm?.packageManager.getReleaseAgeConfig?.();
+			return releaseAgeConfig?.minimumReleaseAge ?? 0;
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list', 'update', 'wizard'],
+	},
+	{
+		name: 'minReleaseAgeExclude',
+		options: {
+			describe:
+				'package name patterns excluded from the minimum release age check',
+			type: 'array',
+			default: [],
+		},
+		getDefault: async ({ packageManager: pm }) => {
+			const releaseAgeConfig =
+				await pm?.packageManager.getReleaseAgeConfig?.();
+			return releaseAgeConfig?.minimumReleaseAgeExclude ?? [];
+		},
+		yargsType: 'command',
+		yargsCommmands: ['list', 'update', 'wizard'],
+	},
+	{
 		name: 'noIssues',
 		options: {
 			alias: 'n',

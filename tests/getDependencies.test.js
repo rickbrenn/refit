@@ -30,7 +30,40 @@ const config = {
 	updateTo: undefined,
 	semver: [],
 	verbose: false,
+	minReleaseAge: 0,
+	minReleaseAgeExclude: [],
 };
+
+const isoMinutesAgo = (minutes) =>
+	new Date(Date.now() - minutes * 60 * 1000).toISOString();
+
+const minutesInDays = (days) => days * 24 * 60;
+
+// chalk packument with publish times so the minimum release age can be tested.
+// 5.3.0 is published "now" (too new), 5.2.0 is published 60 days ago.
+const buildChalkPackumentWithTime = (timeOverrides = {}) => ({
+	name: 'chalk',
+	'dist-tags': { latest: '5.3.0' },
+	versions: {
+		'4.0.0': { name: 'chalk', version: '4.0.0' },
+		'4.1.2': { name: 'chalk', version: '4.1.2' },
+		'5.1.0': { name: 'chalk', version: '5.1.0' },
+		'5.1.1': { name: 'chalk', version: '5.1.1' },
+		'5.1.2': { name: 'chalk', version: '5.1.2' },
+		'5.2.0': { name: 'chalk', version: '5.2.0' },
+		'5.3.0': { name: 'chalk', version: '5.3.0' },
+	},
+	time: {
+		'4.0.0': isoMinutesAgo(minutesInDays(365)),
+		'4.1.2': isoMinutesAgo(minutesInDays(300)),
+		'5.1.0': isoMinutesAgo(minutesInDays(200)),
+		'5.1.1': isoMinutesAgo(minutesInDays(150)),
+		'5.1.2': isoMinutesAgo(minutesInDays(120)),
+		'5.2.0': isoMinutesAgo(minutesInDays(60)),
+		'5.3.0': isoMinutesAgo(5),
+		...timeOverrides,
+	},
+});
 
 describe('npm', () => {
 	test('should contain accurate data for up to date dependency', async () => {
@@ -397,6 +430,80 @@ describe('yarn', () => {
 
 		await cleanupInstall(cwd);
 		fs.openSync(path.join(cwd, 'yarn.lock'), 'w');
+		pacote.packument.mockClear();
+	});
+});
+
+describe('minimum release age', () => {
+	test('recommends the newest version that meets the minimum release age', async () => {
+		const cwd = 'tests/testDirs/getDependencies/npmOutdated';
+
+		pacote.packument.mockImplementation(() =>
+			buildChalkPackumentWithTime()
+		);
+
+		const dependencies = await getDependencies({
+			...config,
+			rootPath: cwd,
+			minReleaseAge: minutesInDays(1),
+		});
+
+		const [chalkData] = dependencies;
+
+		// 5.3.0 was published too recently, so 5.2.0 is recommended instead
+		expect(chalkData).toHaveProperty('version.latest', '5.2.0');
+		expect(chalkData).toHaveProperty('versionRange.latest', '^5.2.0');
+		expect(chalkData).toHaveProperty('newestVersion', '5.3.0');
+		expect(chalkData).toHaveProperty('heldBackByMinAge', true);
+
+		await cleanupInstall(cwd);
+		pacote.packument.mockClear();
+	});
+
+	test('minReleaseAgeExclude bypasses the age check for matching packages', async () => {
+		const cwd = 'tests/testDirs/getDependencies/npmOutdated';
+
+		pacote.packument.mockImplementation(() =>
+			buildChalkPackumentWithTime()
+		);
+
+		const dependencies = await getDependencies({
+			...config,
+			rootPath: cwd,
+			minReleaseAge: minutesInDays(1),
+			minReleaseAgeExclude: ['chalk'],
+		});
+
+		const [chalkData] = dependencies;
+
+		expect(chalkData).toHaveProperty('version.latest', '5.3.0');
+		expect(chalkData).toHaveProperty('versionRange.latest', '^5.3.0');
+		expect(chalkData).toHaveProperty('heldBackByMinAge', false);
+
+		await cleanupInstall(cwd);
+		pacote.packument.mockClear();
+	});
+
+	test('a minReleaseAge of 0 leaves version selection unchanged', async () => {
+		const cwd = 'tests/testDirs/getDependencies/npmOutdated';
+
+		pacote.packument.mockImplementation(() =>
+			buildChalkPackumentWithTime()
+		);
+
+		const dependencies = await getDependencies({
+			...config,
+			rootPath: cwd,
+			minReleaseAge: 0,
+		});
+
+		const [chalkData] = dependencies;
+
+		expect(chalkData).toHaveProperty('version.latest', '5.3.0');
+		expect(chalkData).toHaveProperty('versionRange.latest', '^5.3.0');
+		expect(chalkData).toHaveProperty('heldBackByMinAge', false);
+
+		await cleanupInstall(cwd);
 		pacote.packument.mockClear();
 	});
 });

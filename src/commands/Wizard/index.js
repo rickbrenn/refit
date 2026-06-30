@@ -107,6 +107,8 @@ const WizardCommand = ({ config }) => {
 			packageManager,
 			prerelease,
 			deprecated,
+			minReleaseAge,
+			minReleaseAgeExclude,
 		} = config;
 
 		try {
@@ -122,9 +124,15 @@ const WizardCommand = ({ config }) => {
 				rootPath,
 				filterByDepTypes,
 				updateProgress,
+				packumentOptions: {
+					// publish times (needed for the age filter) require full metadata
+					fullMetadata: minReleaseAge > 0,
+				},
 				allowPrerelease: prerelease,
 				allowDeprecated: deprecated,
 				packageManager,
+				minReleaseAge,
+				minReleaseAgeExclude,
 			});
 
 			let depOptions = dependencyList.reduce((acc, item) => {
@@ -269,6 +277,8 @@ WizardCommand.propTypes = {
 		packageManager: PropTypes.string,
 		prerelease: PropTypes.bool,
 		deprecated: PropTypes.bool,
+		minReleaseAge: PropTypes.number,
+		minReleaseAgeExclude: PropTypes.arrayOf(PropTypes.string),
 	}).isRequired,
 };
 

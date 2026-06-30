@@ -23,6 +23,8 @@ const getDependencyList = async ({
 	packageManager,
 	global = false,
 	updateTo,
+	minReleaseAge = 0,
+	minReleaseAgeExclude = [],
 }) => {
 	const pm = getPackageManagerConfig(packageManager);
 
@@ -190,7 +192,13 @@ const getDependencyList = async ({
 				multipleTargets: multipleTargetVersions.includes(d.name),
 			},
 			registryData: packumentMap.get(d.name),
-			config: { allowDeprecated, allowPrerelease, updateTo },
+			config: {
+				allowDeprecated,
+				allowPrerelease,
+				updateTo,
+				minReleaseAge,
+				minReleaseAgeExclude,
+			},
 		})
 	);
 
