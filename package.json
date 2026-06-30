@@ -1,6 +1,6 @@
 {
 	"name": "refit",
-	"version": "2.0.0",
+	"version": "3.0.0",
 	"description": "A CLI tool for easily managing dependency updates 📦",
 	"author": "Rick Brenn <brenn.rick@gmail.com>",
 	"keywords": [
